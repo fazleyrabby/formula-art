@@ -1,0 +1,73 @@
+---
+interface Props {
+  checkoutUrl?: string;
+  className?: string;
+}
+
+const {
+  checkoutUrl = 'https://fazleyrabbi.lemonsqueezy.com',
+  className = '',
+} = Astro.props;
+---
+
+<!-- Lemon Squeezy Floating Support Button -->
+<div
+  id="floating-donate-container"
+  class={`fixed bottom-5 right-5 z-30 transition-all duration-300 ${className}`}
+>
+  <a
+    href={checkoutUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="lemonsqueezy-button inline-flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-[#0c0e17]/90 hover:bg-[#131728] backdrop-blur-md border border-amber-500/30 hover:border-amber-500/60 text-amber-300 text-xs font-mono font-medium shadow-2xl shadow-amber-950/40 hover:scale-105 active:scale-95 transition-all duration-200 group select-none cursor-pointer"
+    title="Support the creator via Lemon Squeezy"
+  >
+    <span class="text-base group-hover:rotate-12 transition-transform duration-300 inline-block">
+      🍋
+    </span>
+    <span class="tracking-wide">Support Project</span>
+    <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-500/15 text-amber-300/90 font-mono border border-amber-500/20">
+      $1+
+    </span>
+  </a>
+</div>
+
+<!-- Lemon Squeezy Official Overlay JS -->
+<script is:inline src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
+
+<script>
+  function setupDonateButtonVisibility() {
+    const container = document.getElementById('floating-donate-container');
+    if (!container) return;
+
+    // Initialize Lemon Squeezy Overlay if available
+    if (typeof (window as any).createLemonSqueezy === 'function') {
+      (window as any).createLemonSqueezy();
+    }
+
+    // Auto-hide button when entering Fullscreen canvas mode
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        container.classList.add('opacity-0', 'pointer-events-none');
+      } else {
+        container.classList.remove('opacity-0', 'pointer-events-none');
+      }
+    });
+
+    // Also hide when fullscreen overlay component is opened
+    const overlay = document.getElementById('fullscreen-overlay');
+    if (overlay) {
+      const observer = new MutationObserver(() => {
+        if (!overlay.classList.contains('hidden')) {
+          container.classList.add('opacity-0', 'pointer-events-none');
+        } else {
+          container.classList.remove('opacity-0', 'pointer-events-none');
+        }
+      });
+      observer.observe(overlay, { attributes: true, attributeFilter: ['class'] });
+    }
+  }
+
+  setupDonateButtonVisibility();
+  document.addEventListener('astro:page-load', setupDonateButtonVisibility);
+</script>

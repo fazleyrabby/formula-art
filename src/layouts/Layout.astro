@@ -3,6 +3,7 @@ import { ClientRouter } from 'astro:transitions';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import SearchModal from '../components/gallery/SearchModal.astro';
+import LemonSqueezyButton from '../components/common/LemonSqueezyButton.astro';
 import { getCollection } from 'astro:content';
 import '../styles/global.css';
 import '../styles/canvas.css';
@@ -66,5 +67,6 @@ const artworksData = allArtworks.map(a => a.data);
     </main>
     <Footer />
     <SearchModal artworks={artworksData} />
+    <LemonSqueezyButton />
   </body>
 </html>
