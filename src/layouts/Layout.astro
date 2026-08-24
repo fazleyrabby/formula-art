@@ -19,7 +19,7 @@ const {
   image = '/og-image.png',
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://formula.art');
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://art.fazleyrabby.xyz');
 const allArtworks = await getCollection('artworks');
 const artworksData = allArtworks.map(a => a.data);
 ---
