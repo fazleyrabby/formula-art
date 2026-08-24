@@ -1197,8 +1197,8 @@ ctx.stroke();
 ctx.restore();`,
 
   // 40. Gulper Eel
-  'gulper-eel': `// Gulper Pelican Eel
-ctx.fillStyle = '#020307';
+  'gulper-eel': `// Gulper Pelican Eel (Volumetric Accordion Pouch & Whip-Tail)
+ctx.fillStyle = '#020306';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.42;
@@ -1208,36 +1208,38 @@ const t = time * 1.1;
 
 ctx.save();
 ctx.translate(cx, cy);
+ctx.globalCompositeOperation = 'screen';
 
-// Cavernous Pelican Jaw
-ctx.beginPath();
-ctx.moveTo(-15 * scale, -15 * scale);
-ctx.quadraticCurveTo(45 * scale, -35 * scale, 110 * scale, -10 * scale);
-ctx.bezierCurveTo(95 * scale, 85 * scale, -10 * scale, 110 * scale, -35 * scale, 15 * scale);
-ctx.closePath();
-ctx.fillStyle = '#080a14';
-ctx.fill();
-ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 2.2 * scale;
-ctx.stroke();
+// 24 Volumetric Pouch Ribs
+for (let r = 1; r <= 24; r++) {
+  const normR = r / 24;
+  const curScale = normR * scale;
+  ctx.beginPath();
+  ctx.moveTo(-15 * curScale, -15 * curScale);
+  ctx.quadraticCurveTo(45 * curScale, -35 * curScale, 115 * curScale, -10 * curScale);
+  ctx.bezierCurveTo(95 * curScale, 90 * curScale, -12 * curScale, 115 * curScale, -40 * curScale, 18 * curScale);
+  ctx.closePath();
+  ctx.strokeStyle = 'hsla(' + ((210 + normR * 30) % 360) + ', 95%, 68%, ' + (0.05 + normR * 0.38) + ')';
+  ctx.lineWidth = r === 24 ? 2.2 : 0.9;
+  ctx.stroke();
+}
 
 // Luminous Whip-Tail
 ctx.beginPath();
-ctx.moveTo(-35 * scale, 15 * scale);
+ctx.moveTo(-40 * scale, 18 * scale);
 for (let s = 1; s <= 50; s++) {
   const normS = s / 50;
-  const tailWave = Math.sin(t * 3.5 - normS * 7) * (30 * normS * scale);
-  ctx.lineTo(-35 * scale - normS * 180 * scale, 15 * scale - s * 3 * scale + tailWave);
+  const wave = Math.sin(t * 3.5 - normS * 8) * (34 * normS * scale);
+  ctx.lineTo(-40 * scale - normS * 200 * scale, 18 * scale - s * 3.4 * scale + wave);
 }
 ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 1.8;
+ctx.lineWidth = 2.0;
 ctx.stroke();
-
 ctx.restore();`,
 
   // 41. Barreleye Fish
-  'barreleye-fish': `// Pacific Barreleye Fish (Glass Head Shield)
-ctx.fillStyle = '#030509';
+  'barreleye-fish': `// Pacific Barreleye Fish (Volumetric Glass Dome & Green Optics)
+ctx.fillStyle = '#020408';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.48;
@@ -1247,25 +1249,41 @@ const t = time * 0.8;
 
 ctx.save();
 ctx.translate(cx, cy);
+ctx.globalCompositeOperation = 'screen';
 
-// Transparent Cranial Dome
-ctx.beginPath();
-ctx.ellipse(38 * scale, -26 * scale, 50 * scale, 36 * scale, -0.1, 0, Math.PI * 2);
-ctx.fillStyle = 'rgba(56, 189, 248, 0.18)';
-ctx.fill();
-ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 2.2 * scale;
-ctx.stroke();
-
-// Glowing Green Tubular Eyes
-for (let s = -1; s <= 1; s += 2) {
-  const ex = (32 + s * 14) * scale;
-  ctx.fillStyle = '#10b981';
+// 20 Body Streamline Rings
+for (let r = 1; r <= 20; r++) {
+  const normR = r / 20;
+  const curScale = normR * scale;
   ctx.beginPath();
-  ctx.arc(ex, -36 * scale, 7 * scale, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.moveTo(-130 * curScale, 5 * curScale);
+  ctx.quadraticCurveTo(-45 * curScale, -50 * curScale, 20 * curScale, -38 * curScale);
+  ctx.lineTo(20 * curScale, 34 * curScale);
+  ctx.quadraticCurveTo(-45 * curScale, 50 * curScale, -130 * curScale, 5 * curScale);
+  ctx.closePath();
+  ctx.strokeStyle = 'hsla(' + ((205 + normR * 25) % 360) + ', 90%, 65%, ' + (0.06 + normR * 0.35) + ')';
+  ctx.lineWidth = r === 20 ? 2.2 * scale : 0.9;
+  ctx.stroke();
 }
 
+// 18 Volumetric Transparent Cranial Dome Rings
+for (let d = 1; d <= 18; d++) {
+  const normD = d / 18;
+  ctx.beginPath();
+  ctx.ellipse(38 * scale, -26 * scale, 52 * normD * scale, 38 * normD * scale, -0.1, 0, Math.PI * 2);
+  ctx.strokeStyle = 'hsla(' + ((185 + normD * 20) % 360) + ', 95%, 75%, ' + (0.08 + normD * 0.35) + ')';
+  ctx.lineWidth = d === 18 ? 2.4 * scale : 0.9;
+  ctx.stroke();
+}
+
+// Glowing Emerald Green Tubular Eyes
+for (let s = -1; s <= 1; s += 2) {
+  const ex = (32 + s * 16) * scale;
+  ctx.fillStyle = '#10b981';
+  ctx.beginPath();
+  ctx.arc(ex, -28 * scale, 8 * scale, 0, Math.PI * 2);
+  ctx.fill();
+}
 ctx.restore();`,
 
   // 42. Sea Angel Pteropod
@@ -1305,45 +1323,55 @@ ctx.fill();
 ctx.restore();`,
 
   // 43. Abyssal Tripod Fish
-  'abyssal-tripod-fish': `// Abyssal Tripod Fish (Benthic Stilts)
+  'abyssal-tripod-fish': `// Abyssal Tripod Fish (Multi-Filament Cantilever Stilts)
 ctx.fillStyle = '#020306';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const seafloorY = height * 0.88;
 const scale = Math.min(width, height) / 500;
-const bodyY = seafloorY - 140 * scale;
+const bodyY = seafloorY - 145 * scale;
+
+ctx.save();
+ctx.globalCompositeOperation = 'screen';
 
 // Seafloor
 ctx.beginPath();
 ctx.moveTo(0, seafloorY);
 ctx.lineTo(width, seafloorY);
-ctx.strokeStyle = 'rgba(71, 85, 105, 0.5)';
+ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
 ctx.lineWidth = 2.0;
 ctx.stroke();
 
-// 3 Stilt Fin Legs
+// Pelvic & Caudal Cantilever Stilt Rays
 for (let s = -1; s <= 1; s += 2) {
   ctx.beginPath();
-  ctx.moveTo(cx + s * 22 * scale, bodyY + 15 * scale);
-  ctx.lineTo(cx + s * 95 * scale, seafloorY);
+  ctx.moveTo(cx - 20 * scale + s * 24 * scale, bodyY + 14 * scale);
+  ctx.quadraticCurveTo(cx + s * 18 * scale, (bodyY + seafloorY) * 0.5, cx + s * 105 * scale, seafloorY);
   ctx.strokeStyle = '#38bdf8';
   ctx.lineWidth = 2.2 * scale;
   ctx.stroke();
 }
 
-// Fish Body
-ctx.beginPath();
-ctx.ellipse(cx, bodyY, 65 * scale, 22 * scale, 0, 0, Math.PI * 2);
-ctx.fillStyle = '#0f172a';
-ctx.fill();
-ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 2.0;
-ctx.stroke();`,
+// 16 Volumetric Body Rings
+for (let r = 1; r <= 16; r++) {
+  const normR = r / 16;
+  const curScale = normR * scale;
+  ctx.beginPath();
+  ctx.moveTo(cx - 20 * scale + 80 * curScale, bodyY - 5 * curScale);
+  ctx.quadraticCurveTo(cx - 20 * scale + 20 * curScale, bodyY - 26 * curScale, cx - 20 * scale - 115 * curScale, bodyY - 5 * curScale);
+  ctx.lineTo(cx - 20 * scale - 115 * curScale, bodyY + 12 * curScale);
+  ctx.quadraticCurveTo(cx - 20 * scale + 20 * curScale, bodyY + 24 * curScale, cx - 20 * scale + 80 * curScale, bodyY - 5 * curScale);
+  ctx.closePath();
+  ctx.strokeStyle = 'hsla(' + ((200 + normR * 25) % 360) + ', 90%, 68%, ' + (0.08 + normR * 0.35) + ')';
+  ctx.lineWidth = r === 16 ? 2.2 * scale : 0.9;
+  ctx.stroke();
+}
+ctx.restore();`,
 
   // 44. Giant Spider Crab
-  'giant-spider-crab': `// Japanese Giant Spider Crab
-ctx.fillStyle = '#030508';
+  'giant-spider-crab': `// Japanese Giant Spider Crab (Articulated Multi-Joint Legs)
+ctx.fillStyle = '#020306';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
@@ -1351,18 +1379,26 @@ const cy = height * 0.52;
 const scale = Math.min(width, height) / 520;
 const t = time * 1.1;
 
-// 8 Hyper-Elongated Legs
+ctx.save();
+ctx.globalCompositeOperation = 'screen';
+
+// 8 Hyper-Elongated Chebyshev Walking Legs
 for (let side = -1; side <= 1; side += 2) {
   for (let leg = 0; leg < 4; leg++) {
-    const phase = t * 3 + leg * 0.9 + (side === 1 ? Math.PI : 0);
-    const kneeX = cx + side * ((75 + leg * 12) * scale);
-    const kneeY = cy - ((80 - leg * 10) * scale) + Math.sin(phase) * 18 * scale;
-    const tipX = kneeX + side * (35 * scale);
-    const tipY = cy + (110 + leg * 18) * scale;
+    const phase = t * 3.2 + leg * 0.9 + (side === 1 ? Math.PI : 0);
+    const coxaX = cx + side * (35 * scale);
+    const coxaY = cy + (leg - 1.5) * (14 * scale);
+    const kneeX = coxaX + side * ((80 + leg * 14) * scale);
+    const kneeY = coxaY - ((88 - leg * 10) * scale) + Math.sin(phase) * 22 * scale;
+    const elbowX = kneeX + side * ((68 + leg * 14) * scale);
+    const elbowY = coxaY + ((28 + leg * 14) * scale);
+    const tipX = elbowX + side * (50 * scale);
+    const tipY = cy + 130 * scale;
 
     ctx.beginPath();
-    ctx.moveTo(cx + side * 30 * scale, cy);
+    ctx.moveTo(coxaX, coxaY);
     ctx.lineTo(kneeX, kneeY);
+    ctx.lineTo(elbowX, elbowY);
     ctx.lineTo(tipX, tipY);
     ctx.strokeStyle = '#f97316';
     ctx.lineWidth = 2.8 * scale;
@@ -1370,18 +1406,20 @@ for (let side = -1; side <= 1; side += 2) {
   }
 }
 
-// Carapace Body
-ctx.beginPath();
-ctx.ellipse(cx, cy, 38 * scale, 46 * scale, 0, 0, Math.PI * 2);
-ctx.fillStyle = '#ea580c';
-ctx.fill();
-ctx.strokeStyle = '#fdba74';
-ctx.lineWidth = 2.4;
-ctx.stroke();`,
+// 16 Carapace Rings
+for (let r = 1; r <= 16; r++) {
+  const normR = r / 16;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 42 * normR * scale, 52 * normR * scale, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = 'hsla(' + ((18 + normR * 20) % 360) + ', 95%, 65%, ' + (0.08 + normR * 0.35) + ')';
+  ctx.lineWidth = r === 16 ? 2.4 * scale : 1.0;
+  ctx.stroke();
+}
+ctx.restore();`,
 
   // 45. Leafy Sea Dragon
-  'leafy-sea-dragon': `// Leafy Sea Dragon (Camouflage Appendages)
-ctx.fillStyle = '#03060a';
+  'leafy-sea-dragon': `// Leafy Sea Dragon (Lush Camouflage Appendages)
+ctx.fillStyle = '#020307';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.46;
@@ -1391,6 +1429,7 @@ const t = time * 1.1;
 
 ctx.save();
 ctx.translate(cx, cy);
+ctx.globalCompositeOperation = 'screen';
 
 // S-Curved Body
 ctx.beginPath();
@@ -1400,19 +1439,18 @@ ctx.strokeStyle = '#eab308';
 ctx.lineWidth = 10 * scale;
 ctx.stroke();
 
-// Curled Prehensile Tail
+// Prehensile Tail
 ctx.beginPath();
 ctx.moveTo(25 * scale, 45 * scale);
 for (let s = 1; s <= 40; s++) {
   const normS = s / 40;
-  const theta = normS * Math.PI * 3.5;
+  const theta = normS * Math.PI * 3.6;
   const r = 55 * scale * Math.exp(-0.45 * theta);
   ctx.lineTo(25 * scale + 35 * scale - Math.cos(theta) * r, 45 * scale + 25 * scale + Math.sin(theta) * r);
 }
 ctx.strokeStyle = '#eab308';
 ctx.lineWidth = 4.5 * scale;
 ctx.stroke();
-
 ctx.restore();`,
 
   // 46. Hammerhead Shark

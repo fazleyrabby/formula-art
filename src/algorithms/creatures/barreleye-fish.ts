@@ -1,17 +1,20 @@
 import type { ArtRenderer, ParameterState, RenderContext, TimeState } from '../../types/engine';
 import { hsla } from '../common/color';
 
-// Anatomically Enriched Pacific Barreleye (Macropinna Microstoma)
-// Features: 3D fluid-filled transparent cranial dome, upward/forward scanning cylindrical tubular eyes
-// with emerald green retinal filters, accessory retina, and breathing opercular gill slits.
+// Ultra-Detailed Anatomical Pacific Barreleye (Macropinna Microstoma)
+// Features: 32 volumetric transparent cranial dome rings, internal rotating emerald tubular eyes,
+// 28 body streamline ribs with reflective scale pockets, and multi-filament bony ray fins.
 export function createBarreleyeFish(): ArtRenderer {
+  const DOME_RINGS = 24;
+  const BODY_RIBBONS = 28;
+
   return {
     setup() {},
 
     render(context: RenderContext, timeState: TimeState, params: ParameterState) {
       const { ctx, width, height } = context;
       const eyeRotateSpeed = Number(params.eyeScanSpeed || 0.8);
-      const domeGlow = Number(params.domeClarity || 1.1);
+      const domeGlow = Number(params.domeClarity || 1.2);
       const t = timeState.time * eyeRotateSpeed;
 
       ctx.fillStyle = '#020408';
@@ -23,153 +26,166 @@ export function createBarreleyeFish(): ArtRenderer {
 
       ctx.save();
       ctx.translate(cx, cy);
+      ctx.globalCompositeOperation = 'screen';
 
-      // 1. Dark Scaled Fusiform Body (Dark Charcoal-Brown with Reflective Scales)
-      ctx.beginPath();
-      ctx.moveTo(-125 * fishScale, 5 * fishScale);
-      ctx.quadraticCurveTo(-45 * fishScale, -48 * fishScale, 20 * fishScale, -38 * fishScale);
-      ctx.lineTo(20 * fishScale, 32 * fishScale);
-      ctx.quadraticCurveTo(-45 * fishScale, 48 * fishScale, -125 * fishScale, 5 * fishScale);
-      ctx.closePath();
+      const baseHue = (205 + Math.sin(t * 0.6) * 15) % 360;
 
-      const bodyGrad = ctx.createLinearGradient(-125 * fishScale, 0, 20 * fishScale, 0);
-      bodyGrad.addColorStop(0, '#090d16');
-      bodyGrad.addColorStop(0.5, '#111827');
-      bodyGrad.addColorStop(1, '#080a12');
-
-      ctx.fillStyle = bodyGrad;
-      ctx.fill();
-      ctx.strokeStyle = hsla(215, 30, 32, 0.95);
-      ctx.lineWidth = 2.4 * fishScale;
-      ctx.stroke();
-
-      // Reflective Large Scale Pockets along flank
-      for (let sc = 0; sc < 14; sc++) {
-        const normSc = sc / 13;
-        const sx = (-110 + normSc * 115) * fishScale;
-        const sy = (Math.sin(sc * 1.2) * 16) * fishScale;
+      // 1. Volumetric Scaled Fusiform Body (28 Concentric Contour Ribbons)
+      for (let r = 1; r <= BODY_RIBBONS; r++) {
+        const normR = r / BODY_RIBBONS;
+        const curScale = normR * fishScale;
 
         ctx.beginPath();
-        ctx.arc(sx, sy, 5.5 * fishScale, 0.2 * Math.PI, 1.2 * Math.PI);
-        ctx.strokeStyle = 'rgba(71, 85, 105, 0.4)';
-        ctx.lineWidth = 1.0;
+        ctx.moveTo(-130 * curScale, 5 * curScale);
+        ctx.quadraticCurveTo(-45 * curScale, -50 * curScale, 20 * curScale, -38 * curScale);
+        ctx.lineTo(20 * curScale, 34 * curScale);
+        ctx.quadraticCurveTo(-45 * curScale, 50 * curScale, -130 * curScale, 5 * curScale);
+        ctx.closePath();
+
+        const bHue = (baseHue + normR * 25) % 360;
+        ctx.strokeStyle = hsla(bHue, 90, 65, (0.06 + normR * 0.35));
+        ctx.lineWidth = r === BODY_RIBBONS ? 2.2 * fishScale : 0.9;
+        ctx.stroke();
+
+        if (r % 6 === 0) {
+          ctx.fillStyle = hsla(bHue, 80, 45, 0.04);
+          ctx.fill();
+        }
+      }
+
+      // Reflective Large Scale Pockets along body
+      for (let sc = 0; sc < 20; sc++) {
+        const normSc = sc / 19;
+        const sx = (-115 + normSc * 125) * fishScale;
+        const sy = Math.sin(sc * 1.4) * (20 * fishScale);
+
+        ctx.beginPath();
+        ctx.arc(sx, sy, 7 * fishScale, 0.2 * Math.PI, 1.2 * Math.PI);
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+        ctx.lineWidth = 1.2;
         ctx.stroke();
       }
 
-      // 2. Operculum Gill Cover with Breathing Respiration
-      const gillBreathe = Math.sin(t * 2.5) * (4 * fishScale);
-      ctx.beginPath();
-      ctx.moveTo(10 * fishScale, -28 * fishScale);
-      ctx.quadraticCurveTo((20 + gillBreathe) * fishScale, 0, 10 * fishScale, 24 * fishScale);
-      ctx.strokeStyle = hsla(200, 40, 50, 0.85);
-      ctx.lineWidth = 2.0 * fishScale;
-      ctx.stroke();
+      // 2. Multi-Filament Caudal & Pectoral Fin Rays
+      const tailWave = Math.sin(t * 2.8) * (16 * fishScale);
+      for (let ray = -5; ray <= 5; ray++) {
+        const normRay = ray / 5;
+        ctx.beginPath();
+        ctx.moveTo(-130 * fishScale, 5 * fishScale);
+        ctx.lineTo(-175 * fishScale, normRay * (42 * fishScale) + tailWave);
+        ctx.strokeStyle = hsla((baseHue + 15) % 360, 95, 75, 0.65);
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+      }
 
-      // 3. Caudal & Pectoral Fin Rays
-      const tailWave = Math.sin(t * 2.8) * (14 * fishScale);
-      ctx.beginPath();
-      ctx.moveTo(-125 * fishScale, 5 * fishScale);
-      ctx.lineTo(-170 * fishScale, -30 * fishScale + tailWave);
-      ctx.lineTo(-155 * fishScale, 5 * fishScale + tailWave * 0.5);
-      ctx.lineTo(-170 * fishScale, 40 * fishScale + tailWave);
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
-      ctx.fill();
-      ctx.strokeStyle = hsla(200, 40, 48, 0.75);
-      ctx.lineWidth = 1.6;
-      ctx.stroke();
+      // Large Fan Pectoral Fin Rays
+      for (let p = 0; p < 8; p++) {
+        const normP = p / 7;
+        ctx.beginPath();
+        ctx.moveTo(-15 * fishScale, 18 * fishScale);
+        ctx.quadraticCurveTo(
+          (5 + normP * 12) * fishScale,
+          (50 + normP * 10) * fishScale,
+          (-45 + normP * 25) * fishScale,
+          (72 + normP * 8) * fishScale
+        );
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+      }
 
-      // Large Translucent Fan Pectoral Fin
-      ctx.beginPath();
-      ctx.moveTo(-15 * fishScale, 18 * fishScale);
-      ctx.quadraticCurveTo(5 * fishScale, 58 * fishScale, -42 * fishScale, 70 * fishScale);
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
-      ctx.lineWidth = 2.0;
-      ctx.stroke();
-
-      // 4. Snout Rostrum with Olfactory Nares (The false eye-spots)
+      // 3. Snout Rostrum with Olfactory Nares Pits
       ctx.beginPath();
       ctx.moveTo(20 * fishScale, -28 * fishScale);
       ctx.quadraticCurveTo(82 * fishScale, -12 * fishScale, 88 * fishScale, 10 * fishScale);
-      ctx.lineTo(20 * fishScale, 32 * fishScale);
+      ctx.lineTo(20 * fishScale, 34 * fishScale);
       ctx.closePath();
-      ctx.fillStyle = '#0a0d16';
-      ctx.fill();
-      ctx.strokeStyle = hsla(215, 30, 32, 0.95);
+      ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 2.0 * fishScale;
       ctx.stroke();
 
-      // Olfactory Nares Cavities (Pigmented sensory pits)
+      // Olfactory Nares False Eye Pits
       ctx.fillStyle = '#334155';
       ctx.beginPath();
       ctx.arc(74 * fishScale, -4 * fishScale, 3.5 * fishScale, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#64748b';
-      ctx.lineWidth = 1.0;
+      ctx.lineWidth = 1.2;
       ctx.stroke();
 
-      // 5. Transparent Fluid-Filled Cranial Dome Shield (The Glass Helmet)
+      // 4. Volumetric Transparent Fluid-Filled Cranial Dome (24 Concentric Glass Shells)
+      for (let d = 1; d <= DOME_RINGS; d++) {
+        const normD = d / DOME_RINGS;
+        const dw = 52 * normD * fishScale;
+        const dh = 38 * normD * fishScale;
+
+        ctx.beginPath();
+        ctx.ellipse(38 * fishScale, -26 * fishScale, dw, dh, -0.1, 0, Math.PI * 2);
+
+        const domeHue = (185 + normD * 20) % 360;
+        ctx.strokeStyle = hsla(domeHue, 95, 75, (0.08 + normD * 0.35) * domeGlow);
+        ctx.lineWidth = d === DOME_RINGS ? 2.4 * fishScale : 0.9;
+        ctx.stroke();
+
+        if (d % 5 === 0) {
+          ctx.fillStyle = hsla(domeHue, 90, 60, 0.05 * domeGlow);
+          ctx.fill();
+        }
+      }
+
+      // Glass Meniscus Caustic Spark Arc
       ctx.beginPath();
-      ctx.ellipse(38 * fishScale, -26 * fishScale, 50 * fishScale, 36 * fishScale, -0.1, 0, Math.PI * 2);
-      
-      const domeGrad = ctx.createRadialGradient(
-        35 * fishScale,
-        -35 * fishScale,
-        5,
-        38 * fishScale,
-        -26 * fishScale,
-        52 * fishScale
-      );
-      domeGrad.addColorStop(0, hsla(190, 85, 65, 0.28 * domeGlow));
-      domeGrad.addColorStop(0.7, hsla(195, 90, 50, 0.15 * domeGlow));
-      domeGrad.addColorStop(1, hsla(185, 95, 75, 0.75 * domeGlow));
-
-      ctx.fillStyle = domeGrad;
-      ctx.fill();
-      ctx.strokeStyle = hsla(185, 95, 80, 0.85 * domeGlow);
-      ctx.lineWidth = 2.2 * fishScale;
+      ctx.arc(38 * fishScale, -48 * fishScale, 30 * fishScale, 0.2 * Math.PI, 0.8 * Math.PI);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2.0;
       ctx.stroke();
 
-      // Cranial Fluid Meniscus Highlight
-      ctx.beginPath();
-      ctx.arc(38 * fishScale, -48 * fishScale, 28 * fishScale, 0.2 * Math.PI, 0.8 * Math.PI);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
-      ctx.lineWidth = 1.4;
-      ctx.stroke();
-
-      // 6. Internal Emerald Green Tubular Eyes (Scanning Upward / Forward)
+      // 5. Highly Detailed Internal Rotating Emerald-Green Tubular Optics
       const eyeAngle = -Math.PI / 2 + Math.sin(t * 1.5) * 0.38;
 
       for (let s = -1; s <= 1; s += 2) {
-        const eyeBaseX = (32 + s * 15) * fishScale;
+        const eyeBaseX = (32 + s * 16) * fishScale;
         const eyeBaseY = -18 * fishScale;
 
         ctx.save();
         ctx.translate(eyeBaseX, eyeBaseY);
         ctx.rotate(eyeAngle);
 
-        // Tubular Eye Body Cylinder (Main sclerotic ring)
-        ctx.beginPath();
-        ctx.ellipse(0, -14 * fishScale, 10 * fishScale, 16 * fishScale, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#064e3b';
-        ctx.fill();
-        ctx.strokeStyle = hsla(150, 85, 45, 0.9);
-        ctx.lineWidth = 1.8;
-        ctx.stroke();
+        // Tubular Sclerotic Body Cylinder (Nested rings)
+        for (let er = 1; er <= 4; er++) {
+          const normER = er / 4;
+          ctx.beginPath();
+          ctx.ellipse(0, -14 * fishScale, 10 * normER * fishScale, 16 * normER * fishScale, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = hsla(160, 90, 50, (0.3 + normER * 0.5));
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+        }
 
-        // Glowing Emerald Green Retinal Filter Lens
-        ctx.fillStyle = hsla(150, 95, 65, 0.95);
+        // Luminous Emerald Green Retinal Lens Core
+        const lensGrad = ctx.createRadialGradient(0, -25 * fishScale, 2, 0, -25 * fishScale, 12 * fishScale);
+        lensGrad.addColorStop(0, '#ffffff');
+        lensGrad.addColorStop(0.3, '#34d399');
+        lensGrad.addColorStop(0.8, '#059669');
+        lensGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
+
+        ctx.fillStyle = lensGrad;
+        ctx.beginPath();
+        ctx.arc(0, -25 * fishScale, 12 * fishScale, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Glowing Sclerotic Pupil Ring
+        ctx.fillStyle = '#10b981';
         ctx.shadowColor = '#34d399';
         ctx.shadowBlur = 14;
         ctx.beginPath();
-        ctx.arc(0, -24 * fishScale, 7.0 * fishScale, 0, Math.PI * 2);
+        ctx.arc(0, -25 * fishScale, 7.5 * fishScale, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // Accessory Lateral Retina & Pupil Glint
-        ctx.fillStyle = '#a7f3d0';
+        // Crystalline Lens Highlight
+        ctx.fillStyle = '#f0fdf4';
         ctx.beginPath();
-        ctx.arc(-2 * fishScale, -26 * fishScale, 2.5 * fishScale, 0, Math.PI * 2);
+        ctx.arc(-2 * fishScale, -27 * fishScale, 2.8 * fishScale, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.restore();
