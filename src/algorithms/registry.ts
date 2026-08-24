@@ -11,6 +11,9 @@ import { createVortexFilament } from './fluid/vortex-filament';
 import { createCurlVectorField } from './fluid/curl-vector-field';
 import { createSmokeLattice } from './fluid/smoke-lattice';
 import { createViscousGyre } from './fluid/viscous-gyre';
+import { createAtmosphericTornado } from './fluid/atmospheric-tornado';
+import { createWaterSplash } from './fluid/water-splash';
+import { createRainEffect } from './fluid/rain-effect';
 
 // Particles
 import { createGravitationalSwarm } from './particles/gravitational-swarm';
@@ -23,6 +26,7 @@ import { createHyperbolicTessellation } from './geometry/hyperbolic-tessellation
 import { createSacredMandala } from './geometry/sacred-mandala';
 import { createMoireInterference } from './geometry/moire-interference';
 import { createPenroseSubdivision } from './geometry/penrose-subdivision';
+import { createMicroscopicIceCrystal } from './geometry/microscopic-ice-crystal';
 
 // Waves
 import { createFourierHarmonics } from './waves/fourier-harmonics';
@@ -51,6 +55,7 @@ import { createFractalTree } from './botany/fractal-tree';
 import { createBarnsleyFern } from './botany/barnsley-fern';
 import { createGerstnerOceanWaves } from './botany/gerstner-ocean-waves';
 import { createCoralPolypGrowth } from './botany/coral-polyp-growth';
+import { createSnowFall } from './botany/snow-fall';
 
 // Human Anatomy & Biology
 import { createCardiacPulse } from './anatomy/cardiac-pulse';
@@ -70,6 +75,9 @@ export const algorithmRegistry: Record<string, AlgorithmFactory> = {
   'curl-vector-field': createCurlVectorField,
   'smoke-lattice': createSmokeLattice,
   'viscous-gyre': createViscousGyre,
+  'atmospheric-tornado': createAtmosphericTornado,
+  'water-splash': createWaterSplash,
+  'rain-effect': createRainEffect,
 
   // Particles
   'gravitational-swarm': createGravitationalSwarm,
@@ -82,6 +90,7 @@ export const algorithmRegistry: Record<string, AlgorithmFactory> = {
   'sacred-mandala': createSacredMandala,
   'moire-interference': createMoireInterference,
   'penrose-subdivision': createPenroseSubdivision,
+  'microscopic-ice-crystal': createMicroscopicIceCrystal,
 
   // Waves
   'fourier-harmonics': createFourierHarmonics,
@@ -110,6 +119,7 @@ export const algorithmRegistry: Record<string, AlgorithmFactory> = {
   'barnsley-fern': createBarnsleyFern,
   'gerstner-ocean-waves': createGerstnerOceanWaves,
   'coral-polyp-growth': createCoralPolypGrowth,
+  'snow-fall': createSnowFall,
 
   // Human Anatomy & Biology
   'cardiac-pulse': createCardiacPulse,

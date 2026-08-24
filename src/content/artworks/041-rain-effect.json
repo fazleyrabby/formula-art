@@ -1,0 +1,44 @@
+{
+  "id": "041",
+  "slug": "rain-effect",
+  "title": "Rainstorm Precipitation",
+  "subtitle": "Terminal Velocity Vectors & Impact Ripples",
+  "category": "fluid",
+  "description": "Meteorological atmospheric downpour integrating aerodynamic terminal velocity fall rates, aerodynamic wind shear slant, and damped Bessel ground collision ripples.",
+  "mathNotation": "v_{\\text{term}} = \\sqrt{\\frac{2 m g}{\\rho A C_d}}, \\quad \\mathbf{v} = v_{\\text{term}} \\begin{bmatrix} \\sin\\theta_{\\text{wind}} \\\\ \\cos\\theta_{\\text{wind}} \\end{bmatrix}, \\quad r_{\\text{ripple}}(t) = v_{\\text{wave}} (t - t_{\\text{impact}})",
+  "formulaCompact": "y += speed * dt,  x += speed * sin(wind) * dt,  ripple = ellipse(x, y, r, 0.35r) * exp(-γt)",
+  "formulaFull": "dropY[i] += dropSpeed[i] * dt;\ndropX[i] += dropSpeed[i] * windDx * dt;\nctx.ellipse(ripX[r], ripY[r], ripRadius[r], ripRadius[r] * 0.35, 0, 0, Math.PI * 2);",
+  "algorithmKey": "rain-effect",
+  "complexity": "medium",
+  "particleCount": 600,
+  "parameters": [
+    {
+      "key": "rainDensity",
+      "label": "Rainfall Intensity",
+      "type": "range",
+      "min": 100,
+      "max": 600,
+      "step": 20,
+      "defaultValue": 450,
+      "description": "Active precipitation streak count"
+    },
+    {
+      "key": "windShear",
+      "label": "Wind Shear Slant",
+      "type": "range",
+      "min": -0.5,
+      "max": 0.5,
+      "step": 0.05,
+      "defaultValue": 0.15,
+      "description": "Horizontal gale deflection angle"
+    }
+  ],
+  "tags": ["rain", "precipitation", "weather", "fluid", "ripples", "atmosphere", "water"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

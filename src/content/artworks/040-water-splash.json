@@ -1,0 +1,44 @@
+{
+  "id": "040",
+  "slug": "water-splash",
+  "title": "Worthington Water Splash",
+  "subtitle": "Capillary Crown Elevation & Rayleigh-Plateau Jet",
+  "category": "fluid",
+  "description": "High-speed fluid drop impact mechanics capturing the elevated crenellated Worthington splash crown, Rayleigh-Plateau capillary central jet, and pinch-off droplet ballistics.",
+  "mathNotation": "r(\\theta) = R_{\\text{rim}} [1 + A_c \\sin(n \\theta)], \\quad y_{\\text{drop}}(t) = y_0 + v_{y0} t - \\frac{1}{2} g t^2, \\quad \\lambda_{\\text{opt}} \\approx 4.51 d_{\\text{jet}}",
+  "formulaCompact": "crown_h = sin(age * π) * 110,  jet_h = sin(jetAge * π) * 160,  drop_y += vy*dt + 0.5*g*dt^2",
+  "formulaFull": "const cuspHeight = crownH * (1 + 0.35 * Math.sin(phi * 8));\nconst jetH = Math.sin(jetAge * Math.PI) * (160 * splashHeight);\nconst topDropY = waterLineY - jetH - 18 * Math.sin(jetAge * Math.PI * 1.5);",
+  "algorithmKey": "water-splash",
+  "complexity": "high",
+  "particleCount": 60,
+  "parameters": [
+    {
+      "key": "splashRate",
+      "label": "Impact Cycle Speed",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Water impact repetition frequency"
+    },
+    {
+      "key": "splashScale",
+      "label": "Splash Amplitude",
+      "type": "range",
+      "min": 0.6,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Crown height & jet ejection reach"
+    }
+  ],
+  "tags": ["splash", "water", "worthington", "fluid", "droplets", "hydrodynamics", "capillary"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

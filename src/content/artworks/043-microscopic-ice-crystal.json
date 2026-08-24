@@ -1,0 +1,43 @@
+{
+  "id": "043",
+  "slug": "microscopic-ice-crystal",
+  "title": "Microscopic Snowflake Crystal",
+  "subtitle": "Hexagonal Dendritic Stefan Phase Freezing",
+  "category": "geometry",
+  "description": "High-magnification microscopic ice crystal growth exhibiting 6-fold cyclic C6 rotational symmetry, primary hexagonal basal spines, and self-similar 60-degree secondary dendritic side prongs.",
+  "mathNotation": "r(\\theta, t) = r_0(t) + \\sum_{k=1}^K A_k(t) \\cos(6 k \\theta), \\quad \\mathbf{p}_{\\text{prong}}(s) = \\mathbf{p}_{\\text{spine}} + s \\begin{bmatrix} \\cos(\\pm\\pi/3) \\\\ \\sin(\\pm\\pi/3) \\end{bmatrix}",
+  "formulaCompact": "main_spine = L*(0.3 + 0.7*growth),  prong = spine_pos + [cos(±π/3)*len, sin(±π/3)*len]",
+  "formulaFull": "const mainArmLen = crystalRadius * (0.3 + 0.7 * growth);\nconst ux = branchPos + Math.cos(Math.PI / 3) * branchLen;\nconst uy = -Math.sin(Math.PI / 3) * branchLen;\nconst lx = branchPos + Math.cos(-Math.PI / 3) * branchLen;\nconst ly = -Math.sin(-Math.PI / 3) * branchLen;",
+  "algorithmKey": "microscopic-ice-crystal",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "freezeRate",
+      "label": "Crystallization Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 0.6,
+      "description": "Stefan phase-change growth cycle rate"
+    },
+    {
+      "key": "dendriteBranches",
+      "label": "Dendrite Branching Order",
+      "type": "range",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "defaultValue": 5,
+      "description": "Number of secondary side-prong pairs"
+    }
+  ],
+  "tags": ["snowflake", "microscopic", "crystals", "ice", "geometry", "hexagonal", "fractal", "symmetry"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

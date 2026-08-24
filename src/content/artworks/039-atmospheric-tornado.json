@@ -1,0 +1,44 @@
+{
+  "id": "039",
+  "slug": "atmospheric-tornado",
+  "title": "Atmospheric Tornado",
+  "subtitle": "Rankine Combined Vortex Dynamics & Updraft Physics",
+  "category": "fluid",
+  "description": "Severe mesocyclone tornadic vortex simulation modeling hyperbolic funnel cone boundary expansion, Rankine tangential velocity shear, and particle suction updraft.",
+  "mathNotation": "v_\\theta(r) = \\begin{cases} \\omega r & r \\le R_c \\\\ \\frac{\\Gamma}{2\\pi r} & r > R_c \\end{cases}, \\quad R(z) = R_0 + \\alpha z^{2.2}, \\quad v_z(z) = v_0 \\left(1 + \\beta z\\right)",
+  "formulaCompact": "v_theta = speed / (0.3 + r*0.7),  R_funnel = 20 + z^2.2 * 170,  sway = sin(1.5t + 3z)*40z",
+  "formulaFull": "const angularVel = (pSpeed[i] / (0.3 + rNorm * 0.7)) * 4.0;\nconst funnelR = (20 + Math.pow(pz[i], 2.2) * 170) * funnelWidth;\nconst posX = centerX + Math.cos(pAngle[i]) * radius;",
+  "algorithmKey": "atmospheric-tornado",
+  "complexity": "high",
+  "particleCount": 1200,
+  "parameters": [
+    {
+      "key": "swirlSpeed",
+      "label": "Vortex Rotation Rate",
+      "type": "range",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.4,
+      "description": "Angular vortex velocity multiplier"
+    },
+    {
+      "key": "funnelWidth",
+      "label": "Funnel Cone Aperture",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Hyperbolic cone boundary scaling"
+    }
+  ],
+  "tags": ["tornado", "vortex", "rankine", "fluid", "meteorology", "atmosphere", "weather"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}
