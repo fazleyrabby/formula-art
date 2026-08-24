@@ -1,0 +1,44 @@
+{
+  "id": "005",
+  "slug": "vortex-filament",
+  "title": "Vortex Filament Drift",
+  "subtitle": "Biot-Savart Point Vortex Dynamics",
+  "category": "fluid",
+  "description": "Classical inviscid point vortices rotating under mutual induced velocities, tracing complex filamentary chaotic orbits.",
+  "mathNotation": "\\mathbf{u}(\\mathbf{x}) = \\sum_{i=1}^{N} \\frac{\\Gamma_i}{2\\pi} \\frac{\\mathbf{k} \\times (\\mathbf{x} - \\mathbf{x}_i)}{\\|\\mathbf{x} - \\mathbf{x}_i\\|^2 + r_c^2}",
+  "formulaCompact": "v_θ(r) = (Γ / 2πr) * (1 - exp(-r² / r_core²))",
+  "formulaFull": "const dx = px[i] - vortexX[v];\nconst dy = py[i] - vortexY[v];\nconst dSq = dx * dx + dy * dy;\nconst factor = (vortexGamma[v] / (2 * Math.PI * (dSq + coreRSq))) * 12;\nvx += -dy * factor;\nvy += dx * factor;",
+  "algorithmKey": "vortex-filament",
+  "complexity": "medium",
+  "particleCount": 1600,
+  "parameters": [
+    {
+      "key": "particleCount",
+      "label": "Tracer Count",
+      "type": "range",
+      "min": 500,
+      "max": 2000,
+      "step": 100,
+      "defaultValue": 1600,
+      "description": "Number of fluid tracers"
+    },
+    {
+      "key": "coreRadius",
+      "label": "Vortex Core Radius (rc)",
+      "type": "range",
+      "min": 5,
+      "max": 40,
+      "step": 1,
+      "defaultValue": 20,
+      "description": "Vortex core smoothing width"
+    }
+  ],
+  "tags": ["vortex", "fluid", "biot-savart", "physics", "turbulence", "circulation"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

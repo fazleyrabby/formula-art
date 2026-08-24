@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CategoryNav from '../components/gallery/CategoryNav.astro';
+import ArtGrid from '../components/gallery/ArtGrid.astro';
+import { getCollection } from 'astro:content';
+
+const allArtworks = await getCollection('artworks');
+// Sort by ID
+allArtworks.sort((a, b) => a.data.id.localeCompare(b.data.id));
+const artworksData = allArtworks.map((a) => a.data);
+---
+
+<Layout
+  title="Math Art — Beautiful Mathematical Formulas Turned Into Animated Art"
+  description="Explore 25 pure mathematical generative animations. Inspect equations, modify parameters, copy compact formulas, and embed them in web projects."
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 flex flex-col gap-8">
+    <!-- Hero / Headline Section -->
+    <section class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/[0.06]">
+      <div class="max-w-2xl flex flex-col gap-3">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-sans font-bold tracking-tight text-white leading-tight">
+          Mathematical art made from tiny formulas.
+        </h1>
+        <p class="text-slate-400 text-sm sm:text-base font-sans leading-relaxed max-w-xl">
+          Discover self-contained mathematical algorithms rendered in real time on HTML Canvas. Inspect the formulas, remix parameters, and copy the code for your own projects.
+        </p>
+      </div>
+
+      <!-- Quick Metrics Matrix -->
+      <div class="flex items-center gap-4 sm:gap-6 font-mono text-xs text-slate-400 shrink-0">
+        <div class="flex flex-col">
+          <span class="text-lg font-bold text-slate-100">{artworksData.length}</span>
+          <span class="text-[11px] text-slate-400">Artworks</span>
+        </div>
+        <div class="h-8 w-px bg-white/[0.08]"></div>
+        <div class="flex flex-col">
+          <span class="text-lg font-bold text-accent-cyan">60 FPS</span>
+          <span class="text-[11px] text-slate-400">Canvas 2D</span>
+        </div>
+        <div class="h-8 w-px bg-white/[0.08]"></div>
+        <div class="flex flex-col">
+          <span class="text-lg font-bold text-accent-emerald">0 kB</span>
+          <span class="text-[11px] text-slate-400">Backend</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Category Filter Controls -->
+    <section class="sticky top-16 z-30 bg-[#08090d]/90 backdrop-blur-md pt-2 pb-1 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-b border-white/[0.04]">
+      <CategoryNav artworks={artworksData} />
+    </section>
+
+    <!-- Mathematical Artworks Gallery Grid -->
+    <section aria-label="Generative Artworks Gallery">
+      <ArtGrid artworks={artworksData} />
+    </section>
+  </div>
+</Layout>

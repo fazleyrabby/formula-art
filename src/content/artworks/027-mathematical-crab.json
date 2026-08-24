@@ -1,0 +1,43 @@
+{
+  "id": "027",
+  "slug": "mathematical-crab",
+  "title": "Mathematical Crab",
+  "subtitle": "Bilateral Crustacean Gait Kinematics",
+  "category": "creatures",
+  "description": "Decapod crustacean mechanics featuring eight-legged inverse kinematic walking gaits, an elliptic carapace with marginal spines, and articulated pinching chelae.",
+  "mathNotation": "\\mathbf{p}_{\\text{knee}} = \\mathbf{p}_{\\text{coxa}} + \\mathbf{R}(\\theta_1) \\mathbf{L}_1 + \\mathbf{R}(\\omega t + \\phi_i) \\mathbf{A}_{\\text{lift}}",
+  "formulaCompact": "knee = coxa + [cos(θ)*45 + reach, -20 + lift],  pinch = 0.35 + 0.3*sin(3t)",
+  "formulaFull": "const kneeLift = Math.sin(legPhase) * 14;\nconst kneeReach = Math.cos(legPhase) * 22;\nconst pinchAngle = (0.35 + 0.3 * Math.sin(t * 3 + side)) * clawPinch;",
+  "algorithmKey": "mathematical-crab",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "gaitSpeed",
+      "label": "Gait Crawl Speed",
+      "type": "range",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.4,
+      "description": "Sideways walking cycle frequency"
+    },
+    {
+      "key": "clawPinch",
+      "label": "Claw Pinch Aperture",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Chela finger opening amplitude"
+    }
+  ],
+  "tags": ["crab", "crustacean", "creatures", "kinematics", "gait", "biomechanics"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

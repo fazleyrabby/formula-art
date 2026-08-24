@@ -1,0 +1,43 @@
+{
+  "id": "019",
+  "slug": "soliton-pulse",
+  "title": "Soliton Collision",
+  "subtitle": "Korteweg-de Vries Non-Linear Wave Dynamics",
+  "category": "waves",
+  "description": "Nonlinear self-reinforcing solitary wave packets governed by the KdV equation, colliding and emerging unchanged in shape.",
+  "mathNotation": "\\frac{\\partial u}{\\partial t} + 6u \\frac{\\partial u}{\\partial x} + \\frac{\\partial^3 u}{\\partial x^3} = 0, \\quad u(x,t) = 2k^2 \\operatorname{sech}^2(k(x - 4k^2 t))",
+  "formulaCompact": "u(x, t) = 2k² * sech²(k(x - 4k² t)),  total_u = u1(x, t) + u2(x, -t)",
+  "formulaFull": "const pos1 = k1 * (normX - 4 * k1 * k1 * (t * 0.8 - 4) + phaseShift);\nconst sech1 = 1 / Math.cosh(pos1);\nconst u1 = 2 * k1 * k1 * sech1 * sech1;",
+  "algorithmKey": "soliton-pulse",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "amplitude",
+      "label": "Pulse Amplitude",
+      "type": "range",
+      "min": 15,
+      "max": 80,
+      "step": 2,
+      "defaultValue": 45,
+      "description": "Peak soliton height"
+    },
+    {
+      "key": "speed",
+      "label": "Propagation Velocity",
+      "type": "range",
+      "min": 0.3,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Non-linear wave speed"
+    }
+  ],
+  "tags": ["soliton", "kdv", "non-linear", "hydrodynamics", "waves", "physics"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

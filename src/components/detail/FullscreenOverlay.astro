@@ -1,0 +1,99 @@
+---
+---
+
+<div
+  id="fullscreen-overlay"
+  class="fixed inset-0 z-50 bg-[#050608] hidden flex-col items-center justify-center"
+>
+  <canvas id="fullscreen-canvas" class="w-full h-full block cursor-none"></canvas>
+
+  <!-- Auto-hiding HUD -->
+  <div id="fs-hud" class="absolute top-6 right-6 z-20 flex items-center gap-3 transition-opacity duration-300">
+    <span class="px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-xs font-mono text-slate-300">
+      Press <kbd class="font-bold text-accent-cyan">ESC</kbd> or <kbd class="font-bold text-accent-cyan">F</kbd> to exit
+    </span>
+    <button
+      type="button"
+      id="close-fullscreen-btn"
+      class="p-2 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-slate-300 hover:text-white transition-all cursor-pointer"
+      aria-label="Exit fullscreen"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  import { CanvasEngine } from '../../engine/CanvasEngine';
+  import { getAlgorithmRenderer } from '../../algorithms/registry';
+
+  let fsEngine: CanvasEngine | null = null;
+  let hudTimeout: any = null;
+
+  function setupFullscreen() {
+    const overlay = document.getElementById('fullscreen-overlay');
+    const trigger = document.getElementById('fullscreen-trigger-btn');
+    const closeBtn = document.getElementById('close-fullscreen-btn');
+    const fsCanvas = document.getElementById('fullscreen-canvas') as HTMLCanvasElement;
+    const detailCanvas = document.getElementById('detail-canvas') as HTMLCanvasElement;
+    const hud = document.getElementById('fs-hud');
+
+    if (!overlay || !fsCanvas || !detailCanvas) return;
+
+    function openFullscreen() {
+      overlay?.classList.remove('hidden');
+      overlay?.classList.add('flex');
+
+      const algorithmKey = detailCanvas.getAttribute('data-algorithm') || 'organic-wave';
+      const mainEngine = (window as any).__MATH_ART_ENGINE__;
+      const params = mainEngine ? mainEngine.getParams() : {};
+
+      const renderer = getAlgorithmRenderer(algorithmKey);
+      fsEngine = new CanvasEngine({
+        canvas: fsCanvas,
+        renderer,
+        initialParams: params,
+        interactive: true,
+      });
+
+      fsEngine.start();
+      resetHudTimeout();
+    }
+
+    function closeFullscreen() {
+      overlay?.classList.add('hidden');
+      overlay?.classList.remove('flex');
+      if (fsEngine) {
+        fsEngine.destroy();
+        fsEngine = null;
+      }
+    }
+
+    function resetHudTimeout() {
+      if (hud) hud.style.opacity = '1';
+      clearTimeout(hudTimeout);
+      hudTimeout = setTimeout(() => {
+        if (hud) hud.style.opacity = '0';
+      }, 3000);
+    }
+
+    trigger?.addEventListener('click', openFullscreen);
+    closeBtn?.addEventListener('click', closeFullscreen);
+
+    overlay?.addEventListener('mousemove', resetHudTimeout);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'f' || e.key === 'F') {
+        if (overlay?.classList.contains('hidden')) openFullscreen();
+        else closeFullscreen();
+      } else if (e.key === 'Escape' && !overlay?.classList.contains('hidden')) {
+        closeFullscreen();
+      }
+    });
+  }
+
+  setupFullscreen();
+  document.addEventListener('astro:page-load', setupFullscreen);
+</script>

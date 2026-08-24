@@ -1,0 +1,53 @@
+{
+  "id": "010",
+  "slug": "lissajous-web",
+  "title": "Lissajous Web",
+  "subtitle": "3D Projected Harmonic Knot Curves",
+  "category": "particles",
+  "description": "Three-dimensional Bowditch-Lissajous knot curves projected into 2D space with rotating perspective depth attenuation.",
+  "mathNotation": "x(t) = \\sin(a t + \\delta), \\quad y(t) = \\sin(b t), \\quad z(t) = \\cos(c t)",
+  "formulaCompact": "x = sin(3φ + δ),  y = sin(4φ),  z = cos(5φ + t),  px = cx + rotX * depth",
+  "formulaFull": "const lx = Math.sin(a * phi + delta);\nconst ly = Math.sin(b * phi);\nconst lz = Math.cos(c * phi + t);\nconst rotY = lx * Math.cos(t * 0.3) - lz * Math.sin(t * 0.3);\nconst px = cx + rotY * rx * depth;\nconst py = cy + ly * ry * depth;",
+  "algorithmKey": "lissajous-web",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "freqA",
+      "label": "Frequency A",
+      "type": "range",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "defaultValue": 3,
+      "description": "Harmonic X ratio"
+    },
+    {
+      "key": "freqB",
+      "label": "Frequency B",
+      "type": "range",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "defaultValue": 4,
+      "description": "Harmonic Y ratio"
+    },
+    {
+      "key": "speed",
+      "label": "Rotation Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 0.6,
+      "description": "3D perspective rotation rate"
+    }
+  ],
+  "tags": ["lissajous", "harmonics", "knot", "3d", "geometry", "trigonometry"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

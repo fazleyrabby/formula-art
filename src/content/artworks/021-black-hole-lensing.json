@@ -1,0 +1,34 @@
+{
+  "id": "021",
+  "slug": "black-hole-lensing",
+  "title": "Black Hole Lensing",
+  "subtitle": "Schwarzschild Metric Relativistic Deflection",
+  "category": "space",
+  "description": "General relativistic gravitational ray-tracing showing the extreme light bending, photon sphere ring, and Doppler-beamed accretion disk.",
+  "mathNotation": "\\hat{\\alpha} = \\frac{4GM}{c^2 b} = \\frac{2 r_s}{b}, \\quad r_s = \\frac{2GM}{c^2}, \\quad I_{\\text{obs}} = I_{\\text{emit}} \\cdot \\delta^4",
+  "formulaCompact": "v_orb = 2.5 / √r,  y_warp = y - (1.5*rs / d)*22,  doppler_hue = 190 + 30*sin(θ)",
+  "formulaFull": "if (d > rs && rawY < 0) {\n  const bend = (rs * 1.5) / d;\n  warpedY = rawY - bend * 22;\n}\nconst doppler = Math.sin(ang[i]);\nconst hue = doppler > 0 ? 190 + doppler * 30 : 25 + Math.abs(doppler) * 20;",
+  "algorithmKey": "black-hole-lensing",
+  "complexity": "high",
+  "particleCount": 2200,
+  "parameters": [
+    {
+      "key": "schwarzschildRadius",
+      "label": "Schwarzschild Radius (rs)",
+      "type": "range",
+      "min": 15,
+      "max": 60,
+      "step": 1,
+      "defaultValue": 36,
+      "description": "Event horizon radius"
+    }
+  ],
+  "tags": ["black-hole", "general-relativity", "lensing", "astrophysics", "space", "gravity"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

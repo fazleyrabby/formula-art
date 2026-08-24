@@ -1,0 +1,113 @@
+---
+import type { ArtworkData } from '../../types/artwork';
+
+interface Props {
+  artwork: ArtworkData;
+}
+
+const { artwork } = Astro.props;
+---
+
+<div class="flex flex-col gap-5 p-6 rounded-2xl border border-white/10 bg-[#0c0e17] shadow-xl">
+  <!-- Header -->
+  <div class="flex items-center justify-between border-b border-white/[0.06] pb-4">
+    <div class="flex items-center gap-2.5">
+      <svg class="w-4 h-4 text-accent-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+      </svg>
+      <h2 class="text-base font-sans font-semibold text-slate-100">
+        Live Parameters
+      </h2>
+    </div>
+
+    <button
+      type="button"
+      id="reset-params-btn"
+      class="px-2.5 py-1 rounded text-xs font-mono text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all cursor-pointer"
+    >
+      Reset Defaults
+    </button>
+  </div>
+
+  <!-- Sliders List -->
+  <div class="flex flex-col gap-4">
+    {artwork.parameters.map((param) => (
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-300">{param.label}</span>
+          <span
+            id={`val-${param.key}`}
+            class="text-accent-cyan font-bold px-1.5 py-0.2 rounded bg-black/40 border border-white/5"
+          >
+            {param.defaultValue}
+          </span>
+        </div>
+
+        <input
+          type="range"
+          id={`param-${param.key}`}
+          data-param-key={param.key}
+          data-default-val={param.defaultValue}
+          min={param.min}
+          max={param.max}
+          step={param.step}
+          value={String(param.defaultValue)}
+          class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-accent-cyan focus:outline-none"
+        />
+
+        {param.description && (
+          <span class="text-[11px] text-slate-400 font-sans">
+            {param.description}
+          </span>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  function setupParameterSliders() {
+    const sliders = document.querySelectorAll<HTMLInputElement>('input[data-param-key]');
+    const resetBtn = document.getElementById('reset-params-btn');
+
+    sliders.forEach((slider) => {
+      const key = slider.getAttribute('data-param-key');
+      if (!key) return;
+
+      const valBadge = document.getElementById(`val-${key}`);
+
+      slider.addEventListener('input', () => {
+        const val = Number(slider.value);
+        if (valBadge) valBadge.textContent = String(val);
+
+        const engine = (window as any).__MATH_ART_ENGINE__;
+        if (engine) {
+          engine.setParams({ [key]: val });
+        }
+      });
+    });
+
+    resetBtn?.addEventListener('click', () => {
+      const defaultState: Record<string, number> = {};
+
+      sliders.forEach((slider) => {
+        const key = slider.getAttribute('data-param-key');
+        const defaultVal = Number(slider.getAttribute('data-default-val'));
+        if (key && !isNaN(defaultVal)) {
+          slider.value = String(defaultVal);
+          defaultState[key] = defaultVal;
+          const valBadge = document.getElementById(`val-${key}`);
+          if (valBadge) valBadge.textContent = String(defaultVal);
+        }
+      });
+
+      const engine = (window as any).__MATH_ART_ENGINE__;
+      if (engine) {
+        engine.setParams(defaultState);
+      }
+    });
+  }
+
+  setupParameterSliders();
+  document.addEventListener('astro:page-load', setupParameterSliders);
+</script>

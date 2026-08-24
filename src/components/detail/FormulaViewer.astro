@@ -1,0 +1,81 @@
+---
+import type { ArtworkData } from '../../types/artwork';
+import CopyButton from '../common/CopyButton.astro';
+
+interface Props {
+  artwork: ArtworkData;
+}
+
+const { artwork } = Astro.props;
+---
+
+<div class="flex flex-col gap-5 p-6 rounded-2xl border border-white/10 bg-[#0c0e17] shadow-xl">
+  <!-- Section Title & Meta Header -->
+  <div class="flex items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
+    <div class="flex items-center gap-2.5">
+      <div class="w-5 h-5 rounded bg-accent-cyan/10 border border-accent-cyan/30 flex items-center justify-center text-accent-cyan font-mono text-xs">
+        ƒ
+      </div>
+      <h2 class="text-base font-sans font-semibold text-slate-100">
+        Mathematical Formulation
+      </h2>
+    </div>
+
+    <!-- Complexity & Length Badges -->
+    <div class="flex items-center gap-2 font-mono text-[11px]">
+      <span class="px-2 py-0.5 rounded bg-black/40 border border-white/10 text-slate-400">
+        {artwork.formulaCompact.length} chars
+      </span>
+      <span class="px-2 py-0.5 rounded bg-black/40 border border-white/10 text-accent-cyan capitalize">
+        {artwork.complexity}
+      </span>
+    </div>
+  </div>
+
+  <!-- LaTeX / Mathematical Equation Box -->
+  <div class="flex flex-col gap-1.5">
+    <span class="text-xs font-mono text-slate-400">Analytical Equation</span>
+    <div class="p-3.5 rounded-lg bg-[#08090d] border border-white/[0.06] overflow-x-auto font-mono text-xs sm:text-sm text-accent-cyan/90 leading-relaxed scrollbar-thin">
+      <code>{artwork.mathNotation}</code>
+    </div>
+  </div>
+
+  <!-- Compact One-Liner Expression -->
+  <div class="flex flex-col gap-1.5">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-mono text-slate-400">Compact Formula</span>
+      <CopyButton textToCopy={artwork.formulaCompact} label="Copy Formula" variant="secondary" />
+    </div>
+    <div class="p-3.5 rounded-lg bg-[#08090d] border border-white/[0.06] overflow-x-auto font-mono text-xs text-slate-200 scrollbar-thin">
+      <code>{artwork.formulaCompact}</code>
+    </div>
+  </div>
+
+  <!-- Implementation Code Block -->
+  <div class="flex flex-col gap-1.5">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-mono text-slate-400">Renderer Logic</span>
+      <CopyButton textToCopy={artwork.formulaFull} label="Copy Code" variant="ghost" />
+    </div>
+    <div class="p-3.5 rounded-lg bg-[#08090d] border border-white/[0.06] overflow-x-auto font-mono text-xs text-slate-300 scrollbar-thin">
+      <pre><code>{artwork.formulaFull}</code></pre>
+    </div>
+  </div>
+
+  <!-- Quick Action: Remix in Playground -->
+  <div class="pt-2 border-t border-white/[0.06] flex items-center justify-between">
+    <a
+      href={`/playground?preset=${artwork.slug}`}
+      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan text-xs font-mono font-medium transition-all active:scale-95 shadow-glow"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+      </svg>
+      <span>Open in Playground</span>
+    </a>
+
+    <span class="text-[11px] font-mono text-slate-400">
+      Zero Dependencies • Standalone
+    </span>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="404 — Formula Not Found"
+  description="The mathematical coordinates you requested do not exist in this manifold."
+>
+  <div class="max-w-3xl mx-auto px-4 py-20 flex flex-col items-center justify-center text-center gap-6">
+    <div class="w-64 h-64 rounded-2xl bg-[#050608] border border-white/10 overflow-hidden relative shadow-glow">
+      <canvas id="not-found-canvas" class="w-full h-full block"></canvas>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <span class="text-xs font-mono text-accent-rose">ERROR 404 • SINGULARITY</span>
+      <h1 class="text-3xl font-bold font-sans text-white">Equation Not Defined</h1>
+      <p class="text-sm font-sans text-slate-400 max-w-md">
+        The mathematical coordinates you requested do not exist in this manifold. Return to the main gallery to explore known formulas.
+      </p>
+    </div>
+
+    <a
+      href="/"
+      class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent-cyan/15 hover:bg-accent-cyan/25 border border-accent-cyan/40 text-accent-cyan font-mono text-xs font-semibold transition-all active:scale-95 shadow-glow"
+    >
+      <span>Return to Gallery</span>
+    </a>
+  </div>
+</Layout>
+
+<script>
+  import { CanvasEngine } from '../engine/CanvasEngine';
+  import { createBlackHoleLensing } from '../algorithms/space/black-hole-lensing';
+
+  function init404Canvas() {
+    const canvas = document.getElementById('not-found-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const renderer = createBlackHoleLensing();
+    const engine = new CanvasEngine({
+      canvas,
+      renderer,
+      initialParams: { schwarzschildRadius: 28 },
+    });
+    engine.start();
+  }
+
+  init404Canvas();
+  document.addEventListener('astro:page-load', init404Canvas);
+</script>

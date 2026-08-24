@@ -1,0 +1,44 @@
+{
+  "id": "036",
+  "slug": "neural-synapse",
+  "title": "Neural Synaptic Network",
+  "subtitle": "Hodgkin-Huxley Action Potential Transmission",
+  "category": "anatomy",
+  "description": "Cortical neural arborization network where soma nodes fire action potential electrical spikes across connecting axonal synapses with dendritic branches.",
+  "mathNotation": "C_m \\frac{dV}{dt} = I_{\\text{ext}} - g_{\\text{Na}} m^3 h (V - V_{\\text{Na}}) - g_{\\text{K}} n^4 (V - V_{\\text{K}}) - g_L (V - V_L)",
+  "formulaCompact": "spike = (timer % 2.5) < 0.25,  pulse(px, py) = soma_i + (soma_j - soma_i) * (2t % 1)",
+  "formulaFull": "const pulsePhase = (t * 2 + i * 0.3) % 1.0;\nconst px = neuronX[i] + dx * pulsePhase;\nconst py = neuronY[i] + dy * pulsePhase;\nctx.arc(neuronX[i], neuronY[i], isSpiking ? 9 : 6, 0, Math.PI * 2);",
+  "algorithmKey": "neural-synapse",
+  "complexity": "high",
+  "particleCount": 180,
+  "parameters": [
+    {
+      "key": "firingRate",
+      "label": "Spike Firing Rate",
+      "type": "range",
+      "min": 0.4,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Neuronal action potential frequency"
+    },
+    {
+      "key": "synapseReach",
+      "label": "Synaptic Reach",
+      "type": "range",
+      "min": 80,
+      "max": 240,
+      "step": 10,
+      "defaultValue": 150,
+      "description": "Axon connection radius threshold"
+    }
+  ],
+  "tags": ["neurons", "brain", "synapse", "anatomy", "neuroscience", "biology", "action-potential"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

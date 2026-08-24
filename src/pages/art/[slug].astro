@@ -1,0 +1,125 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DetailCanvas from '../../components/detail/DetailCanvas.astro';
+import FormulaViewer from '../../components/detail/FormulaViewer.astro';
+import ParameterControls from '../../components/detail/ParameterControls.astro';
+import ExportMenu from '../../components/detail/ExportMenu.astro';
+import FullscreenOverlay from '../../components/detail/FullscreenOverlay.astro';
+import Badge from '../../components/common/Badge.astro';
+import CopyButton from '../../components/common/CopyButton.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const artworks = await getCollection('artworks');
+  return artworks.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { artwork: entry.data },
+  }));
+}
+
+const { artwork } = Astro.props;
+---
+
+<Layout
+  title={`${artwork.title} — Math Art Generative Animation`}
+  description={artwork.description}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col gap-8">
+    <!-- Breadcrumb & Back Navigation -->
+    <nav class="flex items-center justify-between">
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-accent-cyan transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Back to Gallery</span>
+      </a>
+
+      <div class="flex items-center gap-2">
+        <Badge variant={artwork.category}>
+          {artwork.category}
+        </Badge>
+        <span class="text-xs font-mono text-slate-400">#{artwork.id}</span>
+      </div>
+    </nav>
+
+    <!-- Header & Action Suite -->
+    <section class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/[0.06]">
+      <div class="flex flex-col gap-2">
+        <h1 class="text-3xl sm:text-4xl font-sans font-bold text-white tracking-tight">
+          {artwork.title}
+        </h1>
+        <p class="text-slate-400 text-sm font-sans max-w-2xl leading-relaxed">
+          {artwork.description}
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center flex-wrap gap-2.5 shrink-0">
+        <CopyButton textToCopy={artwork.formulaCompact} label="Copy Formula" variant="primary" />
+        
+        <button
+          type="button"
+          id="open-export-btn"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium rounded-md border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white transition-all active:scale-95 cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5 text-accent-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          <span>Export / Embed</span>
+        </button>
+
+        <a
+          href={`/playground?preset=${artwork.slug}`}
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium rounded-md border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white transition-all active:scale-95"
+        >
+          <svg class="w-3.5 h-3.5 text-accent-indigo" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+          <span>Playground</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Main Dual-Column Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- Left Column: Interactive Canvas & Parameters -->
+      <div class="lg:col-span-7 flex flex-col gap-6">
+        <DetailCanvas artwork={artwork} />
+        {artwork.parameters && artwork.parameters.length > 0 && (
+          <ParameterControls artwork={artwork} />
+        )}
+      </div>
+
+      <!-- Right Column: Formula Inspector & Theory -->
+      <div class="lg:col-span-5 flex flex-col gap-6">
+        <FormulaViewer artwork={artwork} />
+
+        <!-- Mathematical Context & Tags -->
+        <div class="p-6 rounded-2xl border border-white/10 bg-[#0c0e17] shadow-xl flex flex-col gap-4">
+          <h3 class="text-xs font-mono font-bold text-slate-200 uppercase tracking-wider">
+            Mathematical Tags
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            {artwork.tags.map((tag) => (
+              <span class="px-2.5 py-1 rounded-md bg-black/40 border border-white/5 text-xs font-mono text-slate-400">
+                #{tag}
+              </span>
+            ))}
+          </div>
+
+          <div class="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono text-slate-400">
+            <span>Author: {artwork.author.name}</span>
+            <span>Target: {artwork.defaultFps} FPS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals & Overlays -->
+  <ExportMenu artwork={artwork} />
+  <FullscreenOverlay />
+</Layout>

@@ -1,0 +1,44 @@
+{
+  "id": "018",
+  "slug": "standing-wave-grid",
+  "title": "Standing Wave Grid",
+  "subtitle": "2D Chladni Resonance Nodal Lines",
+  "category": "waves",
+  "description": "Ernst Chladni's vibrating plate acoustics where thousands of microscopic sand grains migrate to static zero-vibration nodal lines.",
+  "mathNotation": "W_{n,m}(x,y) = a \\sin\\left(\\frac{n\\pi x}{L}\\right)\\sin\\left(\\frac{m\\pi y}{L}\\right) - b \\sin\\left(\\frac{m\\pi x}{L}\\right)\\sin\\left(\\frac{n\\pi y}{L}\\right) = 0",
+  "formulaCompact": "w(x, y) = sin(nπx)*sin(mπy) - sin(mπx)*sin(nπy),  p -= ∇|w| * dt",
+  "formulaFull": "const val = Math.sin(n * Math.PI * x) * Math.sin(m * Math.PI * y) - Math.sin(m * Math.PI * x) * Math.sin(n * Math.PI * y);\npx[i] -= gradX * 0.0006 + (Math.random() - 0.5) * 0.002;\npy[i] -= gradY * 0.0006 + (Math.random() - 0.5) * 0.002;",
+  "algorithmKey": "standing-wave-grid",
+  "complexity": "medium",
+  "particleCount": 2400,
+  "parameters": [
+    {
+      "key": "modeN",
+      "label": "Eigenmode N",
+      "type": "range",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "defaultValue": 3,
+      "description": "Horizontal harmonic mode"
+    },
+    {
+      "key": "modeM",
+      "label": "Eigenmode M",
+      "type": "range",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "defaultValue": 5,
+      "description": "Vertical harmonic mode"
+    }
+  ],
+  "tags": ["chladni", "acoustics", "resonance", "standing-waves", "physics", "particles"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

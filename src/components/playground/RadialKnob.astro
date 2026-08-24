@@ -1,0 +1,165 @@
+---
+interface Props {
+  id: string;
+  label: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  defaultValue?: number;
+  unit?: string;
+}
+
+const {
+  id,
+  label,
+  min = 0,
+  max = 100,
+  defaultValue = 50,
+  unit = ''
+} = Astro.props;
+---
+
+<div class="flex flex-col items-center gap-2 select-none" data-knob-container={id}>
+  <div class="relative w-16 h-16 cursor-grab active:cursor-grabbing group">
+    <!-- SVG Background Track & Value Arc -->
+    <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 64 64">
+      <circle
+        cx="32"
+        cy="32"
+        r="26"
+        class="stroke-white/[0.08] fill-none"
+        stroke-width="4"
+      />
+      <circle
+        id={`knob-arc-${id}`}
+        cx="32"
+        cy="32"
+        r="26"
+        class="stroke-accent-cyan fill-none transition-all duration-75"
+        stroke-width="4"
+        stroke-dasharray="163.36"
+        stroke-dashoffset="81.68"
+        stroke-linecap="round"
+      />
+    </svg>
+
+    <!-- Center Rotating Dial -->
+    <div
+      id={`knob-dial-${id}`}
+      class="absolute inset-2 rounded-full bg-[#10131f] border border-white/10 shadow-lg flex items-center justify-center transition-transform duration-75 group-hover:border-accent-cyan/40"
+      style="transform: rotate(0deg);"
+    >
+      <!-- Indicator Tick / Notch -->
+      <div class="absolute top-1.5 w-1 h-2 rounded-full bg-accent-cyan shadow-glow"></div>
+      <div class="w-4 h-4 rounded-full bg-[#08090d] border border-white/5"></div>
+    </div>
+
+    <!-- Hidden input for state integration -->
+    <input
+      type="hidden"
+      id={`knob-input-${id}`}
+      data-knob-id={id}
+      data-min={min}
+      data-max={max}
+      value={defaultValue}
+    />
+  </div>
+
+  <!-- Label & Value Readout -->
+  <div class="flex flex-col items-center">
+    <span class="text-[11px] font-sans font-medium text-slate-300 group-hover:text-white">
+      {label}
+    </span>
+    <span
+      id={`knob-val-${id}`}
+      class="text-[10px] font-mono font-bold text-accent-cyan"
+    >
+      {defaultValue}{unit}
+    </span>
+  </div>
+</div>
+
+<script>
+  function setupKnobs() {
+    const containers = document.querySelectorAll<HTMLElement>('[data-knob-container]');
+
+    containers.forEach((container) => {
+      const knobId = container.getAttribute('data-knob-container');
+      if (!knobId) return;
+
+      const input = document.getElementById(`knob-input-${knobId}`) as HTMLInputElement;
+      const dial = document.getElementById(`knob-dial-${knobId}`) as HTMLElement;
+      const arc = document.querySelector<SVGCircleElement>(`#knob-arc-${knobId}`);
+      const valBadge = document.getElementById(`knob-val-${knobId}`) as HTMLElement;
+
+      if (!input || !dial || !arc) return;
+
+      const min = Number(input.getAttribute('data-min') || 0);
+      const max = Number(input.getAttribute('data-max') || 100);
+      let currentVal = Number(input.value || min);
+
+      const circumference = 163.36; // 2 * pi * 26
+
+      function updateKnobUI(val: number) {
+        val = Math.max(min, Math.min(max, val));
+        currentVal = val;
+        input.value = String(val);
+
+        const fraction = (val - min) / (max - min);
+        // Angle from -135deg to +135deg (270deg total sweep)
+        const angle = -135 + fraction * 270;
+        dial.style.transform = `rotate(${angle}deg)`;
+
+        // Arc offset
+        const offset = circumference * (1 - fraction * 0.75);
+        if (arc) {
+          arc.style.strokeDashoffset = String(offset);
+        }
+
+        if (valBadge) {
+          valBadge.textContent = Number.isInteger(val) ? String(val) : val.toFixed(2);
+        }
+
+        // Dispatch change event
+        window.dispatchEvent(
+          new CustomEvent('math-art:knob-change', {
+            detail: { id: knobId, value: val }
+          })
+        );
+      }
+
+      // Initial update
+      updateKnobUI(currentVal);
+
+      // Mouse drag handling
+      let isDragging = false;
+      let startY = 0;
+      let startVal = currentVal;
+
+      container.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startY = e.clientY;
+        startVal = currentVal;
+        document.body.style.cursor = 'grabbing';
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const deltaY = startY - e.clientY;
+        const range = max - min;
+        const stepChange = (deltaY / 150) * range;
+        updateKnobUI(startVal + stepChange);
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          document.body.style.cursor = '';
+        }
+      });
+    });
+  }
+
+  setupKnobs();
+  document.addEventListener('astro:page-load', setupKnobs);
+</script>

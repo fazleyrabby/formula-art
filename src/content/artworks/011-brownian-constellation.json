@@ -1,0 +1,43 @@
+{
+  "id": "011",
+  "slug": "brownian-constellation",
+  "title": "Brownian Constellation",
+  "subtitle": "Dynamic Euclidean Distance Graph",
+  "category": "particles",
+  "description": "Continuous random walk nodes interconnected by proximity-based Euclidean distance thresholds, forming dynamic topological webs.",
+  "mathNotation": "E = \\{ (i, j) \\mid \\|\\mathbf{p}_i - \\mathbf{p}_j\\| \\le r_{\\text{conn}} \\}, \\quad \\alpha_{ij} = 1 - \\frac{\\|\\mathbf{p}_i - \\mathbf{p}_j\\|^2}{r_{\\text{conn}}^2}",
+  "formulaCompact": "d = dist(p_i, p_j),  if (d < R) drawLine(p_i, p_j, alpha = 1 - d/R)",
+  "formulaFull": "const dx = px[j] - px[i];\nconst dy = py[j] - py[i];\nconst dSq = dx * dx + dy * dy;\nif (dSq < maxDistSq) {\n  const alpha = 1 - dSq / maxDistSq;\n  ctx.strokeStyle = hsla(hue, 85, 60, alpha * 0.5);\n}",
+  "algorithmKey": "brownian-constellation",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "nodeCount",
+      "label": "Constellation Nodes",
+      "type": "range",
+      "min": 40,
+      "max": 160,
+      "step": 10,
+      "defaultValue": 100,
+      "description": "Total walking points"
+    },
+    {
+      "key": "connectionRadius",
+      "label": "Connection Reach",
+      "type": "range",
+      "min": 40,
+      "max": 140,
+      "step": 5,
+      "defaultValue": 80,
+      "description": "Maximum proximity distance"
+    }
+  ],
+  "tags": ["graph", "constellation", "brownian", "network", "euclidean", "particles"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "023",
+  "slug": "galaxy-spiral-density",
+  "title": "Spiral Galaxy Density",
+  "subtitle": "Lin-Shu Astrophysical Density Wave Theory",
+  "category": "space",
+  "description": "Chia-Chiao Lin and Frank Shu's stellar density wave model explaining long-lived spiral arm patterns through quasi-stationary compression waves.",
+  "mathNotation": "\\Sigma(r, \\theta, t) = \\Sigma_0(r) + \\Sigma_1(r) \\cos\\left[ m \\left( \\theta - \\Omega_p t - f(r) \\right) \\right], \\quad f(r) = \\frac{\\ln(r/r_0)}{\\tan i}",
+  "formulaCompact": "armPhase = (1/pitch) * ln(r/10) - 0.4t,  r_eff = r * (1 - 0.12 * sin(m*(θ - armPhase)))",
+  "formulaFull": "const armPhase = (1 / pitch) * Math.log(starR[i] / 10) - t * 0.4;\nconst distToArm = Math.sin(arms * (starTheta[i] - armPhase));\nconst effectiveR = starR[i] * (1 - 0.12 * distToArm);\nconst px = cx + Math.cos(starTheta[i]) * effectiveR * scale;\nconst py = cy + Math.sin(starTheta[i]) * effectiveR * scale;",
+  "algorithmKey": "galaxy-spiral-density",
+  "complexity": "high",
+  "particleCount": 2500,
+  "parameters": [
+    {
+      "key": "armCount",
+      "label": "Spiral Arm Count (m)",
+      "type": "range",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "defaultValue": 2,
+      "description": "Number of density wave spiral arms"
+    },
+    {
+      "key": "pitchAngle",
+      "label": "Arm Pitch Angle",
+      "type": "range",
+      "min": 0.1,
+      "max": 0.5,
+      "step": 0.02,
+      "defaultValue": 0.22,
+      "description": "Logarithmic winding tightness"
+    },
+    {
+      "key": "speed",
+      "label": "Pattern Speed (Ωp)",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 0.6,
+      "description": "Rigid wave pattern rotation"
+    }
+  ],
+  "tags": ["galaxy", "density-wave", "astrophysics", "spiral", "space", "stars"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

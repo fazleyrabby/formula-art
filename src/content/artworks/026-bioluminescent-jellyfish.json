@@ -1,0 +1,54 @@
+{
+  "id": "026",
+  "slug": "bioluminescent-jellyfish",
+  "title": "Bioluminescent Jellyfish",
+  "subtitle": "Harmonic Umbrella Kinematics & Phosphor Pulse",
+  "category": "creatures",
+  "description": "Marine cnidarian hydrostatic locomotion modeled via periodic radial bell contractions and multi-node sinusoidal wave propagation down trailing tentacles.",
+  "mathNotation": "R(\\theta, t) = R_0 \\left[ 1 + A \\sin(\\omega t) \\cos(n \\theta) \\right], \\quad y_{\\text{tentacle}}(s, t) = s + A_t \\sin(k s - \\omega t)",
+  "formulaCompact": "r_dome = R*(1 + 0.22*sin(3t)),  y_tentacle = y0 + s + sin(3t - 6s + k)*18s",
+  "formulaFull": "const marginFrill = 0.06 * Math.sin(phi * 12 + t * 4);\nconst px = cx + Math.cos(phi) * domeWidth * (1 + marginFrill);\nconst py = cy - Math.sin(phi) * domeHeight + marginFrill * 10;\nconst wave = Math.sin(t * 3 - normN * 6 + k * 0.5) * (18 * normN);",
+  "algorithmKey": "bioluminescent-jellyfish",
+  "complexity": "high",
+  "particleCount": 1400,
+  "parameters": [
+    {
+      "key": "pulseSpeed",
+      "label": "Pulse Stroke Rate",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Swimming bell contraction velocity"
+    },
+    {
+      "key": "tentacleLength",
+      "label": "Tentacle Reach",
+      "type": "range",
+      "min": 80,
+      "max": 260,
+      "step": 10,
+      "defaultValue": 160,
+      "description": "Length of trailing cnidocyte tentacles"
+    },
+    {
+      "key": "glowIntensity",
+      "label": "Bioluminescent Glow",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Luciferin photonic emission level"
+    }
+  ],
+  "tags": ["jellyfish", "marine", "creatures", "bioluminescence", "kinematics", "waves"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

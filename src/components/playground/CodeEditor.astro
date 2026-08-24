@@ -1,0 +1,106 @@
+---
+interface Props {
+  initialCode: string;
+}
+
+const { initialCode } = Astro.props;
+---
+
+<div class="flex flex-col h-full rounded-2xl border border-white/10 bg-[#0c0e17] overflow-hidden shadow-xl">
+  <!-- Editor Header / Controls -->
+  <div class="flex items-center justify-between px-4 py-3 bg-[#08090d] border-b border-white/[0.08] text-xs font-mono">
+    <div class="flex items-center gap-2">
+      <div class="flex gap-1.5">
+        <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+      </div>
+      <span class="text-slate-400 pl-2 border-l border-white/10">formula-editor.js</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        id="format-code-btn"
+        class="px-2.5 py-1 rounded bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white border border-white/5 transition-all"
+        title="Format Code"
+      >
+        Format
+      </button>
+
+      <button
+        type="button"
+        id="run-code-btn"
+        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-accent-cyan/15 hover:bg-accent-cyan/25 border border-accent-cyan/40 text-accent-cyan font-bold transition-all active:scale-95 cursor-pointer shadow-glow"
+        title="Run Code (Cmd + Enter)"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+        </svg>
+        <span>Run</span>
+        <kbd class="text-[10px] bg-black/40 px-1 py-0.2 rounded border border-white/10">⌘↵</kbd>
+      </button>
+    </div>
+  </div>
+
+  <!-- Editable Code Area -->
+  <div class="relative flex-1 min-h-[420px] bg-[#0c0e17] overflow-auto font-mono text-xs sm:text-sm p-4">
+    <textarea
+      id="code-editor-textarea"
+      class="w-full h-full min-h-[420px] bg-transparent text-slate-100 font-mono resize-none focus:outline-none leading-relaxed selection:bg-accent-cyan/30"
+      spellcheck="false"
+      autocomplete="off"
+    >{initialCode}</textarea>
+  </div>
+
+  <!-- Footer Help -->
+  <div class="px-4 py-2 bg-[#08090d] border-t border-white/[0.06] flex items-center justify-between text-[11px] font-mono text-slate-400">
+    <span>Passes <code>ctx</code>, <code>width</code>, <code>height</code>, <code>time</code></span>
+    <span>Auto-evaluated on run</span>
+  </div>
+</div>
+
+<script>
+  function setupPlaygroundEditor() {
+    const textarea = document.getElementById('code-editor-textarea') as HTMLTextAreaElement;
+    const runBtn = document.getElementById('run-code-btn');
+
+    if (!textarea || !runBtn) return;
+
+    function triggerRun() {
+      const code = textarea.value;
+      window.dispatchEvent(new CustomEvent('math-art:run-code', { detail: { code } }));
+    }
+
+    runBtn.addEventListener('click', triggerRun);
+
+    textarea.addEventListener('keydown', (e) => {
+      // Cmd + Enter / Ctrl + Enter
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        triggerRun();
+      }
+
+      // Tab indentation support
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        textarea.value = textarea.value.substring(0, start) + '  ' + textarea.value.substring(end);
+        textarea.selectionStart = textarea.selectionEnd = start + 2;
+      }
+    });
+
+    // Listen to external preset loads
+    window.addEventListener('math-art:load-preset', ((e: CustomEvent) => {
+      if (e.detail?.code) {
+        textarea.value = e.detail.code;
+        triggerRun();
+      }
+    }) as EventListener);
+  }
+
+  setupPlaygroundEditor();
+  document.addEventListener('astro:page-load', setupPlaygroundEditor);
+</script>

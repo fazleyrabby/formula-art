@@ -1,0 +1,43 @@
+{
+  "id": "015",
+  "slug": "moire-interference",
+  "title": "Moiré Interference",
+  "subtitle": "Superimposed Spatial Frequency Grating",
+  "category": "geometry",
+  "description": "Visual optical interference fringes formed by the spatial overlap of two dense concentric circle grids shifting across phase space.",
+  "mathNotation": "I(x, y) = \\cos(k_1 \\|\\mathbf{r} - \\mathbf{c}_1\\|) + \\cos(k_2 \\|\\mathbf{r} - \\mathbf{c}_2(t)\\|)",
+  "formulaCompact": "fringe = arc(c1, r) + arc(c2(t), r),  beat_frequency = |k1 - k2|",
+  "formulaFull": "for (let r = 5; r < maxR; r += step) {\n  ctx.arc(c1x, c1y, r, 0, Math.PI * 2);\n  ctx.arc(c2x, c2y, r, 0, Math.PI * 2);\n}",
+  "algorithmKey": "moire-interference",
+  "complexity": "low",
+  "parameters": [
+    {
+      "key": "ringCount",
+      "label": "Ring Density",
+      "type": "range",
+      "min": 30,
+      "max": 120,
+      "step": 5,
+      "defaultValue": 75,
+      "description": "Concentric circle count"
+    },
+    {
+      "key": "speed",
+      "label": "Orbital Shift Speed",
+      "type": "range",
+      "min": 0.1,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 0.5,
+      "description": "Phase drift speed"
+    }
+  ],
+  "tags": ["moire", "interference", "optical", "grating", "geometry", "physics"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

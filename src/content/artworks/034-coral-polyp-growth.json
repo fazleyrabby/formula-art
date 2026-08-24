@@ -1,0 +1,43 @@
+{
+  "id": "034",
+  "slug": "coral-polyp-growth",
+  "title": "Coral Polyp Growth",
+  "subtitle": "Differential Growth Curve & Radial Polyp Bloom",
+  "category": "botany",
+  "description": "Anthozoan coral colony morphology simulated through differential boundary growth equations and undulating feather tentacle radial symmetry.",
+  "mathNotation": "\\mathbf{p}(\\theta, t) = \\left[ R_0 + \\sum_{m=1}^{K} A_m \\sin(m \\theta + \\omega_m t) \\right] \\begin{bmatrix} \\cos\\theta \\\\ \\sin\\theta \\end{bmatrix}",
+  "formulaCompact": "r_ridge = R0 + 12 sin(6θ + 0.5t) + 6 cos(12θ - t),  tentacle = quadCurve(mouth, ctrlWave, tip)",
+  "formulaFull": "const bump = Math.sin(phi * 6 + t * 0.5) * 12 + Math.cos(phi * 12 - t) * 6;\nconst r = (baseR * 0.6 + bump) * bloomScale;\nconst ctrlX = px + Math.cos(tentAngle) * (tentLen * 0.5) + Math.sin(wavePhase) * 6;",
+  "algorithmKey": "coral-polyp-growth",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "flowSpeed",
+      "label": "Tidal Wave Flow",
+      "type": "range",
+      "min": 0.3,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 0.8,
+      "description": "Tentacle wave oscillation rate"
+    },
+    {
+      "key": "bloomScale",
+      "label": "Colony Expansion",
+      "type": "range",
+      "min": 0.6,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Radial polyp size multiplier"
+    }
+  ],
+  "tags": ["coral", "polyps", "differential-growth", "botany", "marine", "nature"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

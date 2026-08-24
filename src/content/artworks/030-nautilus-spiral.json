@@ -1,0 +1,43 @@
+{
+  "id": "030",
+  "slug": "nautilus-spiral",
+  "title": "Nautilus Shell Spiral",
+  "subtitle": "Equiangular Logarithmic Chamber Geometry",
+  "category": "creatures",
+  "description": "Cephalopod chambered shell growth governed by the logarithmic equiangular spiral r = a*exp(b*theta), featuring internal curved septa walls and siphuncle canal.",
+  "mathNotation": "r(\\theta) = a e^{b \\theta}, \\quad b = \\frac{\\ln(\\phi)}{2\\pi} \\approx 0.1759, \\quad \\alpha = \\cot^{-1}(b)",
+  "formulaCompact": "r = a * exp(0.1759 * θ),  septum_arch = quadCurve(inPoint, outPoint)",
+  "formulaFull": "const rOuter = a * Math.exp(b * theta1);\nconst rInner = theta2 > 0 ? a * Math.exp(b * theta2) : 0;\nconst outX = rOuter * Math.cos(theta1);\nconst outY = rOuter * Math.sin(theta1);",
+  "algorithmKey": "nautilus-spiral",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "spinSpeed",
+      "label": "Iridescent Rotation",
+      "type": "range",
+      "min": 0.1,
+      "max": 1.5,
+      "step": 0.05,
+      "defaultValue": 0.4,
+      "description": "Shell rotation speed"
+    },
+    {
+      "key": "chamberCount",
+      "label": "Septa Chambers",
+      "type": "range",
+      "min": 12,
+      "max": 48,
+      "step": 2,
+      "defaultValue": 36,
+      "description": "Number of internal camera walls"
+    }
+  ],
+  "tags": ["nautilus", "spiral", "logarithmic", "creatures", "golden-ratio", "geometry"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

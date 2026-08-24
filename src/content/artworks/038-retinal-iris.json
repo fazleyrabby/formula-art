@@ -1,0 +1,33 @@
+{
+  "id": "038",
+  "slug": "retinal-iris",
+  "title": "Retinal Iris Trabeculae",
+  "subtitle": "Pupillary Sphincter & Fractal Collagen Meshwork",
+  "category": "anatomy",
+  "description": "Ophthalmic human iris architecture showing hundreds of undulating radial collagen trabeculae, pupillary light reflex sphincter contraction, and heterochromia pigmentation.",
+  "mathNotation": "r_{\\text{pupil}}(t) = R_{\\text{iris}} \\left[ c_0 + c_1 \\sin(\\omega t) \\right], \\quad \\mathbf{p}_i(s) = \\mathbf{p}_{\\text{pupil}} + s (\\mathbf{p}_{\\text{limbus}} - \\mathbf{p}_{\\text{pupil}}) + \\mathbf{w}(s, \\theta_i)",
+  "formulaCompact": "pupil_r = R * (0.28 + 0.12*sin(1.5t)),  trabecula = quadCurve(pupil, furrow, limbus)",
+  "formulaFull": "const pupilConstriction = 0.28 + 0.12 * Math.sin(t * 1.5);\nconst pupilRadius = irisRadius * pupilConstriction;\nconst fiberWobble = Math.sin(phi * 18 + t * 2) * (irisRadius * 0.05);\nctx.quadraticCurveTo(xMid, yMid, x2, y2);",
+  "algorithmKey": "retinal-iris",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "pupilSpeed",
+      "label": "Light Reflex Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 0.8,
+      "description": "Pupillary dilation / constriction rate"
+    }
+  ],
+  "tags": ["eye", "iris", "retina", "anatomy", "optics", "biology", "collagen"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

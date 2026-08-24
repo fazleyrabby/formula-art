@@ -1,0 +1,53 @@
+{
+  "id": "031",
+  "slug": "fractal-tree",
+  "title": "L-System Fractal Tree",
+  "subtitle": "Recursive Lindenmayer Botanical Branching",
+  "category": "botany",
+  "description": "Lindenmayer botanical growth grammar producing natural dendritic fractal trees with stochastic wind turbulence and harmonic terminal leaf clusters.",
+  "mathNotation": "\\text{Grammar: } X \\to F[+X][-X]FX, \\quad \\mathbf{p}_{n+1} = \\mathbf{p}_n + L r^n \\begin{bmatrix} \\cos(\\theta \\pm \\Delta\\theta + w) \\\\ \\sin(\\theta \\pm \\Delta\\theta + w) \\end{bmatrix}",
+  "formulaCompact": "branch(x, y, len * ratio, angle ± Δθ + wind, depth - 1)",
+  "formulaFull": "const branchAngle = 0.42 + wind * 0.15;\nconst nextLen = length * branchRatio;\ndrawBranch(ctx, endX, endY, nextLen, angle - branchAngle + wind * 0.08, depth - 1, branchRatio, wind, time);",
+  "algorithmKey": "fractal-tree",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "branchDepth",
+      "label": "Recursion Depth",
+      "type": "range",
+      "min": 4,
+      "max": 9,
+      "step": 1,
+      "defaultValue": 8,
+      "description": "Branching recursion levels"
+    },
+    {
+      "key": "branchRatio",
+      "label": "Branch Length Ratio",
+      "type": "range",
+      "min": 0.55,
+      "max": 0.85,
+      "step": 0.02,
+      "defaultValue": 0.72,
+      "description": "Child branch scaling factor"
+    },
+    {
+      "key": "windSpeed",
+      "label": "Wind Gust Turbulence",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Harmonic wind velocity"
+    }
+  ],
+  "tags": ["tree", "fractal", "l-system", "botany", "nature", "branching", "leaves"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

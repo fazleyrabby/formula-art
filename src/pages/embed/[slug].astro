@@ -1,0 +1,62 @@
+---
+import { getCollection } from 'astro:content';
+import '../../styles/global.css';
+
+export async function getStaticPaths() {
+  const artworks = await getCollection('artworks');
+  return artworks.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { artwork: entry.data },
+  }));
+}
+
+const { artwork } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{artwork.title} — Math Art Embed</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; overflow: hidden; background: #050608; }
+      canvas { width: 100%; height: 100%; display: block; }
+    </style>
+  </head>
+  <body>
+    <canvas
+      id="embed-canvas"
+      data-algorithm={artwork.algorithmKey}
+      data-params={JSON.stringify(
+        artwork.parameters.reduce((acc, p) => ({ ...acc, [p.key]: p.defaultValue }), {})
+      )}
+    ></canvas>
+
+    <script>
+      import { CanvasEngine } from '../../engine/CanvasEngine';
+      import { getAlgorithmRenderer } from '../../algorithms/registry';
+
+      const canvas = document.getElementById('embed-canvas') as HTMLCanvasElement;
+      if (canvas) {
+        const algorithmKey = canvas.getAttribute('data-algorithm') || 'organic-wave';
+        const paramsJson = canvas.getAttribute('data-params') || '{}';
+        let params = {};
+        try {
+          params = JSON.parse(paramsJson);
+        } catch (e) {}
+
+        const renderer = getAlgorithmRenderer(algorithmKey);
+        const engine = new CanvasEngine({
+          canvas,
+          renderer,
+          initialParams: params,
+          interactive: true,
+        });
+
+        engine.start();
+      }
+    </script>
+  </body>
+</html>

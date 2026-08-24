@@ -1,0 +1,64 @@
+{
+  "id": "001",
+  "slug": "organic-wave",
+  "title": "Organic Wave",
+  "subtitle": "Sinusoidal Deformation Field",
+  "category": "organic",
+  "description": "Harmonic superposition of linear sinusoidal waves and radial distance ripples creating a rhythmic, breathing undulating mesh.",
+  "mathNotation": "z(x, y, t) = A_1 \\sin(k_1 x + \\omega_1 t) \\cos(k_2 y + \\omega_2 t) + A_2 \\sin(k_3 \\sqrt{x^2 + y^2} - \\omega_3 t)",
+  "formulaCompact": "y = sin(x * 0.02 + t) * cos(y * 0.01 + t * 0.5) * 35 + sin(dist(x, y) * 0.05 - t * 2) * 20",
+  "formulaFull": "const wave1 = Math.sin(px * freq + t) * Math.cos(py * freq * 0.7 + t * 0.5);\nconst wave2 = Math.sin(d * freq * 1.5 - t * 2.0) * 0.5;\nconst offset = (wave1 + wave2) * amp;\nconst renderY = py + offset;",
+  "algorithmKey": "organic-wave",
+  "complexity": "low",
+  "particleCount": 2000,
+  "parameters": [
+    {
+      "key": "frequency",
+      "label": "Spatial Frequency",
+      "type": "range",
+      "min": 0.005,
+      "max": 0.05,
+      "step": 0.001,
+      "defaultValue": 0.02,
+      "description": "Controls wavelength spacing"
+    },
+    {
+      "key": "amplitude",
+      "label": "Wave Amplitude",
+      "type": "range",
+      "min": 10,
+      "max": 80,
+      "step": 1,
+      "defaultValue": 35,
+      "description": "Height of the crests"
+    },
+    {
+      "key": "speed",
+      "label": "Oscillation Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Temporal propagation rate"
+    },
+    {
+      "key": "hue",
+      "label": "Base Hue",
+      "type": "range",
+      "min": 0,
+      "max": 360,
+      "step": 1,
+      "defaultValue": 195,
+      "description": "Base color spectrum"
+    }
+  ],
+  "tags": ["sin", "cos", "wave", "mesh", "organic", "trigonometry"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

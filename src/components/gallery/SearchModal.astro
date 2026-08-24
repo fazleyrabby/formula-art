@@ -1,0 +1,212 @@
+---
+import type { ArtworkData } from '../../types/artwork';
+
+interface Props {
+  artworks: ArtworkData[];
+}
+
+const { artworks } = Astro.props;
+
+// Pre-serialized search index
+const searchIndex = artworks.map((a) => ({
+  id: a.id,
+  slug: a.slug,
+  title: a.title,
+  subtitle: a.subtitle || '',
+  category: a.category,
+  formulaCompact: a.formulaCompact,
+  tags: a.tags.join(' '),
+  description: a.description
+}));
+---
+
+<dialog
+  id="search-dialog"
+  class="fixed inset-0 z-50 m-auto w-full max-w-2xl bg-transparent p-4 backdrop:bg-black/80 backdrop:backdrop-blur-md"
+  aria-label="Search mathematical artworks"
+>
+  <div class="glass-panel rounded-2xl border border-white/10 bg-[#0c0e17]/95 p-4 shadow-2xl flex flex-col gap-4 text-slate-200">
+    <!-- Search Input Header -->
+    <div class="flex items-center gap-3 border-b border-white/[0.08] pb-3">
+      <svg class="w-5 h-5 text-accent-cyan shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input
+        type="text"
+        id="search-input"
+        placeholder="Search formulas, categories, math equations, or tags..."
+        class="w-full bg-transparent font-sans text-sm text-slate-100 placeholder-slate-500 focus:outline-none"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <kbd class="px-2 py-0.5 text-[10px] font-mono bg-black/40 border border-white/10 rounded text-slate-400">
+        ESC
+      </kbd>
+    </div>
+
+    <!-- Search Results Container -->
+    <div
+      id="search-results"
+      class="max-h-96 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin"
+      role="listbox"
+    >
+      <!-- Populated dynamically via JS -->
+    </div>
+
+    <!-- Search Footer -->
+    <div class="border-t border-white/[0.06] pt-3 flex items-center justify-between text-[11px] font-mono text-slate-500">
+      <div class="flex items-center gap-3">
+        <span><kbd class="text-[10px] bg-white/5 px-1 py-0.5 rounded border border-white/5">↑↓</kbd> Navigate</span>
+        <span><kbd class="text-[10px] bg-white/5 px-1 py-0.5 rounded border border-white/5">↵</kbd> Select</span>
+      </div>
+      <span>25 Mathematical Artworks</span>
+    </div>
+  </div>
+</dialog>
+
+<script define:vars={{ searchIndex }}>
+  function setupSearchModal() {
+    const dialog = document.getElementById('search-dialog');
+    const input = document.getElementById('search-input');
+    const resultsContainer = document.getElementById('search-results');
+    const triggerBtn = document.getElementById('search-trigger');
+
+    if (!dialog || !input || !resultsContainer) return;
+
+    let selectedIndex = 0;
+    let currentResults = searchIndex;
+
+    function renderResults(results) {
+      currentResults = results;
+      selectedIndex = 0;
+      resultsContainer.innerHTML = '';
+
+      if (results.length === 0) {
+        resultsContainer.innerHTML = `
+          <div class="p-8 text-center text-slate-500 font-mono text-xs">
+            No mathematical formulas found matching your query.
+          </div>
+        `;
+        return;
+      }
+
+      results.forEach((item, idx) => {
+        const itemEl = document.createElement('a');
+        itemEl.href = `/art/${item.slug}`;
+        itemEl.className = `search-item flex items-center justify-between p-3 rounded-lg border border-transparent transition-all cursor-pointer ${
+          idx === 0 ? 'bg-white/[0.06] border-white/10 text-white' : 'hover:bg-white/[0.04] text-slate-300'
+        }`;
+        itemEl.setAttribute('role', 'option');
+        itemEl.setAttribute('data-index', String(idx));
+
+        itemEl.innerHTML = `
+          <div class="flex flex-col gap-0.5 overflow-hidden pr-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold text-slate-100 font-sans">${item.title}</span>
+              <span class="text-[10px] font-mono text-accent-cyan px-1.5 py-0.2 rounded bg-accent-cyan/10 border border-accent-cyan/20 uppercase">
+                ${item.category}
+              </span>
+            </div>
+            <code class="text-[11px] font-mono text-slate-400 truncate">
+              ${item.formulaCompact}
+            </code>
+          </div>
+          <span class="text-[10px] font-mono text-slate-500 shrink-0">#${item.id}</span>
+        `;
+
+        resultsContainer.appendChild(itemEl);
+      });
+    }
+
+    function openModal() {
+      dialog.showModal();
+      input.value = '';
+      renderResults(searchIndex);
+      input.focus();
+    }
+
+    function closeModal() {
+      dialog.close();
+    }
+
+    // Trigger listeners
+    triggerBtn?.addEventListener('click', openModal);
+
+    // Global Cmd+K / Ctrl+K listener
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (dialog.open) closeModal();
+        else openModal();
+      }
+    });
+
+    // Close on backdrop click
+    dialog.addEventListener('click', (e) => {
+      const rect = dialog.getBoundingClientRect();
+      const isInDialog = (
+        rect.top <= e.clientY &&
+        e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX &&
+        e.clientX <= rect.left + rect.width
+      );
+      if (!isInDialog) closeModal();
+    });
+
+    // Live search input filtering
+    input.addEventListener('input', () => {
+      const query = input.value.toLowerCase().trim();
+      if (!query) {
+        renderResults(searchIndex);
+        return;
+      }
+
+      const filtered = searchIndex.filter((item) => {
+        return (
+          item.title.toLowerCase().includes(query) ||
+          item.category.toLowerCase().includes(query) ||
+          item.formulaCompact.toLowerCase().includes(query) ||
+          item.tags.toLowerCase().includes(query) ||
+          item.description.toLowerCase().includes(query)
+        );
+      });
+
+      renderResults(filtered);
+    });
+
+    // Keyboard navigation (Arrow keys + Enter)
+    input.addEventListener('keydown', (e) => {
+      const items = resultsContainer.querySelectorAll('.search-item');
+      if (items.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex + 1) % items.length;
+        updateSelection(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+        updateSelection(items);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (currentResults[selectedIndex]) {
+          window.location.href = `/art/${currentResults[selectedIndex].slug}`;
+        }
+      }
+    });
+
+    function updateSelection(items) {
+      items.forEach((it, idx) => {
+        if (idx === selectedIndex) {
+          it.classList.add('bg-white/[0.06]', 'border-white/10', 'text-white');
+          it.scrollIntoView({ block: 'nearest' });
+        } else {
+          it.classList.remove('bg-white/[0.06]', 'border-white/10', 'text-white');
+        }
+      });
+    }
+  }
+
+  setupSearchModal();
+  document.addEventListener('astro:page-load', setupSearchModal);
+</script>

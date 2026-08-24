@@ -1,0 +1,43 @@
+{
+  "id": "025",
+  "slug": "julia-morph",
+  "title": "Julia Morphism",
+  "subtitle": "Complex Dynamic Polynomial Iteration",
+  "category": "experimental",
+  "description": "Continuous morphing of the Julia set boundary as the complex parameter c(t) traces a closed loop through the Mandelbrot parameter space.",
+  "mathNotation": "z_{n+1} = z_n^2 + c(t), \\quad c(t) = -0.8 + 0.15 e^{i \\omega t}",
+  "formulaCompact": "z = z² + (-0.8 + 0.15 e^(iωt)),  iter_escape = min(k | |z_k| > 2)",
+  "formulaFull": "const tempX = zx * zx - zy * zy + cr;\nzy = 2 * zx * zy + ci;\nzx = tempX;\niter++;",
+  "algorithmKey": "julia-morph",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "speed",
+      "label": "Morph Velocity",
+      "type": "range",
+      "min": 0.1,
+      "max": 1.5,
+      "step": 0.05,
+      "defaultValue": 0.4,
+      "description": "Parameter space orbit speed"
+    },
+    {
+      "key": "maxIter",
+      "label": "Max Iterations",
+      "type": "range",
+      "min": 10,
+      "max": 50,
+      "step": 2,
+      "defaultValue": 24,
+      "description": "Fractal escape depth"
+    }
+  ],
+  "tags": ["fractal", "julia-set", "complex-numbers", "chaos", "mandelbrot", "experimental"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

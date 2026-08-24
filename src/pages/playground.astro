@@ -1,0 +1,187 @@
+---
+import Layout from '../layouts/Layout.astro';
+import VisualControls from '../components/playground/VisualControls.astro';
+import CodeEditor from '../components/playground/CodeEditor.astro';
+import PreviewFrame from '../components/playground/PreviewFrame.astro';
+import { getCollection } from 'astro:content';
+
+const allArtworks = await getCollection('artworks');
+allArtworks.sort((a, b) => a.data.id.localeCompare(b.data.id));
+
+const presets = allArtworks.map((a) => ({
+  slug: a.data.slug,
+  title: a.data.title,
+  category: a.data.category,
+  code: `// ${a.data.title} (${a.data.category})
+// Math: ${a.data.mathNotation}
+// Formula: ${a.data.formulaCompact}
+
+// Fade background for trail effect
+ctx.fillStyle = 'rgba(8, 9, 13, 0.2)';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const scale = Math.min(width, height) * 0.35;
+
+ctx.beginPath();
+const steps = 360;
+for (let i = 0; i <= steps; i++) {
+  const phi = (i / steps) * Math.PI * 2;
+  const r = 1 + 0.3 * Math.sin(phi * 5 + time * 3) * Math.cos(phi * 3 - time * 2);
+  const px = cx + Math.cos(phi) * r * scale;
+  const py = cy + Math.sin(phi) * r * scale;
+
+  if (i === 0) ctx.moveTo(px, py);
+  else ctx.lineTo(px, py);
+}
+ctx.closePath();
+
+const hue = (time * 30 + 190) % 360;
+ctx.strokeStyle = 'hsla(' + hue + ', 90%, 65%, 0.8)';
+ctx.lineWidth = 2.5;
+ctx.stroke();
+`
+}));
+
+const defaultCode = presets[0].code;
+---
+
+<Layout
+  title="Playground — Math Art Visual Generator & Live Studio"
+  description="Generate and live modulate generative mathematical art using interactive rotary knobs, sliders, toggle switches, or direct code inspection."
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
+    <!-- Header & Mode Switcher -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-sans font-bold text-white tracking-tight">
+          Formula Generator Studio
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-400 font-sans mt-0.5">
+          Sculpt generative mathematical art visually with radial rotary knobs and micro-sliders.
+        </p>
+      </div>
+
+      <!-- Mode Switcher Tabs -->
+      <div class="flex items-center gap-2 bg-[#0c0e17] p-1 rounded-xl border border-white/10">
+        <button
+          type="button"
+          id="tab-visual"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30 shadow-glow"
+        >
+          🎛️ Visual Knobs & Sliders
+        </button>
+        <button
+          type="button"
+          id="tab-code"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all text-slate-400 hover:text-white border border-transparent"
+        >
+          💻 Code Inspector
+        </button>
+      </div>
+    </div>
+
+    <!-- Presets Bar (Quick Archetypes) -->
+    <div class="flex items-center justify-between gap-4 p-3 rounded-xl bg-[#0c0e17]/60 border border-white/[0.06] text-xs font-mono">
+      <div class="flex items-center gap-2 overflow-x-auto py-0.5">
+        <span class="text-slate-400 shrink-0">Preset Catalog:</span>
+        <select
+          id="preset-select"
+          class="px-3 py-1 rounded-lg bg-[#08090d] border border-white/10 text-xs font-mono text-slate-200 focus:outline-none focus:border-accent-cyan cursor-pointer"
+        >
+          {presets.map((preset) => (
+            <option value={preset.slug}>
+              {preset.title} ({preset.category})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <span class="text-[11px] text-slate-400 hidden sm:inline">
+        Live Canvas 60 FPS Runtime
+      </span>
+    </div>
+
+    <!-- Split-Pane: Visual Studio / Code Editor on Left, Live Canvas on Right -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch min-h-[560px]">
+      <!-- Left Panel: Visual Controls (Default) OR Code Editor -->
+      <div class="lg:col-span-6 flex flex-col h-full">
+        <div id="panel-visual" class="h-full">
+          <VisualControls />
+        </div>
+        <div id="panel-code" class="h-full hidden">
+          <CodeEditor initialCode={defaultCode} />
+        </div>
+      </div>
+
+      <!-- Right Panel: Sandboxed Preview Frame -->
+      <div class="lg:col-span-6 flex flex-col h-full">
+        <PreviewFrame />
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script define:vars={{ presets }}>
+  function setupPlaygroundView() {
+    const tabVisual = document.getElementById('tab-visual');
+    const tabCode = document.getElementById('tab-code');
+    const panelVisual = document.getElementById('panel-visual');
+    const panelCode = document.getElementById('panel-code');
+    const select = document.getElementById('preset-select');
+
+    if (!tabVisual || !tabCode || !panelVisual || !panelCode) return;
+
+    function switchMode(mode) {
+      if (mode === 'visual') {
+        tabVisual.className = 'px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30 shadow-glow';
+        tabCode.className = 'px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all text-slate-400 hover:text-white border border-transparent';
+        panelVisual.classList.remove('hidden');
+        panelCode.classList.add('hidden');
+      } else {
+        tabCode.className = 'px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30 shadow-glow';
+        tabVisual.className = 'px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all text-slate-400 hover:text-white border border-transparent';
+        panelCode.classList.remove('hidden');
+        panelVisual.classList.add('hidden');
+      }
+    }
+
+    tabVisual.addEventListener('click', () => switchMode('visual'));
+    tabCode.addEventListener('click', () => switchMode('code'));
+
+    // Check URL parameters for preset
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialPreset = urlParams.get('preset');
+    if (initialPreset && select) {
+      select.value = initialPreset;
+      const found = presets.find((p) => p.slug === initialPreset);
+      if (found) {
+        switchMode('code'); // Switch to code mode when explicitly requested via preset link
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('math-art:load-preset', { detail: { code: found.code } }));
+        }, 120);
+      }
+    }
+
+    select?.addEventListener('change', () => {
+      const slug = select.value;
+      const found = presets.find((p) => p.slug === slug);
+      if (found) {
+        switchMode('code');
+        window.dispatchEvent(new CustomEvent('math-art:load-preset', { detail: { code: found.code } }));
+      }
+    });
+
+    // Sync generated code from Visual Studio into Code Editor textarea
+    window.addEventListener('math-art:code-generated', (e) => {
+      const textarea = document.getElementById('code-editor-textarea');
+      if (textarea && e.detail?.code) {
+        textarea.value = e.detail.code;
+      }
+    });
+  }
+
+  setupPlaygroundView();
+  document.addEventListener('astro:page-load', setupPlaygroundView);
+</script>

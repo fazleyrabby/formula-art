@@ -1,0 +1,54 @@
+{
+  "id": "004",
+  "slug": "perlin-tendrils",
+  "title": "Perlin Tendrils",
+  "subtitle": "2D Fractal Brownian Flow",
+  "category": "organic",
+  "description": "Particles advecting through a multi-octave Fractal Brownian Motion (FBM) gradient field, forming delicate, branching filamentous structures.",
+  "mathNotation": "\\mathbf{v}(x, y, t) = \\nabla \\times \\left( \\sum_{i=0}^{k} \\gamma^i \\text{Noise}(2^i x, 2^i y + \\omega t) \\right)",
+  "formulaCompact": "angle = fbm(x * 0.003, y * 0.003 + t * 0.15) * 4π,  v = [cos(angle), sin(angle)]",
+  "formulaFull": "const angle = fbm2D(posX[i] * noiseScale, posY[i] * noiseScale + t) * Math.PI * 4;\nposX[i] += Math.cos(angle) * speed;\nposY[i] += Math.sin(angle) * speed;",
+  "algorithmKey": "perlin-tendrils",
+  "complexity": "medium",
+  "particleCount": 1000,
+  "parameters": [
+    {
+      "key": "particleCount",
+      "label": "Tendril Particles",
+      "type": "range",
+      "min": 200,
+      "max": 1500,
+      "step": 50,
+      "defaultValue": 1000,
+      "description": "Total tracer filaments"
+    },
+    {
+      "key": "noiseScale",
+      "label": "Noise Zoom Scale",
+      "type": "range",
+      "min": 0.001,
+      "max": 0.008,
+      "step": 0.0005,
+      "defaultValue": 0.003,
+      "description": "Curvature granularity"
+    },
+    {
+      "key": "speed",
+      "label": "Advection Speed",
+      "type": "range",
+      "min": 0.5,
+      "max": 4.0,
+      "step": 0.1,
+      "defaultValue": 1.5,
+      "description": "Velocity along vector lines"
+    }
+  ],
+  "tags": ["perlin", "fbm", "noise", "tendrils", "flow-field", "organic"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

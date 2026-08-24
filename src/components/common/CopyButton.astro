@@ -1,0 +1,77 @@
+---
+interface Props {
+  textToCopy: string;
+  label?: string;
+  className?: string;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  id?: string;
+}
+
+const { textToCopy, label = 'Copy', className = '', variant = 'secondary', id } = Astro.props;
+
+const variantStyles = {
+  primary: 'bg-accent-cyan/10 hover:bg-accent-cyan/20 text-accent-cyan border-accent-cyan/30 hover:border-accent-cyan/50',
+  secondary: 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border-white/10 hover:border-white/20',
+  ghost: 'bg-transparent hover:bg-white/[0.06] text-slate-400 hover:text-white border-transparent'
+};
+---
+
+<button
+  type="button"
+  id={id}
+  data-copy-text={textToCopy}
+  class={`copy-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium rounded-md border transition-all duration-200 active:scale-95 cursor-pointer select-none ${variantStyles[variant]} ${className}`}
+  aria-label={`Copy ${label}`}
+>
+  <svg class="copy-icon w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+  </svg>
+  <svg class="check-icon w-3.5 h-3.5 hidden text-accent-emerald" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+  </svg>
+  <span class="btn-text">{label}</span>
+</button>
+
+<script>
+  function setupCopyButtons() {
+    document.querySelectorAll<HTMLButtonElement>('.copy-button').forEach((btn) => {
+      // Avoid duplicate bindings
+      if (btn.dataset.initialized) return;
+      btn.dataset.initialized = 'true';
+
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const text = btn.getAttribute('data-copy-text');
+        if (!text) return;
+
+        try {
+          await navigator.clipboard.writeText(text);
+          const icon = btn.querySelector('.copy-icon');
+          const check = btn.querySelector('.check-icon');
+          const span = btn.querySelector('.btn-text');
+          const origText = span?.textContent;
+
+          if (icon && check && span) {
+            icon.classList.add('hidden');
+            check.classList.remove('hidden');
+            span.textContent = 'Copied!';
+            btn.classList.add('border-accent-emerald/50', 'text-accent-emerald');
+
+            setTimeout(() => {
+              icon.classList.remove('hidden');
+              check.classList.add('hidden');
+              span.textContent = origText || 'Copy';
+              btn.classList.remove('border-accent-emerald/50', 'text-accent-emerald');
+            }, 2000);
+          }
+        } catch (err) {
+          console.error('Failed to copy text:', err);
+        }
+      });
+    });
+  }
+
+  // Setup on initial load & after Astro view transitions
+  setupCopyButtons();
+  document.addEventListener('astro:page-load', setupCopyButtons);
+</script>

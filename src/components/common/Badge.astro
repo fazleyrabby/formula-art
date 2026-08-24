@@ -1,0 +1,28 @@
+---
+interface Props {
+  variant?: 'organic' | 'fluid' | 'particles' | 'geometry' | 'waves' | 'space' | 'creatures' | 'botany' | 'anatomy' | 'experimental' | 'default';
+  className?: string;
+}
+
+const { variant = 'default', className = '' } = Astro.props;
+
+const categoryColors: Record<string, string> = {
+  organic: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  fluid: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+  particles: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+  geometry: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+  waves: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+  space: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+  creatures: 'bg-teal-500/10 text-teal-300 border-teal-500/20',
+  botany: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
+  anatomy: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
+  experimental: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  default: 'bg-slate-800/60 text-slate-300 border-white/10'
+};
+
+const style = categoryColors[variant] || categoryColors.default;
+---
+
+<span class={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium border uppercase tracking-wider ${style} ${className}`}>
+  <slot />
+</span>

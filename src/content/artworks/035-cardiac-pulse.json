@@ -1,0 +1,33 @@
+{
+  "id": "035",
+  "slug": "cardiac-pulse",
+  "title": "Cardiac Pulse & ECG",
+  "subtitle": "Electrocardiogram Fourier Waveform & Vascular Rhythm",
+  "category": "anatomy",
+  "description": "Biomedical cardiovascular simulation combining the classic mathematical cardioid heart contraction with a multi-Gaussian P-QRS-T electrocardiogram trace.",
+  "mathNotation": "V_{\\text{ECG}}(t) = \\sum_{i \\in \\{P, Q, R, S, T\\}} a_i \\exp\\left( -\\frac{(t - \\mu_i)^2}{2\\sigma_i^2} \\right), \\quad x(t) = 16\\sin^3(t), \\quad y(t) = -(13\\cos t - 5\\cos 2t - 2\\cos 3t - \\cos 4t)",
+  "formulaCompact": "ecg(t) = P(0.18) + Q(-0.15) + R(1.0) + S(-0.3) + T(0.35),  heart_scale = 1 + 0.22*ecg",
+  "formulaFull": "const rWave = 1.0 * Math.exp(-Math.pow((p - 0.4) / 0.02, 2));\nconst hx = 16 * Math.pow(Math.sin(phi), 3) * 6;\nconst hy = -(13 * Math.cos(phi) - 5 * Math.cos(2 * phi) - 2 * Math.cos(3 * phi) - Math.cos(4 * phi)) * 6;",
+  "algorithmKey": "cardiac-pulse",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "heartRateBPM",
+      "label": "Heart Rate (BPM)",
+      "type": "range",
+      "min": 40,
+      "max": 160,
+      "step": 2,
+      "defaultValue": 72,
+      "description": "Beats per minute cardiac frequency"
+    }
+  ],
+  "tags": ["heart", "cardiac", "ecg", "anatomy", "biology", "cardioid", "pulse"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

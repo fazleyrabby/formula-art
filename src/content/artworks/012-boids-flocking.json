@@ -1,0 +1,34 @@
+{
+  "id": "012",
+  "slug": "boids-flocking",
+  "title": "Boids Emergence",
+  "subtitle": "Craig Reynolds Flocking Algorithm",
+  "category": "particles",
+  "description": "Complex self-organizing flocking dynamics emerging entirely from three simple local rules: alignment, cohesion, and separation.",
+  "mathNotation": "\\mathbf{a}_i = w_a \\mathbf{v}_{\\text{align}} + w_c \\mathbf{v}_{\\text{cohere}} + w_s \\mathbf{v}_{\\text{separate}} + \\mathbf{F}_{\\text{center}}",
+  "formulaCompact": "v += align * 0.05 + cohere * 0.005 + separate * 0.15,  p += clamp(v, maxSpeed)",
+  "formulaFull": "vx[i] += alignX * 0.05 + cohereX * 0.005 + separateX * 0.15;\nvy[i] += alignY * 0.05 + cohereY * 0.005 + separateY * 0.15;\nconst speed = Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i]);\nif (speed > maxSpeed) {\n  vx[i] = (vx[i] / speed) * maxSpeed;\n  vy[i] = (vy[i] / speed) * maxSpeed;\n}",
+  "algorithmKey": "boids-flocking",
+  "complexity": "high",
+  "particleCount": 250,
+  "parameters": [
+    {
+      "key": "boidCount",
+      "label": "Boid Population",
+      "type": "range",
+      "min": 50,
+      "max": 400,
+      "step": 25,
+      "defaultValue": 250,
+      "description": "Total agent count"
+    }
+  ],
+  "tags": ["boids", "flocking", "artificial-life", "emergence", "particles", "vectors"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

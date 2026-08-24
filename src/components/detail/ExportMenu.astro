@@ -1,0 +1,158 @@
+---
+import type { ArtworkData } from '../../types/artwork';
+import CopyButton from '../common/CopyButton.astro';
+
+interface Props {
+  artwork: ArtworkData;
+}
+
+const { artwork } = Astro.props;
+const embedIframe = `<iframe src="https://formula.art/embed/${artwork.slug}" width="500" height="500" frameborder="0" loading="lazy"></iframe>`;
+---
+
+<dialog
+  id="export-dialog"
+  class="fixed inset-0 z-50 m-auto w-full max-w-lg bg-transparent p-4 backdrop:bg-black/80 backdrop:backdrop-blur-md"
+  aria-label="Export artwork modal"
+>
+  <div class="glass-panel rounded-2xl border border-white/10 bg-[#0c0e17]/95 p-6 shadow-2xl flex flex-col gap-6 text-slate-200">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
+      <div class="flex items-center gap-2.5">
+        <svg class="w-5 h-5 text-accent-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+        <h3 class="text-base font-semibold font-sans text-slate-100">
+          Export & Embed: {artwork.title}
+        </h3>
+      </div>
+      <button
+        type="button"
+        id="close-export-btn"
+        class="text-slate-400 hover:text-white text-xs font-mono px-2 py-1 rounded hover:bg-white/5"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- Export Options -->
+    <div class="flex flex-col gap-4">
+      <!-- 1. PNG Snapshot -->
+      <div class="p-4 rounded-xl bg-[#08090d] border border-white/[0.06] flex items-center justify-between gap-4">
+        <div>
+          <h4 class="text-xs font-mono font-bold text-slate-200">4K PNG Snapshot</h4>
+          <p class="text-[11px] text-slate-400 font-sans mt-0.5">High-resolution single frame render</p>
+        </div>
+        <button
+          type="button"
+          id="export-png-btn"
+          class="px-3.5 py-1.5 rounded-lg bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-glow"
+        >
+          Download PNG
+        </button>
+      </div>
+
+      <!-- 2. WebM Video Clip -->
+      <div class="p-4 rounded-xl bg-[#08090d] border border-white/[0.06] flex items-center justify-between gap-4">
+        <div>
+          <h4 class="text-xs font-mono font-bold text-slate-200">WebM Video (5s Loop)</h4>
+          <p class="text-[11px] text-slate-400 font-sans mt-0.5" id="video-status-text">60 FPS browser-captured stream</p>
+        </div>
+        <button
+          type="button"
+          id="export-webm-btn"
+          class="px-3.5 py-1.5 rounded-lg bg-accent-indigo/10 hover:bg-accent-indigo/20 border border-accent-indigo/30 text-accent-indigo text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer"
+        >
+          Record WebM
+        </button>
+      </div>
+
+      <!-- 3. Embed Code -->
+      <div class="p-4 rounded-xl bg-[#08090d] border border-white/[0.06] flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-mono font-bold text-slate-200">HTML Iframe Embed</h4>
+          <CopyButton textToCopy={embedIframe} label="Copy Embed" variant="secondary" />
+        </div>
+        <code class="text-[11px] font-mono text-slate-400 bg-black/50 p-2.5 rounded border border-white/5 overflow-x-auto block">
+          {embedIframe}
+        </code>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { CanvasRecorder } from '../../engine/Recorder';
+
+  function setupExportModal() {
+    const dialog = document.getElementById('export-dialog') as HTMLDialogElement;
+    const closeBtn = document.getElementById('close-export-btn');
+    const openBtn = document.getElementById('open-export-btn');
+    const pngBtn = document.getElementById('export-png-btn');
+    const webmBtn = document.getElementById('export-webm-btn');
+    const statusText = document.getElementById('video-status-text');
+
+    openBtn?.addEventListener('click', () => dialog?.showModal());
+    closeBtn?.addEventListener('click', () => dialog?.close());
+
+    // Close on backdrop click
+    dialog?.addEventListener('click', (e) => {
+      const rect = dialog.getBoundingClientRect();
+      const isInDialog = (
+        rect.top <= e.clientY &&
+        e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX &&
+        e.clientX <= rect.left + rect.width
+      );
+      if (!isInDialog) dialog.close();
+    });
+
+    // PNG Export
+    pngBtn?.addEventListener('click', async () => {
+      const canvas = document.getElementById('detail-canvas') as HTMLCanvasElement;
+      if (!canvas) return;
+
+      const slug = canvas.getAttribute('data-algorithm') || 'math-art';
+      pngBtn.textContent = 'Generating...';
+      try {
+        await CanvasRecorder.exportPNG(canvas, `${slug}-4k.png`, 2);
+      } catch (err) {
+        console.error('Export failed:', err);
+      } finally {
+        pngBtn.textContent = 'Download PNG';
+      }
+    });
+
+    // WebM Recording
+    webmBtn?.addEventListener('click', async () => {
+      const canvas = document.getElementById('detail-canvas') as HTMLCanvasElement;
+      if (!canvas) return;
+
+      const slug = canvas.getAttribute('data-algorithm') || 'math-art';
+      webmBtn.setAttribute('disabled', 'true');
+      webmBtn.textContent = 'Recording...';
+
+      try {
+        await CanvasRecorder.recordVideo(
+          canvas,
+          5000,
+          60,
+          `${slug}.webm`,
+          (progress) => {
+            if (statusText) statusText.textContent = `Recording stream: ${progress}%`;
+          }
+        );
+        if (statusText) statusText.textContent = 'Downloaded WebM!';
+      } catch (err) {
+        console.error('Video recording failed:', err);
+        if (statusText) statusText.textContent = 'Recording failed in this browser.';
+      } finally {
+        webmBtn.removeAttribute('disabled');
+        webmBtn.textContent = 'Record WebM';
+      }
+    });
+  }
+
+  setupExportModal();
+  document.addEventListener('astro:page-load', setupExportModal);
+</script>

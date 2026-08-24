@@ -1,0 +1,43 @@
+{
+  "id": "017",
+  "slug": "fourier-harmonics",
+  "title": "Fourier Harmonics",
+  "subtitle": "Epicycle Series Waveform Synthesis",
+  "category": "waves",
+  "description": "Visual mechanical decomposition of square and sawtooth waves into revolving epicyclic phasor circles based on Fourier analysis.",
+  "mathNotation": "f(t) = \\frac{4}{\\pi} \\sum_{k=1,3,5\\dots}^{N} \\frac{1}{k} \\sin(k \\omega t)",
+  "formulaCompact": "r_k = (4 / kπ) * R,  x += r_k cos(k t),  y += r_k sin(k t),  trace(y)",
+  "formulaFull": "const n = i * 2 + 1;\nconst radius = baseRadius * (4 / (n * Math.PI));\nx += radius * Math.cos(n * t);\ny += radius * Math.sin(n * t);",
+  "algorithmKey": "fourier-harmonics",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "harmonicCount",
+      "label": "Harmonic Phasors (N)",
+      "type": "range",
+      "min": 1,
+      "max": 15,
+      "step": 1,
+      "defaultValue": 7,
+      "description": "Fourier series terms"
+    },
+    {
+      "key": "speed",
+      "label": "Phasor Rotation Speed",
+      "type": "range",
+      "min": 0.3,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Fundamental frequency speed"
+    }
+  ],
+  "tags": ["fourier", "epicycles", "harmonics", "signal-processing", "waves", "synthesis"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

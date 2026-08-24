@@ -1,0 +1,33 @@
+{
+  "id": "007",
+  "slug": "smoke-lattice",
+  "title": "Smoke Lattice Drift",
+  "subtitle": "Discrete Eulerian Advection",
+  "category": "fluid",
+  "description": "Grid-based discretized fluid simulation capturing continuous harmonic injection, vortex dissipation, and buoyant plume dispersion.",
+  "mathNotation": "\\frac{\\partial \\rho}{\\partial t} + \\mathbf{u} \\cdot \\nabla \\rho = \\kappa \\nabla^2 \\rho + S(\\mathbf{x}, t)",
+  "formulaCompact": "ρ_{x,y}^{t+1} = ρ_{x,y}^t * 0.94 + sin(r*0.4 - 3t)*cos(4θ + 2t)*exp(-0.1r)*0.15",
+  "formulaFull": "const injection = Math.sin(dist * 0.4 - t * 3) * Math.cos(Math.atan2(dy, dx) * 4 + t * 2) * Math.exp(-dist * 0.1);\ndensity[idx] = Math.max(0, Math.min(1, density[idx] * 0.94 + injection * 0.15));",
+  "algorithmKey": "smoke-lattice",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "speed",
+      "label": "Emission Speed",
+      "type": "range",
+      "min": 0.3,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Turbulence oscillation rate"
+    }
+  ],
+  "tags": ["smoke", "lattice", "eulerian", "fluid", "diffusion", "advection"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

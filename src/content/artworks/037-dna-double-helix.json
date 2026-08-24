@@ -1,0 +1,43 @@
+{
+  "id": "037",
+  "slug": "dna-double-helix",
+  "title": "DNA Double Helix",
+  "subtitle": "3D Revolving Molecular Helical Geometry",
+  "category": "anatomy",
+  "description": "Watson-Crick B-DNA molecular structure modeled as dual out-of-phase intertwined 3D parametric helices connected by complementary hydrogen-bonded nucleotide rungs.",
+  "mathNotation": "\\mathbf{r}_1(z) = \\begin{bmatrix} R \\cos(\\omega z + t) \\\\ R \\sin(\\omega z + t) \\\\ z \\end{bmatrix}, \\quad \\mathbf{r}_2(z) = \\begin{bmatrix} R \\cos(\\omega z + \\pi + t) \\\\ R \\sin(\\omega z + \\pi + t) \\\\ z \\end{bmatrix}",
+  "formulaCompact": "strand1 = [R cos(4πy + 2t), y],  strand2 = [R cos(4πy + π + 2t), y],  base_rung = line(s1, s2)",
+  "formulaFull": "const theta = normY * Math.PI * 4 + t * 2;\nconst x1 = Math.cos(theta) * helixRadius;\nconst x2 = Math.cos(theta + Math.PI) * helixRadius;\nctx.moveTo(cx + x1, py1);\nctx.lineTo(cx + x2, py2);",
+  "algorithmKey": "dna-double-helix",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "rotationSpeed",
+      "label": "Axial Spin Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Molecular helical revolution rate"
+    },
+    {
+      "key": "helixRadius",
+      "label": "Strand Major Radius",
+      "type": "range",
+      "min": 40,
+      "max": 130,
+      "step": 5,
+      "defaultValue": 85,
+      "description": "Sugar-phosphate backbone width"
+    }
+  ],
+  "tags": ["dna", "genetics", "helix", "anatomy", "biology", "3d", "molecular"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

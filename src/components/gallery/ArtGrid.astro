@@ -1,0 +1,74 @@
+---
+import type { ArtworkData } from '../../types/artwork';
+import ArtCard from './ArtCard.astro';
+
+interface Props {
+  artworks: ArtworkData[];
+}
+
+const { artworks } = Astro.props;
+---
+
+<div
+  id="art-grid"
+  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+>
+  {artworks.map((artwork) => (
+    <ArtCard artwork={artwork} />
+  ))}
+</div>
+
+<script>
+  import { CanvasEngine } from '../../engine/CanvasEngine';
+  import { VisibilityManager } from '../../engine/VisibilityManager';
+  import { getAlgorithmRenderer } from '../../algorithms/registry';
+
+  let activeEngines: CanvasEngine[] = [];
+
+  function initGridCanvases() {
+    // Cleanup any existing engines
+    cleanupGridCanvases();
+
+    const visibilityManager = VisibilityManager.getInstance();
+    const cards = document.querySelectorAll<HTMLElement>('.art-card-container');
+
+    cards.forEach((card) => {
+      const canvas = card.querySelector<HTMLCanvasElement>('canvas[data-card-canvas]');
+      if (!canvas) return;
+
+      const algorithmKey = canvas.getAttribute('data-algorithm') || 'organic-wave';
+      const paramsJson = canvas.getAttribute('data-params') || '{}';
+      
+      let params = {};
+      try {
+        params = JSON.parse(paramsJson);
+      } catch (e) {
+        console.error('Failed to parse card params', e);
+      }
+
+      try {
+        const renderer = getAlgorithmRenderer(algorithmKey);
+        const engine = new CanvasEngine({
+          canvas,
+          renderer,
+          initialParams: params,
+        });
+
+        activeEngines.push(engine);
+        visibilityManager.register(card, engine);
+      } catch (err) {
+        console.error(`Failed to initialize engine for ${algorithmKey}:`, err);
+      }
+    });
+  }
+
+  function cleanupGridCanvases() {
+    activeEngines.forEach((engine) => engine.destroy());
+    activeEngines = [];
+  }
+
+  // Setup on initial mount and Astro view transitions
+  initGridCanvases();
+  document.addEventListener('astro:page-load', initGridCanvases);
+  document.addEventListener('astro:before-swap', cleanupGridCanvases);
+</script>

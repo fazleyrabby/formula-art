@@ -1,0 +1,53 @@
+{
+  "id": "003",
+  "slug": "superformula-bloom",
+  "title": "Superformula Bloom",
+  "subtitle": "Gielis Morphological Symmetry",
+  "category": "organic",
+  "description": "Johan Gielis' 2D superformula generalization of the superellipse, producing complex biological flora geometries through harmonic powers.",
+  "mathNotation": "r(\\phi) = \\left( \\left|\\frac{\\cos(m\\phi/4)}{a}\\right|^{n_2} + \\left|\\frac{\\sin(m\\phi/4)}{b}\\right|^{n_3} \\right)^{-\\frac{1}{n_1}}",
+  "formulaCompact": "r = (|cos(m*φ/4)/a|^n2 + |sin(m*φ/4)/b|^n3)^(-1/n1)",
+  "formulaFull": "const part1 = Math.pow(Math.abs(Math.cos((m * phi) / 4) / a), n2);\nconst part2 = Math.pow(Math.abs(Math.sin((m * phi) / 4) / b), n3);\nconst r = Math.pow(part1 + part2, -1 / n1);\nconst px = cx + r * scale * Math.cos(phi + offset);\nconst py = cy + r * scale * Math.sin(phi + offset);",
+  "algorithmKey": "superformula-bloom",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "symmetry",
+      "label": "Rotational Symmetry (m)",
+      "type": "range",
+      "min": 2,
+      "max": 16,
+      "step": 1,
+      "defaultValue": 6,
+      "description": "Number of morphological petals"
+    },
+    {
+      "key": "form1",
+      "label": "Curvature Exponent (n1)",
+      "type": "range",
+      "min": 0.1,
+      "max": 1.0,
+      "step": 0.05,
+      "defaultValue": 0.3,
+      "description": "Overall boundary sharpness"
+    },
+    {
+      "key": "speed",
+      "label": "Morph Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 0.8,
+      "description": "Rate of dimensional oscillation"
+    }
+  ],
+  "tags": ["gielis", "superformula", "geometry", "flower", "polar", "morphology"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

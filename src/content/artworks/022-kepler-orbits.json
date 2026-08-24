@@ -1,0 +1,33 @@
+{
+  "id": "022",
+  "slug": "kepler-orbits",
+  "title": "Keplerian Orbits",
+  "subtitle": "Conic Section Gravitational Ephemerides",
+  "category": "space",
+  "description": "Multi-body planetary orbital mechanics following Kepler's laws with eccentric anomaly transcendental equation solvers.",
+  "mathNotation": "r(\\nu) = \\frac{a(1 - e^2)}{1 + e \\cos\\nu}, \\quad M = E - e \\sin E, \\quad T^2 = \\frac{4\\pi^2}{G(M_1 + M_2)} a^3",
+  "formulaCompact": "E_{k+1} = E_k - (E_k - e*sin(E_k) - M) / (1 - e*cos(E_k)),  x = a*cos(E) - ae",
+  "formulaFull": "let E = meanAnomaly;\nfor (let iter = 0; iter < 4; iter++) {\n  E = E - (E - ecc * Math.sin(E) - meanAnomaly) / (1 - ecc * Math.cos(E));\n}\nconst planetX = semiA * Math.cos(E) - focusOffset;\nconst planetY = semiB * Math.sin(E);",
+  "algorithmKey": "kepler-orbits",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "speed",
+      "label": "Orbital Time Scale",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 0.8,
+      "description": "Planetary revolution rate"
+    }
+  ],
+  "tags": ["kepler", "orbital-mechanics", "astronomy", "celestial", "ellipse", "space"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

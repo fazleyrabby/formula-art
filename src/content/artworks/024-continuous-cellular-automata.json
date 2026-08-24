@@ -1,0 +1,33 @@
+{
+  "id": "024",
+  "slug": "continuous-cellular-automata",
+  "title": "Continuous Life",
+  "subtitle": "SmoothLife Multi-Kernel Continuous Automata",
+  "category": "experimental",
+  "description": "Generalization of Conway's Game of Life to continuous floating-point state space, exhibiting fluid-like organic self-replicating solitons.",
+  "mathNotation": "s^{t+\\Delta t}(x,y) = \\sigma\\left( s^t(x,y), \\iint K_{\\text{outer}}(r) s^t(\\mathbf{x}+\\mathbf{r}) d\\mathbf{r}, \\iint K_{\\text{inner}}(r) s^t(\\mathbf{x}+\\mathbf{r}) d\\mathbf{r} \\right)",
+  "formulaCompact": "avg = (1/8) * Σ neighbors,  s_{t+1} = (0.25 <= avg <= 0.45) ? s + 0.08 : s - 0.05",
+  "formulaFull": "if (avg >= 0.25 && avg <= 0.45) {\n  nextState[idx] = Math.min(1, current + 0.08);\n} else {\n  nextState[idx] = Math.max(0, current - 0.05);\n}",
+  "algorithmKey": "continuous-cellular-automata",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "kernelDecay",
+      "label": "Decay Rate",
+      "type": "range",
+      "min": 0.01,
+      "max": 0.15,
+      "step": 0.01,
+      "defaultValue": 0.05,
+      "description": "Entropy dissipation rate"
+    }
+  ],
+  "tags": ["cellular-automata", "smoothlife", "continuous", "artificial-life", "experimental", "solitons"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

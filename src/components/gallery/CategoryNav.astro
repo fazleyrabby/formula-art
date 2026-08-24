@@ -1,0 +1,81 @@
+---
+import type { ArtworkData } from '../../types/artwork';
+
+interface Props {
+  artworks: ArtworkData[];
+  activeCategory?: string;
+}
+
+const { artworks, activeCategory = 'all' } = Astro.props;
+
+const categories: { key: string; label: string; count: number }[] = [
+  { key: 'all', label: 'All Works', count: artworks.length },
+  { key: 'creatures', label: 'Sea Creatures', count: artworks.filter(a => a.category === 'creatures').length },
+  { key: 'botany', label: 'Botany & Nature', count: artworks.filter(a => a.category === 'botany').length },
+  { key: 'anatomy', label: 'Human Anatomy', count: artworks.filter(a => a.category === 'anatomy').length },
+  { key: 'organic', label: 'Organic', count: artworks.filter(a => a.category === 'organic').length },
+  { key: 'fluid', label: 'Fluid', count: artworks.filter(a => a.category === 'fluid').length },
+  { key: 'particles', label: 'Particles', count: artworks.filter(a => a.category === 'particles').length },
+  { key: 'geometry', label: 'Geometry', count: artworks.filter(a => a.category === 'geometry').length },
+  { key: 'waves', label: 'Waves', count: artworks.filter(a => a.category === 'waves').length },
+  { key: 'space', label: 'Space', count: artworks.filter(a => a.category === 'space').length },
+  { key: 'experimental', label: 'Experimental', count: artworks.filter(a => a.category === 'experimental').length },
+];
+---
+
+<nav aria-label="Artwork categories" class="w-full flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-none">
+  {categories.map((cat) => (
+    <button
+      type="button"
+      data-category-btn={cat.key}
+      class={`category-tab inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-medium border transition-all duration-200 whitespace-nowrap cursor-pointer select-none ${
+        cat.key === activeCategory
+          ? 'bg-accent-cyan/15 text-accent-cyan border-accent-cyan/40 shadow-glow'
+          : 'bg-[#0f111a]/80 text-slate-400 border-white/[0.08] hover:border-white/[0.2] hover:text-slate-200'
+      }`}
+    >
+      <span>{cat.label}</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-black/40 text-slate-400 font-mono">
+        {cat.count}
+      </span>
+    </button>
+  ))}
+</nav>
+
+<script>
+  function setupCategoryFiltering() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('[data-category-btn]');
+    const cards = document.querySelectorAll<HTMLElement>('.art-card-container');
+
+    buttons.forEach((btn) => {
+      if (btn.dataset.initialized) return;
+      btn.dataset.initialized = 'true';
+
+      btn.addEventListener('click', () => {
+        const cat = btn.getAttribute('data-category-btn') || 'all';
+
+        // Update active tab styles
+        buttons.forEach((b) => {
+          b.classList.remove('bg-accent-cyan/15', 'text-accent-cyan', 'border-accent-cyan/40', 'shadow-glow');
+          b.classList.add('bg-[#0f111a]/80', 'text-slate-400', 'border-white/[0.08]');
+        });
+
+        btn.classList.remove('bg-[#0f111a]/80', 'text-slate-400', 'border-white/[0.08]');
+        btn.classList.add('bg-accent-cyan/15', 'text-accent-cyan', 'border-accent-cyan/40', 'shadow-glow');
+
+        // Filter cards
+        cards.forEach((card) => {
+          const cardCat = card.getAttribute('data-category');
+          if (cat === 'all' || cardCat === cat) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  }
+
+  setupCategoryFiltering();
+  document.addEventListener('astro:page-load', setupCategoryFiltering);
+</script>

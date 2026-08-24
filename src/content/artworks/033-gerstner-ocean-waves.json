@@ -1,0 +1,43 @@
+{
+  "id": "033",
+  "slug": "gerstner-ocean-waves",
+  "title": "Gerstner Ocean Waves",
+  "subtitle": "Trochoidal Deep Water Wave Superposition",
+  "category": "botany",
+  "description": "František Gerstner's exact nonlinear trochoidal ocean wave equation, exhibiting physically accurate sharpened wave crests and broad, flat troughs.",
+  "mathNotation": "\\mathbf{x} = \\mathbf{x}_0 - \\sum_{i=1}^{N} \\frac{\\mathbf{k}_i}{k_i} Q_i A_i \\sin(\\mathbf{k}_i \\cdot \\mathbf{x}_0 - \\omega_i t), \\quad y = y_0 + \\sum_{i=1}^{N} A_i \\cos(\\mathbf{k}_i \\cdot \\mathbf{x}_0 - \\omega_i t)",
+  "formulaCompact": "x = x0 - (dx/k)*Q*sin(phase),  y = y0 - A*cos(phase),  phase = k*(dx*x0 + dy*y0) - ωt",
+  "formulaFull": "const q = steepness / (k * wv.amp * waves.length);\ndisplacedX -= (wv.dx / k) * (q * Math.sin(phase));\ndisplacedY -= wv.amp * Math.cos(phase);",
+  "algorithmKey": "gerstner-ocean-waves",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "waveSpeed",
+      "label": "Wave Swell Velocity",
+      "type": "range",
+      "min": 0.4,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Ocean current propagation rate"
+    },
+    {
+      "key": "steepness",
+      "label": "Trochoidal Steepness (Q)",
+      "type": "range",
+      "min": 0.2,
+      "max": 1.0,
+      "step": 0.05,
+      "defaultValue": 0.65,
+      "description": "Crest sharpness & horizontal pinching"
+    }
+  ],
+  "tags": ["ocean", "gerstner", "waves", "hydrodynamics", "nature", "water", "physics"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

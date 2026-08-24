@@ -1,0 +1,440 @@
+---
+import RadialKnob from './RadialKnob.astro';
+---
+
+<div class="flex flex-col h-full rounded-2xl border border-white/10 bg-[#0c0e17] overflow-hidden shadow-xl">
+  <!-- Header / Action Bar -->
+  <div class="flex items-center justify-between px-4 py-3 bg-[#08090d] border-b border-white/[0.08] text-xs font-mono">
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 text-accent-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+      </svg>
+      <span class="text-slate-200 font-bold">Visual Generator Studio</span>
+    </div>
+
+    <!-- Randomize / Mutate Button -->
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        id="mutate-btn"
+        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-accent-cyan/15 hover:bg-accent-cyan/25 border border-accent-cyan/40 text-accent-cyan text-xs font-mono font-semibold transition-all active:scale-95 cursor-pointer shadow-glow"
+        title="Generate random mathematical variation"
+      >
+        <span>🎲 Mutate</span>
+      </button>
+
+      <button
+        type="button"
+        id="reset-visual-btn"
+        class="px-2.5 py-1 rounded text-xs font-mono text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 transition-all cursor-pointer"
+      >
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Scrollable Control Deck -->
+  <div class="flex-1 overflow-y-auto p-5 flex flex-col gap-6 font-sans">
+    <!-- 1. Archetype Selection -->
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-mono text-slate-400 uppercase tracking-wider">
+        Math Archetype
+      </label>
+      <div class="grid grid-cols-3 gap-2">
+        <button
+          type="button"
+          data-archetype="waves"
+          class="archetype-btn px-3 py-2 rounded-xl text-xs font-mono font-medium border border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan transition-all text-center"
+        >
+          Harmonics
+        </button>
+        <button
+          type="button"
+          data-archetype="creatures"
+          class="archetype-btn px-3 py-2 rounded-xl text-xs font-mono font-medium border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-slate-300 transition-all text-center"
+        >
+          Bio Creature
+        </button>
+        <button
+          type="button"
+          data-archetype="fluid"
+          class="archetype-btn px-3 py-2 rounded-xl text-xs font-mono font-medium border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-slate-300 transition-all text-center"
+        >
+          Fluid Vortex
+        </button>
+        <button
+          type="button"
+          data-archetype="botany"
+          class="archetype-btn px-3 py-2 rounded-xl text-xs font-mono font-medium border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-slate-300 transition-all text-center"
+        >
+          Botanical
+        </button>
+        <button
+          type="button"
+          data-archetype="geometry"
+          class="archetype-btn px-3 py-2 rounded-xl text-xs font-mono font-medium border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-slate-300 transition-all text-center"
+        >
+          Mandala
+        </button>
+        <button
+          type="button"
+          data-archetype="space"
+          class="archetype-btn px-3 py-2 rounded-xl text-xs font-mono font-medium border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-slate-300 transition-all text-center"
+        >
+          Orbital Gravity
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. Rotary Radial Knobs Suite -->
+    <div class="flex flex-col gap-2 p-4 rounded-xl bg-[#08090d] border border-white/[0.06]">
+      <label class="text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">
+        Radial Modulators (Drag Knobs)
+      </label>
+      <div class="grid grid-cols-4 gap-3 items-center justify-items-center">
+        <RadialKnob id="phase" label="Phase (φ)" min={0} max={360} defaultValue={90} unit="°" />
+        <RadialKnob id="freq" label="Harmonic (ω)" min={1} max={16} defaultValue={5} unit="" />
+        <RadialKnob id="symmetry" label="Symmetry (k)" min={1} max={12} defaultValue={6} unit="" />
+        <RadialKnob id="hue" label="Hue (θ)" min={0} max={360} defaultValue={190} unit="°" />
+      </div>
+    </div>
+
+    <!-- 3. Sliders Suite -->
+    <div class="flex flex-col gap-4">
+      <!-- Amplitude -->
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-300">Wave Amplitude (A)</span>
+          <span id="val-slider-amp" class="text-accent-cyan font-bold">1.20</span>
+        </div>
+        <input
+          type="range"
+          id="slider-amp"
+          min="0.1"
+          max="3.0"
+          step="0.05"
+          value="1.2"
+          class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-accent-cyan focus:outline-none"
+        />
+      </div>
+
+      <!-- Speed -->
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-300">Animation Velocity (dt)</span>
+          <span id="val-slider-speed" class="text-accent-cyan font-bold">1.00x</span>
+        </div>
+        <input
+          type="range"
+          id="slider-speed"
+          min="0.2"
+          max="3.0"
+          step="0.1"
+          value="1.0"
+          class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-accent-cyan focus:outline-none"
+        />
+      </div>
+
+      <!-- Turbulence -->
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-300">Chaos / Turbulence (σ)</span>
+          <span id="val-slider-chaos" class="text-accent-cyan font-bold">0.30</span>
+        </div>
+        <input
+          type="range"
+          id="slider-chaos"
+          min="0.0"
+          max="1.0"
+          step="0.02"
+          value="0.3"
+          class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-accent-cyan focus:outline-none"
+        />
+      </div>
+
+      <!-- Particle Density -->
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-300">Geometry Density (N)</span>
+          <span id="val-slider-density" class="text-accent-cyan font-bold">240</span>
+        </div>
+        <input
+          type="range"
+          id="slider-density"
+          min="40"
+          max="600"
+          step="10"
+          value="240"
+          class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-accent-cyan focus:outline-none"
+        />
+      </div>
+    </div>
+
+    <!-- 4. Render Mode & Trail Toggle Buttons -->
+    <div class="flex flex-col gap-3 pt-2 border-t border-white/[0.06]">
+      <label class="text-xs font-mono text-slate-400 uppercase tracking-wider">
+        Render Style
+      </label>
+      <div class="grid grid-cols-4 gap-1.5">
+        <button
+          type="button"
+          data-render-style="lines"
+          class="style-btn px-2.5 py-1.5 rounded-lg text-[11px] font-mono border border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan text-center"
+        >
+          Lines
+        </button>
+        <button
+          type="button"
+          data-render-style="dots"
+          class="style-btn px-2.5 py-1.5 rounded-lg text-[11px] font-mono border border-white/10 bg-white/[0.03] text-slate-400 hover:text-white text-center"
+        >
+          Points
+        </button>
+        <button
+          type="button"
+          data-render-style="ribbon"
+          class="style-btn px-2.5 py-1.5 rounded-lg text-[11px] font-mono border border-white/10 bg-white/[0.03] text-slate-400 hover:text-white text-center"
+        >
+          Ribbon
+        </button>
+        <button
+          type="button"
+          data-render-style="wireframe"
+          class="style-btn px-2.5 py-1.5 rounded-lg text-[11px] font-mono border border-white/10 bg-white/[0.03] text-slate-400 hover:text-white text-center"
+        >
+          Mesh
+        </button>
+      </div>
+
+      <!-- Trail Persistence -->
+      <div class="flex items-center justify-between pt-2">
+        <span class="text-xs font-mono text-slate-300">Phosphor Trail Fade</span>
+        <div class="flex gap-1">
+          <button type="button" data-trail="0.1" class="trail-btn px-2 py-1 rounded text-[10px] font-mono border border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan">Soft</button>
+          <button type="button" data-trail="0.03" class="trail-btn px-2 py-1 rounded text-[10px] font-mono border border-white/10 bg-white/[0.03] text-slate-400">Deep</button>
+          <button type="button" data-trail="0.3" class="trail-btn px-2 py-1 rounded text-[10px] font-mono border border-white/10 bg-white/[0.03] text-slate-400">Crisp</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setupVisualControls() {
+    // Current Visual State
+    const state = {
+      archetype: 'waves',
+      phase: 90,
+      freq: 5,
+      symmetry: 6,
+      hue: 190,
+      amp: 1.2,
+      speed: 1.0,
+      chaos: 0.3,
+      density: 240,
+      renderStyle: 'lines',
+      trailAlpha: 0.1,
+    };
+
+    function generateCodeFromState() {
+      return `// Formula Visual Studio Generator
+// Archetype: ${state.archetype.toUpperCase()} | Symmetry: ${state.symmetry}-fold | Hue: ${state.hue}°
+
+// Background trail decay
+ctx.fillStyle = 'rgba(6, 8, 12, ${state.trailAlpha})';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.4;
+const t = time * ${state.speed};
+const N = ${state.density};
+const k = ${state.symmetry};
+const freq = ${state.freq};
+const amp = ${state.amp};
+const chaos = ${state.chaos};
+const phaseOffset = ${state.phase} * (Math.PI / 180);
+
+ctx.beginPath();
+for (let i = 0; i <= N; i++) {
+  const theta = (i / N) * Math.PI * 2;
+  
+  // Harmonic modulation with radial symmetry and chaos
+  let r = 0;
+  ${
+    state.archetype === 'waves'
+      ? `const harmonic = Math.sin(theta * k + t * 2 + phaseOffset) * Math.cos(theta * freq - t);
+  const noise = Math.sin(theta * 18 + t * 4) * chaos;
+  r = maxR * (0.6 + 0.35 * harmonic * amp + noise);`
+      : state.archetype === 'creatures'
+      ? `const bell = 1 + 0.25 * Math.sin(t * 3) * Math.cos(theta * k);
+  const tentacles = Math.sin(theta * freq * 2 + t * 4) * (chaos * 0.4);
+  r = maxR * (0.55 * bell * amp + tentacles);`
+      : state.archetype === 'fluid'
+      ? `const vortex = Math.sin(theta * k - t * 2.5) * Math.cos(r * 0.05 + phaseOffset);
+  const curl = Math.cos(theta * freq + t * 1.5) * chaos;
+  r = maxR * (0.7 + 0.3 * vortex * amp + curl);`
+      : state.archetype === 'botany'
+      ? `const petal = Math.abs(Math.cos(theta * (k / 2) + phaseOffset));
+  const venation = Math.sin(theta * freq * 3) * (chaos * 0.25);
+  r = maxR * (petal * 0.85 * amp + venation + 0.1);`
+      : state.archetype === 'geometry'
+      ? `const poly = Math.cos(Math.PI / k) / Math.cos((theta % (2 * Math.PI / k)) - Math.PI / k);
+  r = Math.min(maxR * 0.95, maxR * 0.5 * poly * amp + Math.sin(theta * freq + t) * chaos * 20);`
+      : `// Space orbital gravity
+  const orbit = 1 / (1 + 0.35 * Math.cos(theta * k - t + phaseOffset));
+  r = maxR * 0.5 * orbit * amp;`
+  }
+
+  const px = cx + Math.cos(theta) * r;
+  const py = cy + Math.sin(theta) * r;
+
+  ${
+    state.renderStyle === 'dots'
+      ? `ctx.fillStyle = 'hsla(' + ((${state.hue} + (i / N) * 60 + t * 20) % 360) + ', 95%, 70%, 0.9)';
+  ctx.fillRect(px - 1.5, py - 1.5, 3, 3);`
+      : state.renderStyle === 'ribbon'
+      ? `if (i === 0) ctx.moveTo(cx, cy);
+  ctx.lineTo(px, py);`
+      : state.renderStyle === 'wireframe'
+      ? `if (i % 4 === 0) { ctx.moveTo(cx, cy); ctx.lineTo(px, py); }
+  else { ctx.lineTo(px, py); }`
+      : `if (i === 0) ctx.moveTo(px, py);
+  else ctx.lineTo(px, py);`
+  }
+}
+
+${
+  state.renderStyle !== 'dots'
+    ? `const dynamicHue = (${state.hue} + t * 25) % 360;
+ctx.strokeStyle = 'hsla(' + dynamicHue + ', 92%, 65%, 0.85)';
+ctx.lineWidth = ${state.renderStyle === 'ribbon' ? '1.0' : '2.2'};
+ctx.stroke();
+${state.renderStyle === 'ribbon' ? `ctx.fillStyle = 'hsla(' + dynamicHue + ', 90%, 50%, 0.12)'; ctx.fill();` : ''}`
+    : ''
+}
+`;
+    }
+
+    function emitUpdate() {
+      const code = generateCodeFromState();
+      window.dispatchEvent(new CustomEvent('math-art:run-code', { detail: { code } }));
+      window.dispatchEvent(new CustomEvent('math-art:code-generated', { detail: { code } }));
+    }
+
+    // Listen to Knob Changes
+    window.addEventListener('math-art:knob-change', ((e: CustomEvent) => {
+      const { id, value } = e.detail || {};
+      if (id in state) {
+        (state as any)[id] = value;
+        emitUpdate();
+      }
+    }) as EventListener);
+
+    // Sliders
+    const sliders: [string, string, (v: number) => void, string][] = [
+      ['slider-amp', 'val-slider-amp', (v) => { state.amp = v; }, ''],
+      ['slider-speed', 'val-slider-speed', (v) => { state.speed = v; }, 'x'],
+      ['slider-chaos', 'val-slider-chaos', (v) => { state.chaos = v; }, ''],
+      ['slider-density', 'val-slider-density', (v) => { state.density = v; }, ''],
+    ];
+
+    sliders.forEach(([id, valId, setter, suffix]) => {
+      const el = document.getElementById(id) as HTMLInputElement;
+      const valEl = document.getElementById(valId);
+      el?.addEventListener('input', () => {
+        const val = Number(el.value);
+        if (valEl) valEl.textContent = `${Number.isInteger(val) ? val : val.toFixed(2)}${suffix}`;
+        setter(val);
+        emitUpdate();
+      });
+    });
+
+    // Archetype Buttons
+    const archetypeBtns = document.querySelectorAll<HTMLButtonElement>('.archetype-btn');
+    archetypeBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        archetypeBtns.forEach((b) => {
+          b.className = 'archetype-btn px-3 py-2 rounded-xl text-xs font-mono font-medium border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-slate-300 transition-all text-center';
+        });
+        btn.className = 'archetype-btn px-3 py-2 rounded-xl text-xs font-mono font-medium border border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan transition-all text-center';
+        state.archetype = btn.getAttribute('data-archetype') || 'waves';
+        emitUpdate();
+      });
+    });
+
+    // Render Style Buttons
+    const styleBtns = document.querySelectorAll<HTMLButtonElement>('.style-btn');
+    styleBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        styleBtns.forEach((b) => {
+          b.className = 'style-btn px-2.5 py-1.5 rounded-lg text-[11px] font-mono border border-white/10 bg-white/[0.03] text-slate-400 hover:text-white text-center';
+        });
+        btn.className = 'style-btn px-2.5 py-1.5 rounded-lg text-[11px] font-mono border border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan text-center';
+        state.renderStyle = btn.getAttribute('data-render-style') || 'lines';
+        emitUpdate();
+      });
+    });
+
+    // Trail Buttons
+    const trailBtns = document.querySelectorAll<HTMLButtonElement>('.trail-btn');
+    trailBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        trailBtns.forEach((b) => {
+          b.className = 'trail-btn px-2 py-1 rounded text-[10px] font-mono border border-white/10 bg-white/[0.03] text-slate-400';
+        });
+        btn.className = 'trail-btn px-2 py-1 rounded text-[10px] font-mono border border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan';
+        state.trailAlpha = Number(btn.getAttribute('data-trail') || 0.1);
+        emitUpdate();
+      });
+    });
+
+    // Mutate / Randomize Button
+    const mutateBtn = document.getElementById('mutate-btn');
+    mutateBtn?.addEventListener('click', () => {
+      state.phase = Math.floor(Math.random() * 360);
+      state.freq = Math.floor(1 + Math.random() * 12);
+      state.symmetry = Math.floor(2 + Math.random() * 10);
+      state.hue = Math.floor(Math.random() * 360);
+      state.amp = Number((0.4 + Math.random() * 2.0).toFixed(2));
+      state.chaos = Number((Math.random() * 0.8).toFixed(2));
+
+      // Update Sliders in DOM
+      const ampSlider = document.getElementById('slider-amp') as HTMLInputElement;
+      if (ampSlider) {
+        ampSlider.value = String(state.amp);
+        const v = document.getElementById('val-slider-amp');
+        if (v) v.textContent = state.amp.toFixed(2);
+      }
+
+      const chaosSlider = document.getElementById('slider-chaos') as HTMLInputElement;
+      if (chaosSlider) {
+        chaosSlider.value = String(state.chaos);
+        const v = document.getElementById('val-slider-chaos');
+        if (v) v.textContent = state.chaos.toFixed(2);
+      }
+
+      emitUpdate();
+    });
+
+    // Reset Button
+    const resetBtn = document.getElementById('reset-visual-btn');
+    resetBtn?.addEventListener('click', () => {
+      state.phase = 90;
+      state.freq = 5;
+      state.symmetry = 6;
+      state.hue = 190;
+      state.amp = 1.2;
+      state.speed = 1.0;
+      state.chaos = 0.3;
+      state.density = 240;
+      emitUpdate();
+    });
+
+    // Initial Trigger
+    setTimeout(emitUpdate, 150);
+  }
+
+  setupVisualControls();
+  document.addEventListener('astro:page-load', setupVisualControls);
+</script>
