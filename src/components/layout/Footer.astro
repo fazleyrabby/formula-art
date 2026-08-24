@@ -40,8 +40,7 @@
     const adminBadge = document.getElementById('visitor-admin-badge');
     if (!countEl) return;
 
-    const NAMESPACE = 'art-fazleyrabbi-xyz';
-    const KEY = 'visitors';
+    const DOMAIN = 'art.fazleyrabbi.xyz';
 
     // 1. Check for explicit admin ignore trigger in URL (e.g. ?ignore_ip=true or ?admin=true)
     const urlParams = new URLSearchParams(window.location.search);
@@ -63,31 +62,29 @@
     try {
       // If we should ignore, perform read-only fetch
       const endpoint = shouldIgnoreIncrement
-        ? `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/`
-        : `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/up`;
+        ? `https://counterapi.com/api/${DOMAIN}/visitors/`
+        : `https://counterapi.com/api/${DOMAIN}/visitors/up`;
 
       const res = await fetch(endpoint);
-      if (!res.ok) {
-        // If namespace doesn't exist yet, first /up creates it
-        if (res.status === 404 && shouldIgnoreIncrement) {
-          const initRes = await fetch(`https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/up`);
-          const initData = await initRes.json();
-          countEl.textContent = Number(initData.count || 1).toLocaleString();
-          return;
+      if (res.ok) {
+        const data = await res.json();
+        const count = Number(data.value || data.count || 1);
+        countEl.textContent = count.toLocaleString();
+
+        if (!shouldIgnoreIncrement) {
+          sessionStorage.setItem('formula_visitor_counted', 'true');
+        }
+      } else {
+        // Fallback read
+        const fallbackRes = await fetch(`https://counterapi.com/api/${DOMAIN}/visitors/`);
+        if (fallbackRes.ok) {
+          const fbData = await fallbackRes.json();
+          countEl.textContent = Number(fbData.value || 1).toLocaleString();
         }
       }
-
-      const data = await res.json();
-      const count = Number(data.count || 0);
-      countEl.textContent = count.toLocaleString();
-
-      // Mark session as counted
-      if (!shouldIgnoreIncrement) {
-        sessionStorage.setItem('formula_visitor_counted', 'true');
-      }
     } catch (e) {
-      // Fallback display if offline or API blocked
-      countEl.textContent = '1,024+';
+      // Offline fallback
+      countEl.textContent = '1';
     }
   }
 
