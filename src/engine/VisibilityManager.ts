@@ -47,7 +47,7 @@ export class VisibilityManager {
             }
           });
         },
-        { rootMargin: '150px' }
+        { rootMargin: '300px' }
       );
     }
   }
@@ -62,19 +62,20 @@ export class VisibilityManager {
   public register(element: Element, engine: CanvasEngine) {
     this.engineMap.set(element, engine);
 
-    // If browser supports content-visibility auto state change
-    element.addEventListener('contentvisibilityautostatechange', ((e: Event & { skipped?: boolean }) => {
-      if (e.skipped) {
-        engine.setVisible(false);
-      } else if (this.isTabVisible && !this.prefersReducedMotion) {
-        engine.setVisible(true);
-      }
-    }) as EventListener);
+    // 1. Immediately render an initial frame so the canvas is never black
+    engine.renderSingleFrame(0.1);
+
+    // 2. Immediately start the engine if already in or near the viewport
+    const rect = element.getBoundingClientRect();
+    const inViewport = rect.top < (window.innerHeight + 300) && rect.bottom > -300;
+
+    if (inViewport && this.isTabVisible && !this.prefersReducedMotion) {
+      engine.setVisible(true);
+    }
 
     if (this.observer) {
       this.observer.observe(element);
     } else {
-      // Fallback
       if (this.prefersReducedMotion) {
         engine.renderSingleFrame(1.0);
       } else {

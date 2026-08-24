@@ -25,10 +25,9 @@
   display: block;
 }
 
-/* Card content-visibility for ultra-fast deferred rendering */
+/* Card container styling */
 .art-card-container {
-  content-visibility: auto;
-  contain-intrinsic-size: auto none auto 380px;
+  contain: layout style;
 }
 
 /* Shimmer placeholder */
