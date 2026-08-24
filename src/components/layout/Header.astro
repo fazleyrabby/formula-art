@@ -37,8 +37,22 @@
       </nav>
     </div>
 
-    <!-- Actions -->
-    <div class="flex items-center gap-2.5">
+      <!-- Live Visitor Counter Badge -->
+      <a
+        href="https://counterapi.com/stats/art.fazleyrabbi.xyz/visitors/up"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-accent-cyan/30 text-slate-300 hover:text-white transition-all text-xs font-mono group cursor-pointer"
+        title="Live global visitor count • View Stats on CounterAPI"
+      >
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-emerald opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-emerald"></span>
+        </span>
+        <span class="text-slate-400 group-hover:text-slate-300 text-[11px] hidden sm:inline">Views:</span>
+        <span id="header-visitor-count" class="font-bold text-accent-cyan text-xs">1</span>
+      </a>
+
       <!-- Search Trigger Button -->
       <button
         type="button"

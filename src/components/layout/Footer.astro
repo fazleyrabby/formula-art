@@ -59,6 +59,14 @@
       adminBadge.classList.remove('hidden');
     }
 
+    const headerCountEl = document.getElementById('header-visitor-count');
+
+    function setDisplayCount(num: number) {
+      const formatted = num.toLocaleString();
+      if (countEl) countEl.textContent = formatted;
+      if (headerCountEl) headerCountEl.textContent = formatted;
+    }
+
     try {
       // If we should ignore, perform read-only fetch
       const endpoint = shouldIgnoreIncrement
@@ -69,7 +77,7 @@
       if (res.ok) {
         const data = await res.json();
         const count = Number(data.value || data.count || 1);
-        countEl.textContent = count.toLocaleString();
+        setDisplayCount(count);
 
         if (!shouldIgnoreIncrement) {
           sessionStorage.setItem('formula_visitor_counted', 'true');
@@ -79,12 +87,12 @@
         const fallbackRes = await fetch(`https://counterapi.com/api/${DOMAIN}/visitors/`);
         if (fallbackRes.ok) {
           const fbData = await fallbackRes.json();
-          countEl.textContent = Number(fbData.value || 1).toLocaleString();
+          setDisplayCount(Number(fbData.value || 1));
         }
       }
     } catch (e) {
       // Offline fallback
-      countEl.textContent = '1';
+      setDisplayCount(1);
     }
   }
 
