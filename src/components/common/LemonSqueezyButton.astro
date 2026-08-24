@@ -1,14 +1,18 @@
 ---
 interface Props {
+  enabled?: boolean;
   checkoutUrl?: string;
   className?: string;
 }
 
 const {
+  enabled = false,
   checkoutUrl = 'https://fazley.lemonsqueezy.com/checkout/buy/ba3af5a8-e39a-4be0-b5af-92298db36877?embed=1',
   className = '',
 } = Astro.props;
 ---
+
+{enabled && (
 
 <!-- Lemon Squeezy Floating Support Button -->
 <div
@@ -71,3 +75,4 @@ const {
   setupDonateButtonVisibility();
   document.addEventListener('astro:page-load', setupDonateButtonVisibility);
 </script>
+)}
