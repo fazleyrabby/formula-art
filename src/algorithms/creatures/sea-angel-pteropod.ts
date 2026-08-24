@@ -1,8 +1,13 @@
 import type { ArtRenderer, ParameterState, RenderContext, TimeState } from '../../types/engine';
 import { hsla } from '../common/color';
 
-// Clione Limacina (Pelagic Sea Angel) Parapodia Wing Fluttering & Visceral Core
+// Yuruyurau-Style Luminous Sea Angel (Clione Limacina)
+// Rendered using 32 translucent body streamlines, 28 flapping wing filament ribbons,
+// additive alpha glow, and a radiant glowing visceral heart nucleus.
 export function createSeaAngelPteropod(): ArtRenderer {
+  const BODY_RIBBONS = 28;
+  const WING_FILAMENTS = 24;
+
   return {
     setup() {},
 
@@ -12,10 +17,9 @@ export function createSeaAngelPteropod(): ArtRenderer {
       const wingSpan = Number(params.wingSpan || 1.2);
       const t = timeState.time * wingSpeed;
 
-      ctx.fillStyle = '#03050a';
+      ctx.fillStyle = '#020306';
       ctx.fillRect(0, 0, width, height);
 
-      // Swimming center with graceful hovering vertical motion
       const cx = width * 0.5 + Math.sin(t * 0.6) * (width * 0.05);
       const cy = height * 0.46 + Math.sin(t * 1.8) * 14;
       const angelScale = Math.min(width, height) / 480;
@@ -23,91 +27,88 @@ export function createSeaAngelPteropod(): ArtRenderer {
       ctx.save();
       ctx.translate(cx, cy);
 
-      // 1. Translucent Gymnosome Torpedo Body
-      ctx.beginPath();
-      ctx.moveTo(0, -65 * angelScale); // Head apex
-      ctx.quadraticCurveTo(28 * angelScale, -25 * angelScale, 20 * angelScale, 30 * angelScale);
-      ctx.quadraticCurveTo(8 * angelScale, 75 * angelScale, 0, 115 * angelScale); // Tail tip
-      ctx.quadraticCurveTo(-8 * angelScale, 75 * angelScale, -20 * angelScale, 30 * angelScale);
-      ctx.quadraticCurveTo(-28 * angelScale, -25 * angelScale, 0, -65 * angelScale);
-      ctx.closePath();
+      ctx.globalCompositeOperation = 'screen';
 
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(186, 230, 253, 0.7)';
-      ctx.lineWidth = 1.8 * angelScale;
-      ctx.stroke();
+      const baseHue = (195 + Math.sin(t * 0.8) * 20) % 360;
 
-      // 2. Glowing Visceral Mass Nucleus (Luminous Orange/Red Internal Organs)
-      const viscGrad = ctx.createRadialGradient(
-        0,
-        5 * angelScale,
-        2 * angelScale,
-        0,
-        5 * angelScale,
-        22 * angelScale
-      );
-      viscGrad.addColorStop(0, 'rgba(239, 68, 68, 0.95)');
-      viscGrad.addColorStop(0.5, 'rgba(249, 115, 22, 0.7)');
-      viscGrad.addColorStop(1, 'rgba(249, 115, 22, 0)');
+      // 1. Yuruyurau 28 Concentric Gymnosome Body Streamline Ribbons
+      for (let r = 0; r < BODY_RIBBONS; r++) {
+        const normR = (r + 1) / BODY_RIBBONS;
+        const curW = 28 * normR * angelScale;
+        const curH = 115 * normR * angelScale;
 
-      ctx.fillStyle = viscGrad;
-      ctx.beginPath();
-      ctx.ellipse(0, 5 * angelScale, 14 * angelScale, 20 * angelScale, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Buccal Cones in Head
-      ctx.fillStyle = 'rgba(239, 68, 68, 0.8)';
-      ctx.beginPath();
-      ctx.ellipse(0, -45 * angelScale, 6 * angelScale, 10 * angelScale, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 3. Head Sensory Tentacles
-      for (let s = -1; s <= 1; s += 2) {
         ctx.beginPath();
-        ctx.moveTo(s * 6 * angelScale, -60 * angelScale);
-        ctx.lineTo(s * 15 * angelScale, -82 * angelScale + Math.sin(t * 3 + s) * 4);
-        ctx.strokeStyle = 'rgba(224, 242, 254, 0.8)';
-        ctx.lineWidth = 1.4 * angelScale;
+        // Head Apex
+        ctx.moveTo(0, -65 * normR * angelScale);
+        ctx.quadraticCurveTo(curW, -25 * normR * angelScale, curW * 0.7, 30 * normR * angelScale);
+        ctx.quadraticCurveTo(curW * 0.3, 75 * normR * angelScale, 0, curH);
+        ctx.quadraticCurveTo(-curW * 0.3, 75 * normR * angelScale, -curW * 0.7, 30 * normR * angelScale);
+        ctx.quadraticCurveTo(-curW, -25 * normR * angelScale, 0, -65 * normR * angelScale);
+        ctx.closePath();
+
+        const bodyHue = (baseHue + normR * 25) % 360;
+        ctx.strokeStyle = hsla(bodyHue, 95, 72, (0.06 + normR * 0.28));
+        ctx.lineWidth = normR > 0.85 ? 1.6 : 0.8;
         ctx.stroke();
       }
 
-      // 4. Fluttering Wing-Like Parapodia (Rowing Aerodynamics)
+      // 2. Radiant Glowing Visceral Mass Nucleus (Inner Orange-Red Heart)
+      for (let visc = 1; visc <= 6; visc++) {
+        const vR = (3 + visc * 3) * angelScale;
+        ctx.beginPath();
+        ctx.ellipse(0, 6 * angelScale, vR, vR * 1.3, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = hsla(15 + visc * 8, 100, 68, (0.6 - visc * 0.08));
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#fee2e2';
+      ctx.shadowColor = '#f97316';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(0, 6 * angelScale, 3 * angelScale, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // 3. Yuruyurau-Style Fluttering Parapodia Wing Filaments (24 Strands per side)
       const wingWave = Math.sin(t * 3.5);
       const wingCurl = Math.cos(t * 3.5);
 
       for (let s = -1; s <= 1; s += 2) {
-        const rootX = s * 16 * angelScale;
-        const rootY = -15 * angelScale;
+        for (let wf = 0; wf < WING_FILAMENTS; wf++) {
+          const normW = wf / (WING_FILAMENTS - 1);
+          const rootX = s * (8 + normW * 14) * angelScale;
+          const rootY = (-20 + normW * 12) * angelScale;
 
-        const tipX = rootX + s * 85 * wingSpan * angelScale;
-        const tipY = rootY - 15 * wingSpan * angelScale + wingWave * (28 * angelScale);
+          const curSpan = (70 + normW * 25) * wingSpan * angelScale;
+          const tipX = rootX + s * curSpan;
+          const tipY = rootY - (10 + normW * 10) * angelScale + wingWave * (28 * angelScale);
 
-        ctx.beginPath();
-        ctx.moveTo(rootX, rootY);
-        ctx.bezierCurveTo(
-          rootX + s * 45 * angelScale,
-          rootY - 45 * angelScale + wingCurl * (18 * angelScale),
-          tipX + s * 15 * angelScale,
-          tipY - 25 * angelScale,
-          tipX,
-          tipY
-        );
-        ctx.bezierCurveTo(
-          tipX - s * 25 * angelScale,
-          tipY + 45 * angelScale,
-          rootX + s * 30 * angelScale,
-          rootY + 25 * angelScale,
-          rootX,
-          rootY + 15 * angelScale
-        );
-        ctx.closePath();
+          ctx.beginPath();
+          ctx.moveTo(rootX, rootY);
+          ctx.bezierCurveTo(
+            rootX + s * (35 + normW * 15) * angelScale,
+            rootY - 45 * angelScale + wingCurl * (18 * angelScale),
+            tipX + s * 15 * angelScale,
+            tipY - 25 * angelScale,
+            tipX,
+            tipY
+          );
+          ctx.bezierCurveTo(
+            tipX - s * 25 * angelScale,
+            tipY + 45 * angelScale,
+            rootX + s * 25 * angelScale,
+            rootY + 25 * angelScale,
+            rootX,
+            rootY + 12 * angelScale
+          );
+          ctx.closePath();
 
-        ctx.fillStyle = hsla(195, 90, 75, 0.25);
-        ctx.fill();
-        ctx.strokeStyle = hsla(190, 100, 85, 0.85);
-        ctx.lineWidth = 1.8 * angelScale;
-        ctx.stroke();
+          const wingHue = (baseHue - 15 + normW * 35) % 360;
+          ctx.strokeStyle = hsla(wingHue, 100, 78, (0.08 + normW * 0.35));
+          ctx.lineWidth = wf % 4 === 0 ? 1.6 : 0.8;
+          ctx.stroke();
+        }
       }
 
       ctx.restore();

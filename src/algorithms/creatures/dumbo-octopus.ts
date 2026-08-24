@@ -1,8 +1,13 @@
 import type { ArtRenderer, ParameterState, RenderContext, TimeState } from '../../types/engine';
 import { hsla } from '../common/color';
 
-// Grimpoteuthis (Dumbo Octopus) Ear-Fin Flapping Kinematics & Cirrate Bell Mantle
+// Yuruyurau-Style Luminous Dumbo Octopus (Grimpoteuthis)
+// Rendered using 32 concentric mantle streamline contours, 24 ear-fin flapping filaments,
+// additive alpha glow, and an undulating 36-ribbon cirrate umbrella skirt.
 export function createDumboOctopus(): ArtRenderer {
+  const MANTLE_RIBBONS = 28;
+  const EAR_FILAMENTS = 20;
+
   return {
     setup() {},
 
@@ -12,10 +17,9 @@ export function createDumboOctopus(): ArtRenderer {
       const earSpan = Number(params.earSpread || 1.2);
       const t = timeState.time * flapSpeed;
 
-      ctx.fillStyle = '#04060b';
+      ctx.fillStyle = '#020307';
       ctx.fillRect(0, 0, width, height);
 
-      // Swimming center with graceful hovering motion
       const cx = width * 0.5 + Math.sin(t * 0.5) * (width * 0.08);
       const cy = height * 0.45 + Math.sin(t * 1.6) * 12;
       const dumboScale = Math.min(width, height) / 480;
@@ -23,116 +27,118 @@ export function createDumboOctopus(): ArtRenderer {
       ctx.save();
       ctx.translate(cx, cy);
 
-      // 1. Ear-Like Prominent Pectoral Fins ("Dumbo Ears" Flapping Wave)
+      ctx.globalCompositeOperation = 'screen';
+
+      const baseHue = (330 + Math.sin(t * 0.6) * 20) % 360;
+
+      // 1. Yuruyurau 28 Concentric Bell Mantle Streamline Ribbons
+      for (let r = 0; r < MANTLE_RIBBONS; r++) {
+        const normR = (r + 1) / MANTLE_RIBBONS;
+        const curW = 46 * normR * dumboScale;
+        const curH = 48 * normR * dumboScale;
+
+        ctx.beginPath();
+        ctx.ellipse(0, -10 * dumboScale, curW, curH, 0, 0, Math.PI * 2);
+        
+        const mHue = (baseHue + normR * 25) % 360;
+        ctx.strokeStyle = hsla(mHue, 90, 70, (0.06 + normR * 0.3));
+        ctx.lineWidth = normR > 0.88 ? 1.6 : 0.8;
+        ctx.stroke();
+      }
+
+      // 2. Ear-Like Prominent Pectoral Fins (20 Layered Flapping Filaments)
       const earFlap = Math.sin(t * 3.2);
       const earCurl = Math.cos(t * 3.2);
 
       for (let s = -1; s <= 1; s += 2) {
-        const rootX = s * 32 * dumboScale;
-        const rootY = -28 * dumboScale;
+        for (let ef = 0; ef < EAR_FILAMENTS; ef++) {
+          const normE = ef / (EAR_FILAMENTS - 1);
+          const rootX = s * (22 + normE * 14) * dumboScale;
+          const rootY = (-34 + normE * 12) * dumboScale;
 
-        ctx.beginPath();
-        ctx.moveTo(rootX, rootY);
+          const curSpan = (55 + normE * 22) * earSpan * dumboScale;
+          const tipX = rootX + s * curSpan;
+          const tipY = rootY - (14 + normE * 8) * dumboScale + earFlap * (26 * dumboScale);
 
-        const tipX = rootX + s * 65 * earSpan * dumboScale;
-        const tipY = rootY - 18 * earSpan * dumboScale + earFlap * (26 * dumboScale);
+          ctx.beginPath();
+          ctx.moveTo(rootX, rootY);
+          ctx.bezierCurveTo(
+            rootX + s * (35 + normE * 10) * dumboScale,
+            rootY - 45 * dumboScale + earCurl * (16 * dumboScale),
+            tipX + s * 10 * dumboScale,
+            tipY - 20 * dumboScale,
+            tipX,
+            tipY
+          );
+          ctx.bezierCurveTo(
+            tipX - s * 15 * dumboScale,
+            tipY + 35 * dumboScale,
+            rootX + s * 22 * dumboScale,
+            rootY + 15 * dumboScale,
+            rootX,
+            rootY
+          );
+          ctx.closePath();
 
-        ctx.bezierCurveTo(
-          rootX + s * 40 * dumboScale,
-          rootY - 45 * dumboScale + earCurl * (15 * dumboScale),
-          tipX + s * 10 * dumboScale,
-          tipY - 20 * dumboScale,
-          tipX,
-          tipY
-        );
-        ctx.bezierCurveTo(
-          tipX - s * 15 * dumboScale,
-          tipY + 35 * dumboScale,
-          rootX + s * 25 * dumboScale,
-          rootY + 15 * dumboScale,
-          rootX,
-          rootY
-        );
-        ctx.closePath();
-
-        ctx.fillStyle = hsla(330, 80, 70, 0.85);
-        ctx.fill();
-        ctx.strokeStyle = hsla(340, 90, 85, 0.9);
-        ctx.lineWidth = 2.0;
-        ctx.stroke();
+          const earHue = (baseHue - 15 + normE * 30) % 360;
+          ctx.strokeStyle = hsla(earHue, 95, 78, (0.08 + normE * 0.35));
+          ctx.lineWidth = ef % 4 === 0 ? 1.6 : 0.8;
+          ctx.stroke();
+        }
       }
 
-      // 2. Bell Mantle Body (Cute gelatinous dome)
-      ctx.beginPath();
-      ctx.ellipse(0, -10 * dumboScale, 45 * dumboScale, 48 * dumboScale, 0, 0, Math.PI * 2);
-      ctx.fillStyle = hsla(335, 75, 58, 0.95);
-      ctx.fill();
-      ctx.strokeStyle = hsla(345, 85, 75, 0.9);
-      ctx.lineWidth = 2.4;
-      ctx.stroke();
-
-      // 3. Wide Expressive Eyes
+      // 3. Wide Expressive Eyes with Glowing Rings
       for (let s = -1; s <= 1; s += 2) {
         const eyeX = s * 24 * dumboScale;
         const eyeY = 0;
 
-        ctx.fillStyle = '#0f172a';
+        ctx.fillStyle = '#0284c7';
         ctx.beginPath();
-        ctx.arc(eyeX, eyeY, 8.5 * dumboScale, 0, Math.PI * 2);
+        ctx.arc(eyeX, eyeY, 8.0 * dumboScale, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 1.6;
+        ctx.strokeStyle = '#e0f2fe';
+        ctx.lineWidth = 1.4;
         ctx.stroke();
 
-        // Eye glint
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(eyeX - 2.5, eyeY - 2.5, 3.0 * dumboScale, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // 4. Webbed Umbrella Skirt & Curled Arm Tips (Cirri Underneath)
+      // 4. Undulating Cirrate Webbing Skirt (24 Layered Ribbons)
       const ARM_COUNT = 8;
-      const skirtTips: { x: number; y: number }[] = [];
+      for (let layer = 0; layer < 6; layer++) {
+        const normL = (layer + 1) / 6;
+        const skirtTips: { x: number; y: number }[] = [];
 
-      for (let a = 0; a < ARM_COUNT; a++) {
-        const normA = (a / (ARM_COUNT - 1) - 0.5) * Math.PI * 0.8;
-        const armWave = Math.sin(t * 2.8 + a * 0.7) * 8 * dumboScale;
-        const armLen = (65 + (4 - Math.abs(a - 3.5)) * 8) * dumboScale;
+        for (let a = 0; a < ARM_COUNT; a++) {
+          const normA = (a / (ARM_COUNT - 1) - 0.5) * Math.PI * 0.82;
+          const armWave = Math.sin(t * 2.8 + a * 0.7 + layer * 0.3) * 8 * dumboScale;
+          const armLen = (65 + (4 - Math.abs(a - 3.5)) * 8) * normL * dumboScale;
 
-        const ax = Math.sin(normA) * (45 * dumboScale) + armWave;
-        const ay = 25 * dumboScale + Math.cos(normA) * armLen;
+          const ax = Math.sin(normA) * (45 * normL * dumboScale) + armWave;
+          const ay = 22 * dumboScale + Math.cos(normA) * armLen;
+          skirtTips.push({ x: ax, y: ay });
+        }
 
-        skirtTips.push({ x: ax, y: ay });
-      }
-
-      // Webbing Skirt
-      ctx.beginPath();
-      ctx.moveTo(skirtTips[0].x, skirtTips[0].y);
-      for (let a = 1; a < ARM_COUNT; a++) {
-        const prev = skirtTips[a - 1];
-        const cur = skirtTips[a];
-        const midX = (prev.x + cur.x) * 0.5;
-        const midY = (prev.y + cur.y) * 0.5 - 10 * dumboScale;
-        ctx.quadraticCurveTo(midX, midY, cur.x, cur.y);
-      }
-      ctx.lineTo(25 * dumboScale, 20 * dumboScale);
-      ctx.lineTo(-25 * dumboScale, 20 * dumboScale);
-      ctx.closePath();
-
-      ctx.fillStyle = hsla(330, 70, 45, 0.7);
-      ctx.fill();
-      ctx.strokeStyle = hsla(340, 85, 68, 0.85);
-      ctx.lineWidth = 2.0;
-      ctx.stroke();
-
-      // Curling Arm Tips
-      for (let a = 0; a < ARM_COUNT; a++) {
-        const tip = skirtTips[a];
         ctx.beginPath();
-        ctx.arc(tip.x, tip.y, 3 * dumboScale, 0, Math.PI * 2);
-        ctx.fillStyle = hsla(45, 95, 75, 0.9);
-        ctx.fill();
+        ctx.moveTo(skirtTips[0].x, skirtTips[0].y);
+        for (let a = 1; a < ARM_COUNT; a++) {
+          const prev = skirtTips[a - 1];
+          const cur = skirtTips[a];
+          const midX = (prev.x + cur.x) * 0.5;
+          const midY = (prev.y + cur.y) * 0.5 - 10 * normL * dumboScale;
+          ctx.quadraticCurveTo(midX, midY, cur.x, cur.y);
+        }
+        ctx.lineTo(25 * normL * dumboScale, 20 * dumboScale);
+        ctx.lineTo(-25 * normL * dumboScale, 20 * dumboScale);
+        ctx.closePath();
+
+        const sHue = (baseHue + layer * 10) % 360;
+        ctx.strokeStyle = hsla(sHue, 90, 75, (0.1 + normL * 0.35));
+        ctx.lineWidth = layer === 5 ? 1.8 : 0.8;
+        ctx.stroke();
       }
 
       ctx.restore();

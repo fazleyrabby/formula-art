@@ -1,93 +1,107 @@
 import type { ArtRenderer, ParameterState, RenderContext, TimeState } from '../../types/engine';
 import { hsla } from '../common/color';
 
-// Equiangular Logarithmic Spiral: r = a * exp(b * theta)
+// Yuruyurau-Style Luminous Nautilus Shell Spiral (Nautilus Pompilius)
+// Built with 36 concentric logarithmic equiangular spiral streamlines, additive alpha glow,
+// 24 radiant septal chamber septa, and an axial siphuncle vascular cord.
 export function createNautilusSpiral(): ArtRenderer {
+  const SPIRAL_STRANDS = 32;
+  const CHAMBERS = 24;
+
   return {
     setup() {},
 
     render(context: RenderContext, timeState: TimeState, params: ParameterState) {
       const { ctx, width, height } = context;
-      const speed = Number(params.spinSpeed || 0.4);
-      const b = Number(params.spiralGrowth || 0.1759); // Golden logarithmic constant
-      const chamberCount = Number(params.chamberCount || 36);
+      const speed = Number(params.growthRate || 0.8);
+      const chambersCount = Number(params.chamberCount || 20);
       const t = timeState.time * speed;
 
-      ctx.fillStyle = '#05070c';
+      ctx.fillStyle = '#020307';
       ctx.fillRect(0, 0, width, height);
 
-      const cx = width * 0.52;
+      const cx = width * 0.46;
       const cy = height * 0.52;
-      const a = 3.5;
-      const totalRotations = 4.2;
-      const maxTheta = totalRotations * Math.PI * 2;
+      const scale = Math.min(width, height) * 0.38;
 
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(t * 0.2);
 
-      // 1. Continuous Logarithmic Outer & Inner Shell Walls
-      ctx.beginPath();
-      const curveSteps = 400;
-      for (let i = 0; i <= curveSteps; i++) {
-        const theta = (i / curveSteps) * maxTheta;
-        const r = a * Math.exp(b * theta);
-        const px = r * Math.cos(theta);
-        const py = r * Math.sin(theta);
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-      }
-      ctx.strokeStyle = hsla(38, 90, 60, 0.85);
-      ctx.lineWidth = 2.2;
-      ctx.stroke();
+      ctx.globalCompositeOperation = 'screen';
 
-      // 2. Internal Septa Partitions (Chamber Walls)
-      for (let c = 1; c <= chamberCount; c++) {
-        const theta1 = (c / chamberCount) * maxTheta;
-        const theta2 = theta1 - Math.PI * 2; // Previous inner whorl
+      const baseHue = (25 + Math.sin(t * 0.5) * 20) % 360;
 
-        const rOuter = a * Math.exp(b * theta1);
-        const rInner = theta2 > 0 ? a * Math.exp(b * theta2) : 0;
+      // 1. Yuruyurau 32 Concentric Logarithmic Equiangular Spiral Streamlines
+      const b = 0.175; // Logarithmic growth constant (cotan of spiral angle)
+      const maxTheta = Math.PI * 4.5;
 
-        const outX = rOuter * Math.cos(theta1);
-        const outY = rOuter * Math.sin(theta1);
-        const inX = rInner * Math.cos(theta1 - 0.35);
-        const inY = rInner * Math.sin(theta1 - 0.35);
-
-        // Curved septum arch
-        const midR = (rOuter + rInner) * 0.5;
-        const ctrlX = midR * Math.cos(theta1 + 0.25);
-        const ctrlY = midR * Math.sin(theta1 + 0.25);
+      for (let s = 0; s < SPIRAL_STRANDS; s++) {
+        const normS = (s + 1) / SPIRAL_STRANDS;
+        const a = scale * 0.035 * (0.4 + normS * 0.75);
 
         ctx.beginPath();
-        ctx.moveTo(inX, inY);
-        ctx.quadraticCurveTo(ctrlX, ctrlY, outX, outY);
+        const steps = 140;
+        for (let i = 0; i <= steps; i++) {
+          const theta = (i / steps) * maxTheta;
+          const r = a * Math.exp(b * theta);
+          
+          // Subtle undulating shell growth ripple
+          const ripple = Math.sin(theta * 8 + t * 2 + normS * 3) * (1.5 * normS);
+          const px = (r + ripple) * Math.cos(theta);
+          const py = (r + ripple) * Math.sin(theta);
 
-        const chamberHue = (c * 8 + t * 25 + 175) % 360;
-        ctx.strokeStyle = hsla(chamberHue, 85, 65, 0.65);
-        ctx.lineWidth = 1.3;
-        ctx.stroke();
-
-        // Shimmering Mother-of-Pearl Chamber Fill
-        if (c % 2 === 0) {
-          ctx.fillStyle = hsla(chamberHue, 90, 50, 0.08);
-          ctx.fill();
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
         }
+
+        const strandHue = (baseHue + normS * 35) % 360;
+        ctx.strokeStyle = hsla(strandHue, 95, 72, (0.06 + normS * 0.3));
+        ctx.lineWidth = normS > 0.88 ? 1.6 : 0.8;
+        ctx.stroke();
       }
 
-      // 3. Central Siphuncle Tube Canal
+      // 2. Septa Chamber Walls (Curving Bio-Partitions)
+      for (let c = 1; c <= CHAMBERS; c++) {
+        if (c > chambersCount) break;
+        const normC = c / CHAMBERS;
+        const thetaC = normC * maxTheta;
+        const rOuter = (scale * 0.035 * 1.15) * Math.exp(b * thetaC);
+        const rInner = (scale * 0.035 * 1.15) * Math.exp(b * (thetaC - Math.PI * 2));
+
+        const pOuterX = rOuter * Math.cos(thetaC);
+        const pOuterY = rOuter * Math.sin(thetaC);
+        const pInnerX = Math.max(0, rInner) * Math.cos(thetaC - Math.PI * 2);
+        const pInnerY = Math.max(0, rInner) * Math.sin(thetaC - Math.PI * 2);
+
+        // Curving hyperbolic septum
+        ctx.beginPath();
+        ctx.moveTo(pInnerX, pInnerY);
+        const midX = (pInnerX + pOuterX) * 0.5 + Math.sin(thetaC) * 12;
+        const midY = (pInnerY + pOuterY) * 0.5 - Math.cos(thetaC) * 12;
+        ctx.quadraticCurveTo(midX, midY, pOuterX, pOuterY);
+
+        ctx.strokeStyle = hsla(190, 100, 80, 0.45);
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
+
+      // 3. Central Siphuncle Vascular Tube (Continuous umbilical line through all chambers)
       ctx.beginPath();
-      for (let i = 0; i <= curveSteps; i += 4) {
-        const theta = (i / curveSteps) * maxTheta;
-        const r = a * Math.exp(b * theta) * 0.55;
+      for (let i = 0; i <= 100; i++) {
+        const theta = (i / 100) * maxTheta;
+        const r = (scale * 0.035 * 0.65) * Math.exp(b * theta);
         const px = r * Math.cos(theta);
         const py = r * Math.sin(theta);
         if (i === 0) ctx.moveTo(px, py);
         else ctx.lineTo(px, py);
       }
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
-      ctx.lineWidth = 1.0;
+      ctx.strokeStyle = '#38bdf8';
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 8;
+      ctx.lineWidth = 1.4;
       ctx.stroke();
+      ctx.shadowBlur = 0;
 
       ctx.restore();
     },

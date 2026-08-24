@@ -1,11 +1,12 @@
 import type { ArtRenderer, ParameterState, RenderContext, TimeState } from '../../types/engine';
 import { hsla } from '../common/color';
 
-// Anatomically Enriched Giant Siphonophore (Physonect/Calycophoran Anatomy)
-// Features: Apical pneumatophore gas float, nectosome swimming bells with radial canals,
-// siphosome cormidia repeating units (gastrozooids, gonozooids, protective bracts, and coiled tentilla).
+// Yuruyurau-Style Giant Siphonophore (Colonial Deep-Sea Entity)
+// Built with 48 intertwined helical coenosarc stem filaments, additive glow,
+// pulsating nectophore swimming bells, and a veil of 80 bioluminescent tentilla fishing threads.
 export function createGiantSiphonophore(): ArtRenderer {
-  const CORMIDIA_COUNT = 24;
+  const STEM_FILAMENTS = 36;
+  const TENTILLA_COUNT = 80;
 
   return {
     setup() {},
@@ -16,143 +17,111 @@ export function createGiantSiphonophore(): ArtRenderer {
       const chainLength = Number(params.chainSpread || 1.1);
       const t = timeState.time * waveSpeed;
 
-      ctx.fillStyle = '#020307';
+      ctx.fillStyle = '#020306';
       ctx.fillRect(0, 0, width, height);
 
       const cx = width * 0.5;
       const cy = height * 0.5;
       const scale = Math.min(width, height) * 0.42 * chainLength;
 
-      // 1. Primary Helical Coenosarc Stem (Stem Axis)
-      const stemNodes: { x: number; y: number; z: number }[] = [];
-      for (let i = 0; i < CORMIDIA_COUNT; i++) {
-        const norm = i / (CORMIDIA_COUNT - 1);
-        const theta = norm * Math.PI * 3.5 + t * 0.8;
-        const stemX = cx + (norm - 0.5) * scale * 1.8 + Math.sin(t * 1.2 + norm * 4) * 22;
-        const stemY = cy + Math.sin(theta) * (scale * 0.32);
-        const stemZ = Math.cos(theta) * (scale * 0.32);
-        stemNodes.push({ x: stemX, y: stemY, z: stemZ });
-      }
-
-      // Draw Main Coenosarc Filament (Translucent living pipeline)
-      ctx.beginPath();
-      for (let i = 0; i < stemNodes.length; i++) {
-        if (i === 0) ctx.moveTo(stemNodes[i].x, stemNodes[i].y);
-        else ctx.lineTo(stemNodes[i].x, stemNodes[i].y);
-      }
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
-      ctx.lineWidth = 2.0;
-      ctx.stroke();
-
-      // 2. Apical Pneumatophore (Gas-Filled Float at Anterior Tip)
-      const apex = stemNodes[0];
       ctx.save();
-      ctx.translate(apex.x, apex.y);
+      ctx.globalCompositeOperation = 'screen';
 
-      // Gas float bladder
-      ctx.beginPath();
-      ctx.ellipse(-12, 0, 16, 10, -0.2, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(186, 230, 253, 0.35)';
-      ctx.fill();
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 1.6;
-      ctx.stroke();
+      // 1. Yuruyurau 36 Intertwined Helical Coenosarc Stem Filaments
+      for (let f = 0; f < STEM_FILAMENTS; f++) {
+        const normF = f / (STEM_FILAMENTS - 1);
+        const phaseOffset = normF * Math.PI * 2;
+        const stemRadius = (scale * 0.32) * (0.8 + 0.4 * Math.sin(normF * Math.PI));
 
-      // Internal Gas Bubble Reflection & Pigment Pore
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(-14, -2, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      // 3. Nectosome Swimming Bells (Nectophores with Jet Propulsion Velum)
-      for (let n = 1; n <= 3; n++) {
-        const node = stemNodes[n];
-        const pulse = 1 + 0.28 * Math.sin(t * 3.5 - n * 0.4);
-
-        ctx.save();
-        ctx.translate(node.x, node.y);
-
-        // Hydrodynamic Muscular Bell Dome
         ctx.beginPath();
-        ctx.ellipse(0, -10, 14 * pulse, 18 * pulse, 0.2, 0, Math.PI * 2);
-        ctx.fillStyle = hsla(190, 85, 55, 0.2);
-        ctx.fill();
-        ctx.strokeStyle = hsla(185, 95, 75, 0.85);
-        ctx.lineWidth = 1.4;
-        ctx.stroke();
+        const steps = 65;
+        for (let i = 0; i <= steps; i++) {
+          const normI = i / steps;
+          const theta = normI * Math.PI * 3.8 + t * 0.8 + phaseOffset;
 
-        // 4 Radial Canals in bell
-        for (let c = 0; c < 4; c++) {
-          const ca = (c / 4) * Math.PI * 2;
+          // Compound harmonic helical waves
+          const waveX = Math.sin(t * 1.4 + normI * 5 + normF * 2) * 22;
+          const sx = cx + (normI - 0.5) * scale * 1.85 + waveX;
+          const sy = cy + Math.sin(theta) * stemRadius;
+
+          if (i === 0) ctx.moveTo(sx, sy);
+          else ctx.lineTo(sx, sy);
+        }
+
+        const stemHue = (180 + normF * 45 + Math.sin(t * 0.5) * 20) % 360;
+        ctx.strokeStyle = hsla(stemHue, 95, 70, 0.25);
+        ctx.lineWidth = f % 4 === 0 ? 1.6 : 0.8;
+        ctx.stroke();
+      }
+
+      // 2. Pulsating Nectophore Swimming Bells (Zooid Cluster Nodes)
+      const NODE_COUNT = 18;
+      const stemNodes: { x: number; y: number }[] = [];
+
+      for (let n = 0; n < NODE_COUNT; n++) {
+        const normN = n / (NODE_COUNT - 1);
+        const theta = normN * Math.PI * 3.8 + t * 0.8;
+        const nx = cx + (normN - 0.5) * scale * 1.85 + Math.sin(t * 1.4 + normN * 5) * 22;
+        const ny = cy + Math.sin(theta) * (scale * 0.32);
+        stemNodes.push({ x: nx, y: ny });
+
+        // Concentric Bell Rings
+        const pulse = 1 + 0.28 * Math.sin(t * 3.5 - n * 0.4);
+        for (let ring = 1; ring <= 3; ring++) {
           ctx.beginPath();
-          ctx.moveTo(0, -10);
-          ctx.lineTo(Math.cos(ca) * 12 * pulse, -10 + Math.sin(ca) * 15 * pulse);
-          ctx.strokeStyle = 'rgba(125, 211, 252, 0.5)';
+          ctx.arc(nx, ny, (4 + ring * 3.5) * pulse, 0, Math.PI * 2);
+          ctx.strokeStyle = hsla(185 + ring * 10, 95, 75, (0.5 - ring * 0.1));
           ctx.lineWidth = 1.0;
           ctx.stroke();
         }
 
-        ctx.restore();
+        // Bioluminescent Red / Cyan Photophore Center
+        const isRed = n % 3 === 0;
+        const pColor = isRed ? '#ef4444' : '#38bdf8';
+        ctx.fillStyle = pColor;
+        ctx.shadowColor = pColor;
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(nx, ny, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
       }
 
-      // 4. Siphosome Repeating Cormidia Groups (Gastrozooids, Gonozooids, Bracts, Tentilla)
-      for (let i = 4; i < stemNodes.length; i++) {
-        const node = stemNodes[i];
-        const normI = i / (stemNodes.length - 1);
+      // 3. Cascade of 80 Yuruyurau-Style Bioluminescent Tentilla Silk Threads
+      for (let k = 0; k < TENTILLA_COUNT; k++) {
+        const normK = k / (TENTILLA_COUNT - 1);
+        const parentIdx = Math.floor(normK * (stemNodes.length - 1));
+        const root = stemNodes[parentIdx];
 
-        // Gelatinous Leaf-like Protective Bract (Shielding the zooids)
         ctx.beginPath();
-        ctx.ellipse(node.x, node.y - 8, 10, 6, 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(186, 230, 253, 0.4)';
-        ctx.lineWidth = 1.0;
-        ctx.stroke();
+        ctx.moveTo(root.x, root.y);
 
-        // Gastrozooid (Feeding Polyp with Digestive Cavity)
-        ctx.beginPath();
-        ctx.moveTo(node.x, node.y);
-        ctx.lineTo(node.x + 8, node.y + 12);
-        ctx.strokeStyle = hsla(355, 90, 65, 0.8); // Bioluminescent red digestive organ
-        ctx.lineWidth = 2.4;
-        ctx.stroke();
-
-        // Gonozooid (Reproductive Cluster Beads)
-        ctx.fillStyle = hsla(280, 95, 75, 0.85);
-        ctx.beginPath();
-        ctx.arc(node.x - 6, node.y + 8, 2.5, 0, Math.PI * 2);
-        ctx.arc(node.x - 3, node.y + 11, 2.0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 5. Coiled Helical Tentilla with Nematocyst Batteries (Fishing Filament)
-        ctx.beginPath();
-        ctx.moveTo(node.x, node.y);
-
-        const tentSteps = 28;
-        const maxDrop = 150 * chainLength;
+        const tentSteps = 32;
+        const maxDrop = 160 * chainLength;
         for (let s = 1; s <= tentSteps; s++) {
           const ns = s / tentSteps;
-          // Spring-like micro-coils along tentacle
-          const coil = Math.sin(ns * 18 + t * 4 + i) * 6;
-          const wave = Math.sin(t * 2.5 - ns * 6 + i * 0.4) * (18 * ns);
-          const tx = node.x + wave + coil;
-          const ty = node.y + ns * maxDrop;
+          // Harmonic wave interference
+          const w1 = Math.sin(t * 2.8 - ns * 7 + k * 0.3) * (20 * ns);
+          const w2 = Math.cos(t * 1.8 + ns * 14 - k * 0.2) * (10 * ns);
+          const tx = root.x + w1 + w2;
+          const ty = root.y + ns * maxDrop;
           ctx.lineTo(tx, ty);
 
-          // Bioluminescent Red/Blue Nematocyst Battery Beads (Luciferin lures)
-          if (s % 5 === 0) {
-            const isRedLure = (i + s) % 3 === 0;
-            ctx.fillStyle = isRedLure ? '#ef4444' : '#38bdf8';
-            ctx.fillRect(tx - 1, ty - 1, 2.5, 2.5);
+          // Microscopic Nematocyst Battery Sparks
+          if (s % 6 === 0) {
+            const isRedSpark = (k + s) % 4 === 0;
+            ctx.fillStyle = isRedSpark ? 'rgba(239, 68, 68, 0.85)' : 'rgba(56, 189, 248, 0.85)';
+            ctx.fillRect(tx - 1, ty - 1, 2, 2);
           }
         }
 
-        const tentHue = (180 + normI * 40 + t * 15) % 360;
-        ctx.strokeStyle = hsla(tentHue, 95, 70, 0.4);
-        ctx.lineWidth = 0.9;
+        const tentHue = (180 + normK * 50 + t * 15) % 360;
+        ctx.strokeStyle = hsla(tentHue, 95, 75, k % 3 === 0 ? 0.55 : 0.22);
+        ctx.lineWidth = k % 3 === 0 ? 1.2 : 0.7;
         ctx.stroke();
       }
+
+      ctx.restore();
     },
   };
 }
