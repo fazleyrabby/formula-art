@@ -133,13 +133,17 @@ const defaultCode = presets[0].code;
       }
     }
 
-    // Check URL parameters for preset
+    // Check URL parameters for preset or load selected preset
     const urlParams = new URLSearchParams(window.location.search);
-    const initialPreset = urlParams.get('preset');
+    const initialPreset = urlParams.get('preset') || (select ? select.value : (presets[0] && presets[0].slug));
     if (initialPreset && select) {
       select.value = initialPreset;
-      setTimeout(() => loadAndRunPreset(initialPreset, true), 150);
     }
+    
+    // Initial run of selected preset
+    setTimeout(() => {
+      if (initialPreset) loadAndRunPreset(initialPreset, false);
+    }, 100);
 
     select?.addEventListener('change', () => {
       const slug = select.value;
