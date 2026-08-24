@@ -4,6 +4,7 @@ import VisualControls from '../components/playground/VisualControls.astro';
 import CodeEditor from '../components/playground/CodeEditor.astro';
 import PreviewFrame from '../components/playground/PreviewFrame.astro';
 import { getCollection } from 'astro:content';
+import { getPresetCode } from '../algorithms/playground-presets';
 
 const allArtworks = await getCollection('artworks');
 allArtworks.sort((a, b) => a.data.id.localeCompare(b.data.id));
@@ -12,36 +13,7 @@ const presets = allArtworks.map((a) => ({
   slug: a.data.slug,
   title: a.data.title,
   category: a.data.category,
-  code: `// ${a.data.title} (${a.data.category})
-// Math: ${a.data.mathNotation}
-// Formula: ${a.data.formulaCompact}
-
-// Fade background for trail effect
-ctx.fillStyle = 'rgba(8, 9, 13, 0.2)';
-ctx.fillRect(0, 0, width, height);
-
-const cx = width * 0.5;
-const cy = height * 0.5;
-const scale = Math.min(width, height) * 0.35;
-
-ctx.beginPath();
-const steps = 360;
-for (let i = 0; i <= steps; i++) {
-  const phi = (i / steps) * Math.PI * 2;
-  const r = 1 + 0.3 * Math.sin(phi * 5 + time * 3) * Math.cos(phi * 3 - time * 2);
-  const px = cx + Math.cos(phi) * r * scale;
-  const py = cy + Math.sin(phi) * r * scale;
-
-  if (i === 0) ctx.moveTo(px, py);
-  else ctx.lineTo(px, py);
-}
-ctx.closePath();
-
-const hue = (time * 30 + 190) % 360;
-ctx.strokeStyle = 'hsla(' + hue + ', 90%, 65%, 0.8)';
-ctx.lineWidth = 2.5;
-ctx.stroke();
-`
+  code: getPresetCode(a.data.slug, a.data.title, a.data.category)
 }));
 
 const defaultCode = presets[0].code;
@@ -150,27 +122,28 @@ const defaultCode = presets[0].code;
     tabVisual.addEventListener('click', () => switchMode('visual'));
     tabCode.addEventListener('click', () => switchMode('code'));
 
+    function loadAndRunPreset(slug, shouldSwitchToCode = true) {
+      const found = presets.find((p) => p.slug === slug);
+      if (found) {
+        if (shouldSwitchToCode) {
+          switchMode('code');
+        }
+        window.dispatchEvent(new CustomEvent('math-art:load-preset', { detail: { code: found.code } }));
+        window.dispatchEvent(new CustomEvent('math-art:run-code', { detail: { code: found.code } }));
+      }
+    }
+
     // Check URL parameters for preset
     const urlParams = new URLSearchParams(window.location.search);
     const initialPreset = urlParams.get('preset');
     if (initialPreset && select) {
       select.value = initialPreset;
-      const found = presets.find((p) => p.slug === initialPreset);
-      if (found) {
-        switchMode('code'); // Switch to code mode when explicitly requested via preset link
-        setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('math-art:load-preset', { detail: { code: found.code } }));
-        }, 120);
-      }
+      setTimeout(() => loadAndRunPreset(initialPreset, true), 150);
     }
 
     select?.addEventListener('change', () => {
       const slug = select.value;
-      const found = presets.find((p) => p.slug === slug);
-      if (found) {
-        switchMode('code');
-        window.dispatchEvent(new CustomEvent('math-art:load-preset', { detail: { code: found.code } }));
-      }
+      loadAndRunPreset(slug, true);
     });
 
     // Sync generated code from Visual Studio into Code Editor textarea
