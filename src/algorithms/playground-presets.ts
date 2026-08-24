@@ -1214,73 +1214,178 @@ for (let r = 0; r < 8; r++) {
 ctx.restore();`,
 
   // 38. Vampire Squid
-  'vampire-squid': `// Vampire Squid from Hell (Vampyroteuthis)
+  'vampire-squid': `// Vampire Squid (3D Tumbling Conical Umbrella & Tip Photophores)
 ctx.fillStyle = '#020306';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
-const cy = height * 0.44;
-const scale = Math.min(width, height) / 480;
-const t = time * 1.1;
+const cy = height * 0.46;
+const squidScale = Math.min(width, height) / 480;
+const t = time * 1.0;
+
+const rotY = Math.sin(t * 0.5) * 0.45;
+const rotX = 0.55 + Math.sin(t * 0.7) * 0.25;
+const rotZ = Math.sin(t * 0.4) * 0.15;
 
 ctx.save();
-ctx.translate(cx, cy);
 ctx.globalCompositeOperation = 'screen';
+const baseHue = (350 + Math.sin(t * 0.6) * 15) % 360;
 
-// Webbed Umbrella Cloak
-for (let layer = 1; layer <= 16; layer++) {
-  const normL = layer / 16;
-  const curR = 120 * normL * scale;
-
+// 18 Nested 3D Conical Web Ribbons
+for (let layer = 1; layer <= 18; layer++) {
+  const normL = layer / 18;
+  const curR = (120 * normL) * squidScale;
+  const mantleConeZ = (1 - normL) * (75 * squidScale);
   ctx.beginPath();
-  for (let i = 0; i <= 64; i++) {
-    const phi = (i / 64) * Math.PI * 2;
-    const armWave = Math.sin(t * 2.8 + phi * 8) * (18 * normL * scale);
-    const px = Math.cos(phi) * (curR + armWave);
-    const py = Math.sin(phi) * (curR * 0.7 + armWave);
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
+  const steps = 64;
+  let avgDepth = 0;
+  for (let i = 0; i <= steps; i++) {
+    const phi = (i / steps) * Math.PI * 2;
+    const armIndex = (phi / (Math.PI * 2)) * 8;
+    const armWave = Math.sin(t * 2.8 + armIndex * 0.8) * (18 * normL * squidScale);
+    const rawX = Math.cos(phi) * (curR + armWave);
+    const rawY = Math.sin(phi) * (curR * 0.7 + armWave) + (20 * normL * squidScale);
+    const rawZ = -mantleConeZ + Math.sin(phi * 8) * (12 * normL * squidScale);
+    const p = project3D(rawX, rawY, rawZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+    avgDepth += p.depth;
+    if (i === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
   }
-  ctx.strokeStyle = 'hsla(' + ((350 + normL * 25) % 360) + ', 90%, 65%, ' + (0.06 + normL * 0.3) + ')';
-  ctx.lineWidth = layer === 16 ? 2.0 : 0.9;
+  avgDepth /= (steps + 1);
+  ctx.strokeStyle = hsla((baseHue + normL * 25) % 360, 90, 65, (0.06 + normL * 0.32) * avgDepth);
+  ctx.lineWidth = Math.max(0.8, (layer === 18 ? 2.0 : 0.9) * avgDepth);
   ctx.stroke();
+}
+
+// 8 Arm Spines & Luminous Photophore Tips
+for (let a = 0; a < 8; a++) {
+  const phi = (a / 8) * Math.PI * 2;
+  const armWave = Math.sin(t * 2.8 + a * 0.8) * (18 * squidScale);
+  const armR = (120 + armWave) * squidScale;
+  const tipX = Math.cos(phi) * armR;
+  const tipY = Math.sin(phi) * (armR * 0.7) + (20 * squidScale);
+  const tipZ = Math.sin(phi * 8) * (12 * squidScale);
+  const pOrigin = project3D(0, -35 * squidScale, -60 * squidScale, rotX, rotY, rotZ, cx, cy, 450, 520);
+  const pTip = project3D(tipX, tipY, tipZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+  ctx.beginPath();
+  ctx.moveTo(pOrigin.x, pOrigin.y);
+  ctx.lineTo(pTip.x, pTip.y);
+  ctx.strokeStyle = hsla(350, 80, 50, 0.45 * pTip.depth);
+  ctx.lineWidth = Math.max(0.8, 1.4 * pTip.depth);
+  ctx.stroke();
+
+  // Arm-tip Photophore Glow
+  const pulse = 1 + 0.35 * Math.sin(t * 4 + a);
+  const glowR = (8 * squidScale * pulse) * pTip.depth;
+  const grad = ctx.createRadialGradient(pTip.x, pTip.y, 1, pTip.x, pTip.y, glowR * 3.5);
+  grad.addColorStop(0, '#38bdf8');
+  grad.addColorStop(0.4, 'rgba(56, 189, 248, 0.5)');
+  grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(pTip.x, pTip.y, glowR * 3.5, 0, Math.PI * 2);
+  ctx.fill();
 }
 ctx.restore();`,
 
   // 39. Dumbo Octopus
-  'dumbo-octopus': `// Dumbo Octopus Flight (Grimpoteuthis)
+  'dumbo-octopus': `// Dumbo Octopus (28 Mantle Streamline Ribbons & Flapping Pectoral Ear-Fins)
 ctx.fillStyle = '#020307';
 ctx.fillRect(0, 0, width, height);
 
-const cx = width * 0.5;
-const cy = height * 0.45;
-const scale = Math.min(width, height) / 480;
+const cx = width * 0.5 + Math.sin(time * 0.5) * (width * 0.08);
+const cy = height * 0.45 + Math.sin(time * 1.6) * 12;
+const dumboScale = Math.min(width, height) / 480;
 const t = time * 1.3;
 
 ctx.save();
 ctx.translate(cx, cy);
 ctx.globalCompositeOperation = 'screen';
+const baseHue = (330 + Math.sin(t * 0.6) * 20) % 360;
 
-// Ear Fins
-const earFlap = Math.sin(t * 3.2);
-for (let s = -1; s <= 1; s += 2) {
+// 28 Concentric Bell Mantle Ribbons
+for (let r = 0; r < 28; r++) {
+  const normR = (r + 1) / 28;
+  const curW = 46 * normR * dumboScale;
+  const curH = 48 * normR * dumboScale;
   ctx.beginPath();
-  ctx.moveTo(s * 25 * scale, -28 * scale);
-  ctx.quadraticCurveTo(s * 75 * scale, -45 * scale + earFlap * 25 * scale, s * 65 * scale, -10 * scale);
-  ctx.strokeStyle = '#f472b6';
-  ctx.lineWidth = 2.4;
+  ctx.ellipse(0, -10 * dumboScale, curW, curH, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = hsla((baseHue + normR * 25) % 360, 90, 70, 0.06 + normR * 0.3);
+  ctx.lineWidth = normR > 0.88 ? 1.6 : 0.8;
   ctx.stroke();
 }
 
-// Mantle Dome
-ctx.beginPath();
-ctx.ellipse(0, -10 * scale, 45 * scale, 48 * scale, 0, 0, Math.PI * 2);
-ctx.fillStyle = 'rgba(244, 114, 182, 0.4)';
-ctx.fill();
-ctx.strokeStyle = '#f472b6';
-ctx.lineWidth = 2.0;
-ctx.stroke();
+// 20 Layered Flapping Ear-Fin Filaments
+const earFlap = Math.sin(t * 3.2);
+const earCurl = Math.cos(t * 3.2);
+for (let s = -1; s <= 1; s += 2) {
+  for (let ef = 0; ef < 20; ef++) {
+    const normE = ef / 19;
+    const rootX = s * (22 + normE * 14) * dumboScale;
+    const rootY = (-34 + normE * 12) * dumboScale;
+    const curSpan = (55 + normE * 22) * 1.2 * dumboScale;
+    const tipX = rootX + s * curSpan;
+    const tipY = rootY - (14 + normE * 8) * dumboScale + earFlap * (26 * dumboScale);
 
+    ctx.beginPath();
+    ctx.moveTo(rootX, rootY);
+    ctx.bezierCurveTo(
+      rootX + s * (35 + normE * 10) * dumboScale,
+      rootY - 45 * dumboScale + earCurl * (16 * dumboScale),
+      tipX + s * 10 * dumboScale,
+      tipY - 20 * dumboScale,
+      tipX,
+      tipY
+    );
+    ctx.bezierCurveTo(
+      tipX - s * 15 * dumboScale,
+      tipY + 35 * dumboScale,
+      rootX + s * 22 * dumboScale,
+      rootY + 15 * dumboScale,
+      rootX,
+      rootY
+    );
+    ctx.closePath();
+    ctx.strokeStyle = hsla((baseHue - 15 + normE * 30) % 360, 95, 78, 0.08 + normE * 0.35);
+    ctx.lineWidth = ef % 4 === 0 ? 1.6 : 0.8;
+    ctx.stroke();
+  }
+}
+
+// Large Expressive Eyes
+for (let s = -1; s <= 1; s += 2) {
+  const eyeX = s * 20 * dumboScale;
+  const eyeY = 2 * dumboScale;
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.arc(eyeX, eyeY, 8.5 * dumboScale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(eyeX - s * 2 * dumboScale, eyeY - 2 * dumboScale, 3.2 * dumboScale, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// 8 Undulating Cirrate Arm Filaments
+for (let a = 0; a < 8; a++) {
+  const normA = (a / 7 - 0.5) * 2;
+  const rootX = normA * (38 * dumboScale);
+  const rootY = 32 * dumboScale;
+  ctx.beginPath();
+  ctx.moveTo(rootX, rootY);
+  for (let seg = 1; seg <= 25; seg++) {
+    const normSeg = seg / 25;
+    const wave = Math.sin(t * 3.5 + a * 0.8 - normSeg * 6) * (18 * normSeg * dumboScale);
+    ctx.lineTo(rootX + wave + normA * (12 * normSeg * dumboScale), rootY + normSeg * (70 * dumboScale));
+  }
+  ctx.strokeStyle = hsla((baseHue + 15) % 360, 90, 72, 0.6);
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+}
 ctx.restore();`,
 
   // 40. Gulper Eel
@@ -1891,55 +1996,170 @@ drawLushLeaf(35 * dragonScale, 65 * dragonScale, -Math.PI * 0.25, 75 * dragonSca
 ctx.restore();`,
 
   // 46. Hammerhead Shark
-  'hammerhead-shark': `// Great Hammerhead Shark (Luminous 3D Hydrodynamics)
+  'hammerhead-shark': `// Great Hammerhead Shark (Full 3D Hydrodynamics, Dorsal Fin & Heterocercal Tail)
 ctx.fillStyle = '#020308';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const cy = height * 0.5;
-const scale = Math.min(width, height) / 520;
+const sharkScale = Math.min(width, height) / 520;
 const t = time * 1.2;
 
+const rotY = Math.sin(t * 0.5) * 0.45 + 0.2;
+const rotX = 0.35 + Math.sin(t * 0.8) * 0.18;
+const rotZ = Math.sin(t * 0.6) * 0.15;
+
 ctx.save();
-ctx.translate(cx, cy);
 ctx.globalCompositeOperation = 'screen';
+const baseHue = (195 + Math.sin(t * 0.5) * 20) % 360;
 
-// 3D Longitudinal Streamlines & Serpentine S-Wave
-const nodes = 36;
-for (let str = 0; str < 16; str++) {
-  const phi = (str / 16) * Math.PI * 2;
+// 1. 3D Spine Nodes
+const SPINE_NODES = 42;
+const spineNodes = [];
+for (let s = 0; s < SPINE_NODES; s++) {
+  const normS = s / (SPINE_NODES - 1);
+  const x = (normS - 0.4) * (300 * sharkScale);
+  const waveAmp = Math.pow(normS, 1.4) * (46 * sharkScale);
+  const y = Math.sin(t * 3.2 - normS * 4.2) * (waveAmp * 0.35);
+  const z = Math.cos(t * 3.2 - normS * 4.2) * waveAmp;
+  const thicknessY = Math.sin(normS * Math.PI) * (42 * sharkScale);
+  const thicknessZ = Math.sin(normS * Math.PI) * (32 * sharkScale);
+  spineNodes.push({ x, y, z, thicknessY, thicknessZ });
+}
+
+// 2. 24 Volumetric Longitudinal Skin Streamlines
+for (let str = 0; str < 24; str++) {
+  const phi = (str / 24) * Math.PI * 2;
+  const cosPhi = Math.cos(phi);
+  const sinPhi = Math.sin(phi);
   ctx.beginPath();
-  for (let s = 0; s < nodes; s++) {
-    const normS = s / (nodes - 1);
-    const x = (normS - 0.4) * (300 * scale);
-    const wave = Math.sin(t * 3.2 - normS * 4.2) * (42 * Math.pow(normS, 1.4) * scale);
-    const ty = Math.sin(normS * Math.PI) * (38 * scale);
-    const y = Math.sin(phi) * ty + wave * 0.35;
-    if (s === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
+  let avgDepth = 0;
+  for (let s = 0; s < SPINE_NODES; s++) {
+    const node = spineNodes[s];
+    const rawX = node.x;
+    const rawY = node.y + sinPhi * node.thicknessY;
+    const rawZ = node.z + cosPhi * node.thicknessZ;
+    const p = project3D(rawX, rawY, rawZ, rotX, rotY, rotZ, cx, cy, 460, 520);
+    avgDepth += p.depth;
+    if (s === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
   }
-  ctx.strokeStyle = 'hsla(' + ((195 + str * 6) % 360) + ', 95%, 72%, 0.45)';
-  ctx.lineWidth = str % 4 === 0 ? 1.8 : 0.9;
+  avgDepth /= SPINE_NODES;
+  const strHue = (baseHue + (str % 6) * 8) % 360;
+  ctx.strokeStyle = hsla(strHue, 95, 72, (sinPhi < 0 ? 0.45 : 0.25) * avgDepth);
+  ctx.lineWidth = str % 4 === 0 ? 1.6 : 0.9;
   ctx.stroke();
 }
 
-// Iconic Cephalofoil T-Head Hammer
-const headX = -0.4 * 300 * scale;
-for (let h = -4; h <= 4; h++) {
+// 3. 30 Volumetric Transverse Body Rib Rings
+for (let r = 0; r < 30; r++) {
+  const normR = r / 29;
+  const nodeIdx = Math.floor(normR * (SPINE_NODES - 1));
+  const center = spineNodes[nodeIdx];
+  if (center.thicknessY < 2) continue;
   ctx.beginPath();
-  ctx.moveTo(headX + h * 4 * scale, -95 * scale);
-  ctx.lineTo(headX + h * 4 * scale, 95 * scale);
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 1.6;
+  const steps = 32;
+  let avgDepth = 0;
+  for (let i = 0; i <= steps; i++) {
+    const theta = (i / steps) * Math.PI * 2;
+    const ry = center.y + Math.sin(theta) * center.thicknessY;
+    const rz = center.z + Math.cos(theta) * center.thicknessZ;
+    const p = project3D(center.x, ry, rz, rotX, rotY, rotZ, cx, cy, 460, 520);
+    avgDepth += p.depth;
+    if (i === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
+  }
+  avgDepth /= (steps + 1);
+  const ringHue = (baseHue + normR * 35) % 360;
+  ctx.strokeStyle = hsla(ringHue, 95, 70, (0.15 + normR * 0.45) * avgDepth);
+  ctx.lineWidth = Math.max(0.8, (normR > 0.3 && normR < 0.7 ? 1.8 : 1.0) * avgDepth);
   ctx.stroke();
 }
 
-// Glowing Lateral Eyes
-ctx.fillStyle = '#67e8f9';
-ctx.beginPath();
-ctx.arc(headX, -95 * scale, 5 * scale, 0, Math.PI * 2);
-ctx.arc(headX, 95 * scale, 5 * scale, 0, Math.PI * 2);
-ctx.fill();
+// 4. Volumetric 3D Cephalofoil T-Head Hammer
+const head = spineNodes[0];
+const headSpan = 110 * 1.2 * sharkScale;
+const headRibs = 14;
+for (let hr = 0; hr < headRibs; hr++) {
+  const normHR = hr / (headRibs - 1);
+  const headXOffset = (normHR - 0.5) * (36 * sharkScale);
+  ctx.beginPath();
+  for (let s = -1; s <= 1; s += 2) {
+    const pWingTip = project3D(head.x + headXOffset - 12 * sharkScale, head.y, head.z + s * headSpan * (1 - Math.abs(normHR - 0.5) * 0.2), rotX, rotY, rotZ, cx, cy, 460, 520);
+    const pHeadCenter = project3D(head.x + headXOffset - 42 * sharkScale, head.y, head.z, rotX, rotY, rotZ, cx, cy, 460, 520);
+    if (s === -1) {
+      ctx.moveTo(pWingTip.x, pWingTip.y);
+      ctx.lineTo(pHeadCenter.x, pHeadCenter.y);
+    } else {
+      ctx.lineTo(pWingTip.x, pWingTip.y);
+    }
+  }
+  ctx.strokeStyle = hsla((baseHue + 30) % 360, 95, 78, 0.55);
+  ctx.lineWidth = hr === 0 || hr === headRibs - 1 ? 2.0 : 1.0;
+  ctx.stroke();
+}
+
+// Stereoscopic Eyes at Cephalofoil Tips
+for (let s = -1; s <= 1; s += 2) {
+  const pEye = project3D(head.x - 14 * sharkScale, head.y, head.z + s * (headSpan - 6 * sharkScale), rotX, rotY, rotZ, cx, cy, 460, 520);
+  ctx.fillStyle = '#38bdf8';
+  ctx.shadowColor = '#38bdf8';
+  ctx.shadowBlur = 14 * pEye.depth;
+  ctx.beginPath();
+  ctx.arc(pEye.x, pEye.y, 6.0 * pEye.depth * sharkScale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(pEye.x, pEye.y, 2.5 * pEye.depth * sharkScale, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// Ampullae of Lorenzini Electroreceptor Clusters
+for (let p = 0; p < 16; p++) {
+  const normP = (p / 15 - 0.5) * 2;
+  const poreZ = head.z + normP * (headSpan * 0.85);
+  const poreX = head.x - (38 - Math.abs(normP) * 12) * sharkScale;
+  const pPore = project3D(poreX, head.y, poreZ, rotX, rotY, rotZ, cx, cy, 460, 520);
+  ctx.fillStyle = '#67e8f9';
+  ctx.beginPath();
+  ctx.arc(pPore.x, pPore.y, 1.8 * pPore.depth, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// 5. Tall Sickle Dorsal Fin
+const dorsalIdx = Math.floor(SPINE_NODES * 0.32);
+const dBase = spineNodes[dorsalIdx];
+for (let dr = 0; dr < 10; dr++) {
+  const normDR = dr / 9;
+  const dXBase = dBase.x + (normDR - 0.5) * (45 * sharkScale);
+  const dYBase = dBase.y - dBase.thicknessY;
+  const p1 = project3D(dXBase, dYBase, dBase.z, rotX, rotY, rotZ, cx, cy, 460, 520);
+  const p2 = project3D(dBase.x + 18 * sharkScale, dBase.y - (92 * sharkScale), dBase.z, rotX, rotY, rotZ, cx, cy, 460, 520);
+  ctx.beginPath();
+  ctx.moveTo(p1.x, p1.y);
+  ctx.lineTo(p2.x, p2.y);
+  ctx.strokeStyle = hsla(baseHue, 95, 75, (0.2 + normDR * 0.5) * p2.depth);
+  ctx.lineWidth = dr === 0 ? 2.2 : 1.2;
+  ctx.stroke();
+}
+
+// 6. Heterocercal Caudal Tail Fin
+const tail = spineNodes[SPINE_NODES - 1];
+for (let tr = 0; tr < 12; tr++) {
+  const normTR = tr / 11;
+  const pTBase = project3D(tail.x, tail.y, tail.z, rotX, rotY, rotZ, cx, cy, 460, 520);
+  const pTUpper = project3D(tail.x + (45 + normTR * 30) * sharkScale, tail.y - (45 + normTR * 35) * sharkScale, tail.z, rotX, rotY, rotZ, cx, cy, 460, 520);
+  const pTLower = project3D(tail.x + (30 + normTR * 22) * sharkScale, tail.y + (25 + normTR * 25) * sharkScale, tail.z, rotX, rotY, rotZ, cx, cy, 460, 520);
+  ctx.beginPath();
+  ctx.moveTo(pTBase.x, pTBase.y);
+  ctx.lineTo(pTUpper.x, pTUpper.y);
+  ctx.moveTo(pTBase.x, pTBase.y);
+  ctx.lineTo(pTLower.x, pTLower.y);
+  ctx.strokeStyle = hsla((baseHue + 20) % 360, 95, 80, 0.65 * pTUpper.depth);
+  ctx.lineWidth = tr === 11 ? 2.0 : 1.2;
+  ctx.stroke();
+}
 
 ctx.restore();`,
 
