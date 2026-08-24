@@ -317,6 +317,10 @@ ${state.renderStyle === 'ribbon' ? `ctx.fillStyle = 'hsla(' + dynamicHue + ', 90
     }
 
     function emitUpdate() {
+      const panelVisual = document.getElementById('panel-visual');
+      if (panelVisual && panelVisual.classList.contains('hidden')) {
+        return; // Don't overwrite if in Code mode
+      }
       const code = generateCodeFromState();
       window.dispatchEvent(new CustomEvent('math-art:run-code', { detail: { code } }));
       window.dispatchEvent(new CustomEvent('math-art:code-generated', { detail: { code } }));

@@ -50,6 +50,8 @@
 
     if (!iframe) return;
 
+    let latestCode: string | null = null;
+
     // Zero-trust sandbox HTML template
     const sandboxTemplate = `
       <!DOCTYPE html>
@@ -125,6 +127,24 @@
 
     iframe.srcdoc = sandboxTemplate;
 
+    function sendCodeToIframe(code: string) {
+      if (!code) return;
+      latestCode = code;
+      try {
+        if (iframe.contentWindow) {
+          iframe.contentWindow.postMessage({ type: 'EXECUTE', code }, '*');
+        }
+      } catch (e) {
+        console.warn('Sandbox postMessage error:', e);
+      }
+    }
+
+    iframe.addEventListener('load', () => {
+      if (latestCode) {
+        sendCodeToIframe(latestCode);
+      }
+    });
+
     // Listen to messages from sandbox
     window.addEventListener('message', (e) => {
       if (e.data && e.data.type === 'STATUS') {
@@ -146,8 +166,8 @@
     // Execute user code
     window.addEventListener('math-art:run-code', ((e: CustomEvent) => {
       const code = e.detail?.code;
-      if (code && iframe.contentWindow) {
-        iframe.contentWindow.postMessage({ type: 'EXECUTE', code }, '*');
+      if (code) {
+        sendCodeToIframe(code);
       }
     }) as EventListener);
   }
