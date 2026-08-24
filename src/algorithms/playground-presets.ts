@@ -1015,47 +1015,81 @@ for (let s = 1; s <= 28; s++) {
 ctx.restore();`,
 
   // 35. Deep Sea Anglerfish
-  'deep-sea-anglerfish': `// Deep Sea Anglerfish (Ceratioidei)
+  'deep-sea-anglerfish': `// Deep Sea Anglerfish (Ceratioidei 3D Volumetric Mesh)
 ctx.fillStyle = '#020306';
 ctx.fillRect(0, 0, width, height);
 
-const cx = width * 0.48;
+const cx = width * 0.46;
 const cy = height * 0.52;
 const scale = Math.min(width, height) / 500;
 const t = time * 1.2;
 
 ctx.save();
 ctx.translate(cx, cy);
+ctx.globalCompositeOperation = 'screen';
 
-// Dark Melanocetus Body
+// 20 Volumetric Body Contour Ribbons
+for (let r = 1; r <= 20; r++) {
+  const normR = r / 20;
+  const curScale = normR * scale;
+  ctx.beginPath();
+  ctx.ellipse(-20 * curScale, 0, 85 * curScale, 68 * curScale, -0.1, 0, Math.PI * 2);
+  ctx.strokeStyle = 'hsla(' + ((210 + normR * 25) % 360) + ', 95%, 68%, ' + (0.06 + normR * 0.35) + ')';
+  ctx.lineWidth = r === 20 ? 2.2 * scale : 0.9;
+  ctx.stroke();
+}
+
+// Upper & Lower Hinged Jaw Bones
 ctx.beginPath();
-ctx.ellipse(-20 * scale, 0, 80 * scale, 65 * scale, -0.1, 0, Math.PI * 2);
-ctx.fillStyle = '#0a0d18';
-ctx.fill();
+ctx.arc(35 * scale, -15 * scale, 35 * scale, -0.4 * Math.PI, 0.4 * Math.PI);
 ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 2.0;
+ctx.lineWidth = 3.0 * scale;
 ctx.stroke();
 
-// Esca Photophore Lure
-const escaX = (90 + Math.sin(t * 2.5) * 22) * scale;
-const escaY = (-100 + Math.cos(t * 2.0) * 16) * scale;
-
 ctx.beginPath();
-ctx.moveTo(14 * scale, -50 * scale);
-ctx.quadraticCurveTo(20 * scale, -115 * scale, escaX, escaY);
+ctx.arc(38 * scale, 25 * scale, 40 * scale, -0.2 * Math.PI, 0.5 * Math.PI);
 ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 2.2;
+ctx.lineWidth = 3.0 * scale;
 ctx.stroke();
 
-const grad = ctx.createRadialGradient(escaX, escaY, 2, escaX, escaY, 32 * scale);
-grad.addColorStop(0, 'rgba(56, 189, 248, 0.95)');
-grad.addColorStop(0.4, 'rgba(56, 189, 248, 0.4)');
+// Recurved Needle Fangs
+for (let i = 0; i < 18; i++) {
+  const normI = i / 17;
+  const tx = (15 + normI * 55) * scale;
+  const ty = (-25 + normI * 16) * scale;
+  ctx.beginPath();
+  ctx.moveTo(tx, ty);
+  ctx.lineTo(tx - 3 * scale, ty + 18 * scale);
+  ctx.strokeStyle = '#f0f9ff';
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+}
+
+// Glowing Illicium Lure
+const escaX = (105 + Math.sin(t * 2.5) * 28) * scale;
+const escaY = (-118 + Math.cos(t * 2.0) * 22) * scale;
+
+ctx.beginPath();
+ctx.moveTo(22 * scale, -58 * scale);
+ctx.quadraticCurveTo(30 * scale, -135 * scale, escaX, escaY);
+ctx.strokeStyle = '#38bdf8';
+ctx.lineWidth = 2.4;
+ctx.stroke();
+
+// Esca Photophore Radial Glow
+const grad = ctx.createRadialGradient(escaX, escaY, 2, escaX, escaY, 38 * scale);
+grad.addColorStop(0, 'rgba(56, 189, 248, 0.98)');
+grad.addColorStop(0.35, 'rgba(56, 189, 248, 0.45)');
 grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
 ctx.fillStyle = grad;
 ctx.beginPath();
-ctx.arc(escaX, escaY, 32 * scale, 0, Math.PI * 2);
+ctx.arc(escaX, escaY, 38 * scale, 0, Math.PI * 2);
 ctx.fill();
 
+ctx.fillStyle = '#ffffff';
+ctx.beginPath();
+ctx.arc(escaX, escaY, 5 * scale, 0, Math.PI * 2);
+ctx.fill();
 ctx.restore();`,
 
   // 36. Giant Siphonophore
