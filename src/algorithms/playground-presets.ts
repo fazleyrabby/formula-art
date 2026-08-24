@@ -1015,80 +1015,133 @@ for (let s = 1; s <= 28; s++) {
 ctx.restore();`,
 
   // 35. Deep Sea Anglerfish
-  'deep-sea-anglerfish': `// Deep Sea Anglerfish (Ceratioidei 3D Volumetric Mesh)
+  'deep-sea-anglerfish': `// Deep Sea Anglerfish (Full 3D Volumetric Mesh & Jaws)
 ctx.fillStyle = '#020306';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.46;
 const cy = height * 0.52;
-const scale = Math.min(width, height) / 500;
+const fishScale = Math.min(width, height) / 500;
 const t = time * 1.2;
 
+const rotY = Math.sin(t * 0.4) * 0.35 - 0.25;
+const rotX = 0.28 + Math.sin(t * 0.7) * 0.14;
+const rotZ = Math.sin(t * 0.5) * 0.06;
+
 ctx.save();
-ctx.translate(cx, cy);
 ctx.globalCompositeOperation = 'screen';
+const baseHue = (210 + Math.sin(t * 0.5) * 15) % 360;
 
-// 20 Volumetric Body Contour Ribbons
-for (let r = 1; r <= 20; r++) {
-  const normR = r / 20;
-  const curScale = normR * scale;
+// 28 Concentric Body Contour Ribbons
+for (let r = 1; r <= 28; r++) {
+  const normR = r / 28;
+  const curScale = normR * fishScale;
   ctx.beginPath();
-  ctx.ellipse(-20 * curScale, 0, 85 * curScale, 68 * curScale, -0.1, 0, Math.PI * 2);
-  ctx.strokeStyle = 'hsla(' + ((210 + normR * 25) % 360) + ', 95%, 68%, ' + (0.06 + normR * 0.35) + ')';
-  ctx.lineWidth = r === 20 ? 2.2 * scale : 0.9;
+  const steps = 40;
+  let avgDepth = 0;
+  for (let i = 0; i <= steps; i++) {
+    const phi = (i / steps) * Math.PI * 2;
+    const cosP = Math.cos(phi);
+    const sinP = Math.sin(phi);
+    const rx = (-20 + cosP * 85 + (cosP < 0 ? cosP * 25 : 0)) * curScale;
+    const ry = (sinP * 68 + Math.sin(phi * 2) * 8) * curScale;
+    const rz = (Math.sin(phi) * 58) * curScale;
+    const p = project3D(rx, ry, rz, rotX, rotY, rotZ, cx, cy, 450, 520);
+    avgDepth += p.depth;
+    if (i === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
+  }
+  ctx.closePath();
+  avgDepth /= (steps + 1);
+  const rHue = (baseHue + normR * 25) % 360;
+  ctx.strokeStyle = hsla(rHue, 95, 68, (0.06 + normR * 0.35) * avgDepth);
+  ctx.lineWidth = r === 28 ? 2.2 * fishScale : 0.9;
   ctx.stroke();
 }
 
-// Upper & Lower Hinged Jaw Bones
-ctx.beginPath();
-ctx.arc(35 * scale, -15 * scale, 35 * scale, -0.4 * Math.PI, 0.4 * Math.PI);
-ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 3.0 * scale;
-ctx.stroke();
-
-ctx.beginPath();
-ctx.arc(38 * scale, 25 * scale, 40 * scale, -0.2 * Math.PI, 0.5 * Math.PI);
-ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 3.0 * scale;
-ctx.stroke();
-
-// Recurved Needle Fangs
-for (let i = 0; i < 18; i++) {
-  const normI = i / 17;
-  const tx = (15 + normI * 55) * scale;
-  const ty = (-25 + normI * 16) * scale;
+// 16 Longitudinal Streamlines
+for (let str = 0; str < 16; str++) {
+  const phi = (str / 16) * Math.PI * 2;
   ctx.beginPath();
-  ctx.moveTo(tx, ty);
-  ctx.lineTo(tx - 3 * scale, ty + 18 * scale);
-  ctx.strokeStyle = '#f0f9ff';
-  ctx.lineWidth = 1.6;
+  for (let s = 0; s <= 25; s++) {
+    const normS = s / 25;
+    const x = (normS - 0.4) * (240 * fishScale);
+    const bodyW = Math.sin(normS * Math.PI) * (70 * fishScale);
+    const y = Math.sin(phi) * bodyW;
+    const z = Math.cos(phi) * (bodyW * 0.85);
+    const p = project3D(x, y, z, rotX, rotY, rotZ, cx, cy, 450, 520);
+    if (s === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
+  }
+  ctx.strokeStyle = hsla((baseHue + str * 6) % 360, 95, 75, 0.25);
+  ctx.lineWidth = str % 4 === 0 ? 1.4 : 0.8;
   ctx.stroke();
 }
 
-// Glowing Illicium Lure
-const escaX = (105 + Math.sin(t * 2.5) * 28) * scale;
-const escaY = (-118 + Math.cos(t * 2.0) * 22) * scale;
+// Solid Jaws & 28 Recurved Needle Teeth
+const jawGape = 0.35 + 0.22 * Math.sin(t * 1.6);
+for (let i = 0; i < 28; i++) {
+  const theta = (i / 28) * Math.PI;
+  const toothLen = (18 + (i % 5) * 5) * fishScale;
+  const utX = (35 + Math.cos(theta) * 36) * fishScale;
+  const utY = (-20 + Math.sin(theta) * 16) * fishScale;
+  const utZ = Math.sin(theta) * 46 * fishScale;
+  const pU = project3D(utX, utY, utZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+  const pUTip = project3D(utX - 4 * fishScale, utY + toothLen, utZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+  ctx.beginPath();
+  ctx.moveTo(pU.x, pU.y);
+  ctx.lineTo(pUTip.x, pUTip.y);
+  ctx.strokeStyle = hsla(200, 100, 95, 0.9 * pU.depth);
+  ctx.lineWidth = 1.6 * pU.depth;
+  ctx.stroke();
+
+  const ltX = (38 + Math.cos(theta) * 40) * fishScale;
+  const ltY = (16 + Math.sin(theta) * 20 + jawGape * 32) * fishScale;
+  const ltZ = Math.sin(theta) * 50 * fishScale;
+  const pL = project3D(ltX, ltY, ltZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+  const pLTip = project3D(ltX - 4 * fishScale, ltY - toothLen * 1.15, ltZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+  ctx.beginPath();
+  ctx.moveTo(pL.x, pL.y);
+  ctx.lineTo(pLTip.x, pLTip.y);
+  ctx.strokeStyle = hsla(200, 100, 95, 0.9 * pL.depth);
+  ctx.lineWidth = 1.6 * pL.depth;
+  ctx.stroke();
+}
+
+// 3D Illicium & Glowing Esca Photophore Lure
+const escaX = (105 + Math.sin(t * 2.5) * 28) * fishScale;
+const escaY = (-118 + Math.cos(t * 2.0) * 22) * fishScale;
+const escaZ = Math.sin(t * 1.8) * 65 * fishScale;
 
 ctx.beginPath();
-ctx.moveTo(22 * scale, -58 * scale);
-ctx.quadraticCurveTo(30 * scale, -135 * scale, escaX, escaY);
+for (let st = 0; st <= 20; st++) {
+  const nst = st / 20;
+  const rx = 22 * fishScale + (escaX - 22 * fishScale) * nst;
+  const ry = -58 * fishScale + (escaY - -58 * fishScale) * nst - Math.sin(nst * Math.PI) * (26 * fishScale);
+  const rz = escaZ * nst;
+  const p = project3D(rx, ry, rz, rotX, rotY, rotZ, cx, cy, 450, 520);
+  if (st === 0) ctx.moveTo(p.x, p.y);
+  else ctx.lineTo(p.x, p.y);
+}
 ctx.strokeStyle = '#38bdf8';
 ctx.lineWidth = 2.4;
 ctx.stroke();
 
-// Esca Photophore Radial Glow
-const grad = ctx.createRadialGradient(escaX, escaY, 2, escaX, escaY, 38 * scale);
+const pEsca = project3D(escaX, escaY, escaZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+const pulse = 1 + 0.35 * Math.sin(t * 4);
+const glowR = (18 * fishScale * pulse) * pEsca.depth;
+const grad = ctx.createRadialGradient(pEsca.x, pEsca.y, 2, pEsca.x, pEsca.y, glowR * 3.8);
 grad.addColorStop(0, 'rgba(56, 189, 248, 0.98)');
 grad.addColorStop(0.35, 'rgba(56, 189, 248, 0.45)');
 grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
 ctx.fillStyle = grad;
 ctx.beginPath();
-ctx.arc(escaX, escaY, 38 * scale, 0, Math.PI * 2);
+ctx.arc(pEsca.x, pEsca.y, glowR * 3.8, 0, Math.PI * 2);
 ctx.fill();
 
 ctx.fillStyle = '#ffffff';
 ctx.beginPath();
-ctx.arc(escaX, escaY, 5 * scale, 0, Math.PI * 2);
+ctx.arc(pEsca.x, pEsca.y, 5 * pEsca.depth * fishScale, 0, Math.PI * 2);
 ctx.fill();
 ctx.restore();`,
 
@@ -1452,39 +1505,117 @@ for (let r = 1; r <= 16; r++) {
 ctx.restore();`,
 
   // 45. Leafy Sea Dragon
-  'leafy-sea-dragon': `// Leafy Sea Dragon (Lush Camouflage Appendages)
+  'leafy-sea-dragon': `// Leafy Sea Dragon (36 Lush Foliar Camouflage Appendages)
 ctx.fillStyle = '#020307';
 ctx.fillRect(0, 0, width, height);
 
-const cx = width * 0.46;
-const cy = height * 0.45;
-const scale = Math.min(width, height) / 500;
+const cx = width * 0.46 + Math.sin(time * 0.4) * (width * 0.04);
+const cy = height * 0.45 + Math.sin(time * 1.4) * 10;
+const dragonScale = Math.min(width, height) / 500;
 const t = time * 1.1;
 
 ctx.save();
 ctx.translate(cx, cy);
 ctx.globalCompositeOperation = 'screen';
+const baseHue = (45 + Math.sin(t * 0.4) * 15) % 360;
 
-// S-Curved Body
-ctx.beginPath();
-ctx.moveTo(-50 * scale, -55 * scale);
-ctx.bezierCurveTo(-10 * scale, -15 * scale, 35 * scale, -5 * scale, 25 * scale, 45 * scale);
-ctx.strokeStyle = '#eab308';
-ctx.lineWidth = 10 * scale;
-ctx.stroke();
+function drawLushLeaf(rootX, rootY, angle, length, phase) {
+  const wave = Math.sin(t * 2.8 + phase) * (18 * dragonScale);
+  const tipX = rootX + Math.cos(angle) * length + wave;
+  const tipY = rootY + Math.sin(angle) * length + wave;
 
-// Prehensile Tail
-ctx.beginPath();
-ctx.moveTo(25 * scale, 45 * scale);
-for (let s = 1; s <= 40; s++) {
-  const normS = s / 40;
-  const theta = normS * Math.PI * 3.6;
-  const r = 55 * scale * Math.exp(-0.45 * theta);
-  ctx.lineTo(25 * scale + 35 * scale - Math.cos(theta) * r, 45 * scale + 25 * scale + Math.sin(theta) * r);
+  for (let str = -1; str <= 1; str++) {
+    ctx.beginPath();
+    ctx.moveTo(rootX + str * 2, rootY);
+    ctx.quadraticCurveTo((rootX + tipX) * 0.5 + wave, (rootY + tipY) * 0.5 - 12, tipX + str * 2, tipY);
+    ctx.strokeStyle = hsla(baseHue, 95, 75, str === 0 ? 0.9 : 0.4);
+    ctx.lineWidth = str === 0 ? 2.2 * dragonScale : 1.0;
+    ctx.stroke();
+  }
+
+  for (let lobe = 1; lobe <= 4; lobe++) {
+    const normL = lobe / 4.5;
+    const lx = rootX + (tipX - rootX) * normL;
+    const ly = rootY + (tipY - rootY) * normL;
+    for (let s = -1; s <= 1; s += 2) {
+      const lobeAngle = angle + s * 0.85 + Math.sin(t * 3.2 + lobe + s) * 0.25;
+      const lobeLen = (22 - lobe * 3.5) * dragonScale;
+      for (let lf = 1; lf <= 4; lf++) {
+        const normLF = lf / 4;
+        ctx.beginPath();
+        ctx.moveTo(lx, ly);
+        ctx.quadraticCurveTo(
+          lx + Math.cos(lobeAngle) * (lobeLen * normLF),
+          ly + Math.sin(lobeAngle) * (lobeLen * normLF),
+          lx + Math.cos(lobeAngle + 0.35) * (lobeLen * 0.6 * normLF),
+          ly + Math.sin(lobeAngle + 0.35) * (lobeLen * 0.6 * normLF)
+        );
+        ctx.strokeStyle = hsla(110 + lobe * 12, 90, 65, (0.2 + normLF * 0.6));
+        ctx.lineWidth = lf === 4 ? 1.6 : 0.8;
+        ctx.stroke();
+      }
+    }
+  }
 }
-ctx.strokeStyle = '#eab308';
-ctx.lineWidth = 4.5 * scale;
+
+// Snout & Eye
+ctx.beginPath();
+ctx.moveTo(-50 * dragonScale, -65 * dragonScale);
+ctx.lineTo(-145 * dragonScale, -100 * dragonScale);
+ctx.lineTo(-142 * dragonScale, -90 * dragonScale);
+ctx.lineTo(-45 * dragonScale, -50 * dragonScale);
+ctx.closePath();
+ctx.fillStyle = 'rgba(234, 179, 8, 0.4)';
+ctx.fill();
+ctx.strokeStyle = hsla(baseHue, 95, 75, 0.95);
+ctx.lineWidth = 2.4 * dragonScale;
 ctx.stroke();
+
+ctx.fillStyle = '#0f172a';
+ctx.beginPath();
+ctx.arc(-55 * dragonScale, -60 * dragonScale, 5.5 * dragonScale, 0, Math.PI * 2);
+ctx.fill();
+ctx.strokeStyle = '#38bdf8';
+ctx.lineWidth = 1.6;
+ctx.stroke();
+
+// 12 Armored Body Rings
+for (let r = 0; r < 12; r++) {
+  const normR = r / 11;
+  const rx = -45 * dragonScale + normR * (75 * dragonScale);
+  const ry = -50 * dragonScale + Math.sin(normR * Math.PI) * (45 * dragonScale) + normR * (65 * dragonScale);
+  ctx.beginPath();
+  ctx.ellipse(rx, ry, (16 - normR * 4) * dragonScale, (22 - normR * 4) * dragonScale, normR * 0.5, 0, Math.PI * 2);
+  ctx.strokeStyle = hsla(baseHue, 95, 72, 0.6);
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+}
+
+// Prehensile Tail Spiral
+for (let tr = 0; tr < 3; tr++) {
+  ctx.beginPath();
+  ctx.moveTo(25 * dragonScale, (45 + tr * 3) * dragonScale);
+  for (let s = 1; s <= 40; s++) {
+    const normS = s / 40;
+    const theta = normS * Math.PI * 3.6;
+    const r = (55 - tr * 4) * dragonScale * Math.exp(-0.45 * theta);
+    const tx = 25 * dragonScale + 35 * dragonScale - Math.cos(theta) * r;
+    const ty = 45 * dragonScale + 25 * dragonScale + Math.sin(theta) * r;
+    ctx.lineTo(tx, ty);
+  }
+  ctx.strokeStyle = hsla(baseHue, 95, 70, 0.85);
+  ctx.lineWidth = 2.2;
+  ctx.stroke();
+}
+
+// 6 Lush Branching Foliage Clusters
+drawLushLeaf(-45 * dragonScale, -65 * dragonScale, -Math.PI * 0.65, 80 * dragonScale, 0);
+drawLushLeaf(-20 * dragonScale, -45 * dragonScale, -Math.PI * 0.55, 110 * dragonScale, 1.2);
+drawLushLeaf(15 * dragonScale, -15 * dragonScale, -Math.PI * 0.45, 95 * dragonScale, 2.4);
+drawLushLeaf(-10 * dragonScale, 20 * dragonScale, Math.PI * 0.65, 85 * dragonScale, 3.1);
+drawLushLeaf(10 * dragonScale, 45 * dragonScale, Math.PI * 0.55, 105 * dragonScale, 4.2);
+drawLushLeaf(35 * dragonScale, 65 * dragonScale, -Math.PI * 0.25, 75 * dragonScale, 5.0);
+
 ctx.restore();`,
 
   // 46. Hammerhead Shark
