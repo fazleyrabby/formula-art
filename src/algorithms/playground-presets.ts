@@ -1284,145 +1284,364 @@ ctx.stroke();
 ctx.restore();`,
 
   // 40. Gulper Eel
-  'gulper-eel': `// Gulper Pelican Eel (Volumetric Accordion Pouch & Whip-Tail)
+  'gulper-eel': `// Gulper Pelican Eel (32 Elastic Accordion Filament Ribs & Photophore)
 ctx.fillStyle = '#020306';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.42;
-const cy = height * 0.46;
-const scale = Math.min(width, height) / 520;
+const cy = height * 0.46 + Math.sin(time * 1.2) * 8;
+const eelScale = Math.min(width, height) / 520;
 const t = time * 1.1;
 
 ctx.save();
 ctx.translate(cx, cy);
 ctx.globalCompositeOperation = 'screen';
+const baseHue = (210 + Math.sin(t * 0.5) * 15) % 360;
+const gapePulse = 1 + 0.28 * Math.sin(t * 2.2);
 
-// 24 Volumetric Pouch Ribs
-for (let r = 1; r <= 24; r++) {
-  const normR = r / 24;
-  const curScale = normR * scale;
+for (let r = 1; r <= 32; r++) {
+  const normR = r / 32;
+  const curScale = normR * eelScale;
   ctx.beginPath();
   ctx.moveTo(-15 * curScale, -15 * curScale);
   ctx.quadraticCurveTo(45 * curScale, -35 * curScale, 115 * curScale, -10 * curScale);
-  ctx.bezierCurveTo(95 * curScale, 90 * curScale, -12 * curScale, 115 * curScale, -40 * curScale, 18 * curScale);
+  ctx.bezierCurveTo(
+    (95 + Math.sin(r * 0.4 + t * 3) * 6) * curScale,
+    (90 * gapePulse) * curScale,
+    (-12 + Math.cos(r * 0.3 - t * 2) * 6) * curScale,
+    (115 * gapePulse) * curScale,
+    -40 * curScale,
+    18 * curScale
+  );
   ctx.closePath();
-  ctx.strokeStyle = 'hsla(' + ((210 + normR * 30) % 360) + ', 95%, 68%, ' + (0.05 + normR * 0.38) + ')';
-  ctx.lineWidth = r === 24 ? 2.2 : 0.9;
+  const ribHue = (baseHue + normR * 30) % 360;
+  ctx.strokeStyle = hsla(ribHue, 95, 68, 0.05 + normR * 0.38);
+  ctx.lineWidth = r === 32 ? 2.2 : 0.9;
+  ctx.stroke();
+  if (r % 6 === 0) {
+    ctx.fillStyle = hsla(ribHue, 85, 45, 0.04);
+    ctx.fill();
+  }
+}
+
+// 12 Elastic Accordion Radial Folds
+for (let s = 1; s <= 12; s++) {
+  ctx.beginPath();
+  ctx.moveTo(10 * eelScale, -10 * eelScale);
+  ctx.quadraticCurveTo((20 + s * 8) * eelScale, (15 + s * 8 * gapePulse) * eelScale, (-35 + s * 12) * eelScale, (65 * gapePulse) * eelScale);
+  ctx.strokeStyle = hsla(190, 100, 75, 0.35);
+  ctx.lineWidth = 1.0;
   ctx.stroke();
 }
 
-// Luminous Whip-Tail
+// Jaws
 ctx.beginPath();
-ctx.moveTo(-40 * scale, 18 * scale);
-for (let s = 1; s <= 50; s++) {
-  const normS = s / 50;
-  const wave = Math.sin(t * 3.5 - normS * 8) * (34 * normS * scale);
-  ctx.lineTo(-40 * scale - normS * 200 * scale, 18 * scale - s * 3.4 * scale + wave);
-}
+ctx.moveTo(-20 * eelScale, -18 * eelScale);
+ctx.quadraticCurveTo(48 * eelScale, -38 * eelScale, 118 * eelScale, -10 * eelScale);
 ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 2.0;
+ctx.lineWidth = 2.4 * eelScale;
 ctx.stroke();
+
+ctx.beginPath();
+ctx.moveTo(-40 * eelScale, 18 * eelScale);
+ctx.quadraticCurveTo(40 * eelScale, 85 * gapePulse * eelScale, 118 * eelScale, -10 * eelScale);
+ctx.strokeStyle = '#38bdf8';
+ctx.lineWidth = 2.4 * eelScale;
+ctx.stroke();
+
+// 65-Node Serpentine Whip-Tail
+ctx.beginPath();
+ctx.moveTo(-40 * eelScale, 18 * eelScale);
+let tailEndX = -40 * eelScale;
+let tailEndY = 18 * eelScale;
+for (let s = 1; s <= 65; s++) {
+  const normS = s / 65;
+  const wave = Math.sin(t * 3.8 - normS * 9.5) * (38 * Math.pow(normS, 1.3) * eelScale);
+  const tx = -40 * eelScale - normS * (280 * eelScale);
+  const ty = 18 * eelScale - s * (3.8 * eelScale) + wave;
+  ctx.lineTo(tx, ty);
+  if (s === 65) { tailEndX = tx; tailEndY = ty; }
+}
+ctx.strokeStyle = hsla(baseHue, 95, 75, 0.75);
+ctx.lineWidth = 2.2;
+ctx.stroke();
+
+// Luminous Caudal Photophore Lure
+const lureGlow = ctx.createRadialGradient(tailEndX, tailEndY, 1, tailEndX, tailEndY, 24 * eelScale);
+lureGlow.addColorStop(0, '#f43f5e');
+lureGlow.addColorStop(0.4, 'rgba(244, 63, 94, 0.5)');
+lureGlow.addColorStop(1, 'rgba(244, 63, 94, 0)');
+ctx.fillStyle = lureGlow;
+ctx.beginPath();
+ctx.arc(tailEndX, tailEndY, 24 * eelScale, 0, Math.PI * 2);
+ctx.fill();
+
 ctx.restore();`,
 
   // 41. Barreleye Fish
-  'barreleye-fish': `// Pacific Barreleye Fish (Volumetric Glass Dome & Green Optics)
+  'barreleye-fish': `// Pacific Barreleye Fish (Transparent Cranial Dome & Rotating Emerald Optics)
 ctx.fillStyle = '#020408';
 ctx.fillRect(0, 0, width, height);
 
-const cx = width * 0.48;
-const cy = height * 0.5;
-const scale = Math.min(width, height) / 480;
+const cx = width * 0.48 + Math.sin(time * 0.4) * (width * 0.04);
+const cy = height * 0.5 + Math.sin(time * 1.3) * 6;
+const fishScale = Math.min(width, height) / 480;
 const t = time * 0.8;
 
 ctx.save();
 ctx.translate(cx, cy);
 ctx.globalCompositeOperation = 'screen';
+const baseHue = (205 + Math.sin(t * 0.6) * 15) % 360;
 
-// 20 Body Streamline Rings
-for (let r = 1; r <= 20; r++) {
-  const normR = r / 20;
-  const curScale = normR * scale;
+// 1. 28 Volumetric Scaled Body Contour Ribbons
+for (let r = 1; r <= 28; r++) {
+  const normR = r / 28;
+  const curScale = normR * fishScale;
   ctx.beginPath();
   ctx.moveTo(-130 * curScale, 5 * curScale);
   ctx.quadraticCurveTo(-45 * curScale, -50 * curScale, 20 * curScale, -38 * curScale);
   ctx.lineTo(20 * curScale, 34 * curScale);
   ctx.quadraticCurveTo(-45 * curScale, 50 * curScale, -130 * curScale, 5 * curScale);
   ctx.closePath();
-  ctx.strokeStyle = 'hsla(' + ((205 + normR * 25) % 360) + ', 90%, 65%, ' + (0.06 + normR * 0.35) + ')';
-  ctx.lineWidth = r === 20 ? 2.2 * scale : 0.9;
+  const bHue = (baseHue + normR * 25) % 360;
+  ctx.strokeStyle = hsla(bHue, 90, 65, 0.06 + normR * 0.35);
+  ctx.lineWidth = r === 28 ? 2.2 * fishScale : 0.9;
   ctx.stroke();
+  if (r % 6 === 0) {
+    ctx.fillStyle = hsla(bHue, 80, 45, 0.04);
+    ctx.fill();
+  }
 }
 
-// 18 Volumetric Transparent Cranial Dome Rings
-for (let d = 1; d <= 18; d++) {
-  const normD = d / 18;
+// Reflective Scale Pockets
+for (let sc = 0; sc < 20; sc++) {
+  const normSc = sc / 19;
+  const sx = (-115 + normSc * 125) * fishScale;
+  const sy = Math.sin(sc * 1.4) * (20 * fishScale);
   ctx.beginPath();
-  ctx.ellipse(38 * scale, -26 * scale, 52 * normD * scale, 38 * normD * scale, -0.1, 0, Math.PI * 2);
-  ctx.strokeStyle = 'hsla(' + ((185 + normD * 20) % 360) + ', 95%, 75%, ' + (0.08 + normD * 0.35) + ')';
-  ctx.lineWidth = d === 18 ? 2.4 * scale : 0.9;
+  ctx.arc(sx, sy, 7 * fishScale, 0.2 * Math.PI, 1.2 * Math.PI);
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+  ctx.lineWidth = 1.2;
   ctx.stroke();
 }
 
-// Glowing Emerald Green Tubular Eyes
+// Caudal & Pectoral Fin Rays
+const tailWave = Math.sin(t * 2.8) * (16 * fishScale);
+for (let ray = -5; ray <= 5; ray++) {
+  const normRay = ray / 5;
+  ctx.beginPath();
+  ctx.moveTo(-130 * fishScale, 5 * fishScale);
+  ctx.lineTo(-175 * fishScale, normRay * (42 * fishScale) + tailWave);
+  ctx.strokeStyle = hsla((baseHue + 15) % 360, 95, 75, 0.65);
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+}
+
+for (let p = 0; p < 8; p++) {
+  const normP = p / 7;
+  ctx.beginPath();
+  ctx.moveTo(-15 * fishScale, 18 * fishScale);
+  ctx.quadraticCurveTo((5 + normP * 12) * fishScale, (50 + normP * 10) * fishScale, (-45 + normP * 25) * fishScale, (72 + normP * 8) * fishScale);
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+}
+
+// Snout Rostrum & Olfactory Nares
+ctx.beginPath();
+ctx.moveTo(20 * fishScale, -28 * fishScale);
+ctx.quadraticCurveTo(82 * fishScale, -12 * fishScale, 88 * fishScale, 10 * fishScale);
+ctx.lineTo(20 * fishScale, 34 * fishScale);
+ctx.closePath();
+ctx.strokeStyle = '#38bdf8';
+ctx.lineWidth = 2.0 * fishScale;
+ctx.stroke();
+
+ctx.fillStyle = '#334155';
+ctx.beginPath();
+ctx.arc(74 * fishScale, -4 * fishScale, 3.5 * fishScale, 0, Math.PI * 2);
+ctx.fill();
+
+// 24 Volumetric Cranial Dome Rings
+for (let d = 1; d <= 24; d++) {
+  const normD = d / 24;
+  const dw = 52 * normD * fishScale;
+  const dh = 38 * normD * fishScale;
+  ctx.beginPath();
+  ctx.ellipse(38 * fishScale, -26 * fishScale, dw, dh, -0.1, 0, Math.PI * 2);
+  const domeHue = (185 + normD * 20) % 360;
+  ctx.strokeStyle = hsla(domeHue, 95, 75, (0.08 + normD * 0.35) * 1.2);
+  ctx.lineWidth = d === 24 ? 2.4 * fishScale : 0.9;
+  ctx.stroke();
+  if (d % 5 === 0) {
+    ctx.fillStyle = hsla(domeHue, 90, 60, 0.05);
+    ctx.fill();
+  }
+}
+
+// Glass Meniscus Caustic Spark
+ctx.beginPath();
+ctx.arc(38 * fishScale, -48 * fishScale, 30 * fishScale, 0.2 * Math.PI, 0.8 * Math.PI);
+ctx.strokeStyle = '#ffffff';
+ctx.lineWidth = 2.0;
+ctx.stroke();
+
+// Rotating Emerald-Green Tubular Optics
+const eyeAngle = -Math.PI / 2 + Math.sin(t * 1.5) * 0.38;
 for (let s = -1; s <= 1; s += 2) {
-  const ex = (32 + s * 16) * scale;
-  ctx.fillStyle = '#10b981';
+  const eyeBaseX = (32 + s * 16) * fishScale;
+  const eyeBaseY = -18 * fishScale;
+  ctx.save();
+  ctx.translate(eyeBaseX, eyeBaseY);
+  ctx.rotate(eyeAngle);
+
+  for (let er = 1; er <= 4; er++) {
+    const normER = er / 4;
+    ctx.beginPath();
+    ctx.ellipse(0, -14 * fishScale, 10 * normER * fishScale, 16 * normER * fishScale, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = hsla(160, 90, 50, 0.3 + normER * 0.5);
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+  }
+
+  const lensGrad = ctx.createRadialGradient(0, -25 * fishScale, 2, 0, -25 * fishScale, 12 * fishScale);
+  lensGrad.addColorStop(0, '#ffffff');
+  lensGrad.addColorStop(0.3, '#34d399');
+  lensGrad.addColorStop(0.8, '#059669');
+  lensGrad.addColorStop(1, 'rgba(5, 150, 105, 0)');
+  ctx.fillStyle = lensGrad;
   ctx.beginPath();
-  ctx.arc(ex, -28 * scale, 8 * scale, 0, Math.PI * 2);
+  ctx.arc(0, -25 * fishScale, 12 * fishScale, 0, Math.PI * 2);
   ctx.fill();
+
+  ctx.fillStyle = '#10b981';
+  ctx.shadowColor = '#34d399';
+  ctx.shadowBlur = 14;
+  ctx.beginPath();
+  ctx.arc(0, -25 * fishScale, 7.5 * fishScale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = '#f0fdf4';
+  ctx.beginPath();
+  ctx.arc(-2 * fishScale, -27 * fishScale, 2.8 * fishScale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
+
 ctx.restore();`,
 
   // 42. Sea Angel Pteropod
-  'sea-angel-pteropod': `// Pelagic Sea Angel (Gymnosome)
+  'sea-angel-pteropod': `// Pelagic Sea Angel (28 Translucent Ribbons & Fluttering Parapodia Wings)
 ctx.fillStyle = '#020306';
 ctx.fillRect(0, 0, width, height);
 
-const cx = width * 0.5;
-const cy = height * 0.46;
-const scale = Math.min(width, height) / 480;
+const cx = width * 0.5 + Math.sin(time * 0.6) * (width * 0.05);
+const cy = height * 0.46 + Math.sin(time * 1.8) * 14;
+const angelScale = Math.min(width, height) / 480;
 const t = time * 1.4;
 
 ctx.save();
 ctx.translate(cx, cy);
 ctx.globalCompositeOperation = 'screen';
+const baseHue = (195 + Math.sin(t * 0.8) * 20) % 360;
 
-// Translucent Torpedo Body
-ctx.beginPath();
-ctx.moveTo(0, -65 * scale);
-ctx.quadraticCurveTo(28 * scale, -25 * scale, 20 * scale, 30 * scale);
-ctx.quadraticCurveTo(8 * scale, 75 * scale, 0, 115 * scale);
-ctx.quadraticCurveTo(-8 * scale, 75 * scale, -20 * scale, 30 * scale);
-ctx.quadraticCurveTo(-28 * scale, -25 * scale, 0, -65 * scale);
-ctx.closePath();
-ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
-ctx.fill();
-ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 1.8;
-ctx.stroke();
+// 28 Concentric Body Streamline Ribbons
+for (let r = 0; r < 28; r++) {
+  const normR = (r + 1) / 28;
+  const curW = 28 * normR * angelScale;
+  const curH = 115 * normR * angelScale;
+  ctx.beginPath();
+  ctx.moveTo(0, -65 * normR * angelScale);
+  ctx.quadraticCurveTo(curW, -25 * normR * angelScale, curW * 0.7, 30 * normR * angelScale);
+  ctx.quadraticCurveTo(curW * 0.3, 75 * normR * angelScale, 0, curH);
+  ctx.quadraticCurveTo(-curW * 0.3, 75 * normR * angelScale, -curW * 0.7, 30 * normR * angelScale);
+  ctx.quadraticCurveTo(-curW, -25 * normR * angelScale, 0, -65 * normR * angelScale);
+  ctx.closePath();
+  ctx.strokeStyle = hsla((baseHue + normR * 25) % 360, 95, 72, 0.06 + normR * 0.28);
+  ctx.lineWidth = normR > 0.85 ? 1.6 : 0.8;
+  ctx.stroke();
+}
 
 // Glowing Visceral Core Heart
-ctx.fillStyle = '#f97316';
-ctx.beginPath();
-ctx.ellipse(0, 6 * scale, 12 * scale, 16 * scale, 0, 0, Math.PI * 2);
-ctx.fill();
+for (let visc = 1; visc <= 6; visc++) {
+  const vR = (3 + visc * 3) * angelScale;
+  ctx.beginPath();
+  ctx.ellipse(0, 6 * angelScale, vR, vR * 1.3, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = hsla(15 + visc * 8, 100, 68, 0.6 - visc * 0.08);
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+}
 
+ctx.fillStyle = '#fee2e2';
+ctx.shadowColor = '#f97316';
+ctx.shadowBlur = 16;
+ctx.beginPath();
+ctx.arc(0, 6 * angelScale, 3 * angelScale, 0, Math.PI * 2);
+ctx.fill();
+ctx.shadowBlur = 0;
+
+// 24 Fluttering Parapodia Wings
+const wingWave = Math.sin(t * 3.5);
+const wingCurl = Math.cos(t * 3.5);
+for (let s = -1; s <= 1; s += 2) {
+  for (let wf = 0; wf < 24; wf++) {
+    const normW = wf / 23;
+    const rootX = s * (8 + normW * 14) * angelScale;
+    const rootY = (-20 + normW * 12) * angelScale;
+    const curSpan = (70 + normW * 25) * 1.2 * angelScale;
+    const tipX = rootX + s * curSpan;
+    const tipY = rootY - (10 + normW * 10) * angelScale + wingWave * (28 * angelScale);
+
+    ctx.beginPath();
+    ctx.moveTo(rootX, rootY);
+    ctx.bezierCurveTo(
+      rootX + s * (35 + normW * 15) * angelScale,
+      rootY - 45 * angelScale + wingCurl * (18 * angelScale),
+      tipX + s * 15 * angelScale,
+      tipY - 25 * angelScale,
+      tipX,
+      tipY
+    );
+    ctx.bezierCurveTo(
+      tipX - s * 25 * angelScale,
+      tipY + 45 * angelScale,
+      rootX + s * 25 * angelScale,
+      rootY + 30 * angelScale,
+      rootX,
+      rootY
+    );
+    ctx.strokeStyle = hsla((baseHue + 25 + normW * 35) % 360, 95, 75, 0.08 + normW * 0.3);
+    ctx.lineWidth = 1.0;
+    ctx.stroke();
+  }
+}
 ctx.restore();`,
 
   // 43. Abyssal Tripod Fish
-  'abyssal-tripod-fish': `// Abyssal Tripod Fish (Multi-Filament Cantilever Stilts)
+  'abyssal-tripod-fish': `// Abyssal Tripod Fish (Multi-Filament Cantilever Stilts & Marine Snow)
 ctx.fillStyle = '#020306';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const seafloorY = height * 0.88;
-const scale = Math.min(width, height) / 500;
-const bodyY = seafloorY - 145 * scale;
+const fishScale = Math.min(width, height) / 500;
+const t = time * 1.0;
 
 ctx.save();
 ctx.globalCompositeOperation = 'screen';
+const baseHue = (200 + Math.sin(t * 0.4) * 15) % 360;
 
-// Seafloor
+// Marine Snow
+for (let p = 0; p < 60; p++) {
+  const seed = p * 41.7;
+  const px = ((seed * 5 + t * 45) % (width + 60)) - 30;
+  const py = seafloorY - 220 + ((seed * 9) % 200);
+  ctx.fillStyle = 'rgba(56, 189, 248, ' + (0.2 + (p % 5) * 0.15) + ')';
+  ctx.fillRect(px, py, 1.8, 1.8);
+}
+
+// 3D Perspective Seafloor Grid
 ctx.beginPath();
 ctx.moveTo(0, seafloorY);
 ctx.lineTo(width, seafloorY);
@@ -1430,76 +1649,129 @@ ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
 ctx.lineWidth = 2.0;
 ctx.stroke();
 
-// Pelvic & Caudal Cantilever Stilt Rays
-for (let s = -1; s <= 1; s += 2) {
+for (let gx = -6; gx <= 6; gx++) {
   ctx.beginPath();
-  ctx.moveTo(cx - 20 * scale + s * 24 * scale, bodyY + 14 * scale);
-  ctx.quadraticCurveTo(cx + s * 18 * scale, (bodyY + seafloorY) * 0.5, cx + s * 105 * scale, seafloorY);
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 2.2 * scale;
+  ctx.moveTo(cx + gx * 80 * fishScale, seafloorY);
+  ctx.lineTo(cx + gx * 140 * fishScale, height);
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+  ctx.lineWidth = 1.0;
   ctx.stroke();
 }
 
-// 16 Volumetric Body Rings
-for (let r = 1; r <= 16; r++) {
-  const normR = r / 16;
-  const curScale = normR * scale;
+const bodyX = cx - 20 * fishScale;
+const bodyY = seafloorY - 145 * 1.2 * fishScale + Math.sin(t * 0.8) * 3;
+
+// Cantilever Stilts
+for (let s = -1; s <= 1; s += 2) {
+  const rootX = bodyX + s * 24 * fishScale;
+  const rootY = bodyY + 14 * fishScale;
+  const groundX = cx + s * (105 * fishScale);
+  for (let str = 0; str < 4; str++) {
+    const normStr = str / 3;
+    ctx.beginPath();
+    ctx.moveTo(rootX + str * 2, rootY);
+    ctx.quadraticCurveTo(rootX + s * (18 + normStr * 6) * fishScale, (rootY + seafloorY) * 0.5, groundX + str * 2, seafloorY);
+    ctx.strokeStyle = hsla(190, 95, 75, 0.4 + normStr * 0.45);
+    ctx.lineWidth = str === 3 ? 2.0 : 1.0;
+    ctx.stroke();
+  }
+}
+
+// Tail Stilt
+const tailRootX = bodyX - 115 * fishScale;
+const tailGroundX = cx - 145 * fishScale;
+ctx.beginPath();
+ctx.moveTo(tailRootX, bodyY + 6 * fishScale);
+ctx.quadraticCurveTo(cx - 165 * fishScale, (bodyY + seafloorY) * 0.5, tailGroundX, seafloorY);
+ctx.strokeStyle = '#38bdf8';
+ctx.lineWidth = 2.4 * fishScale;
+ctx.stroke();
+
+// 20 Body Rings
+for (let r = 1; r <= 20; r++) {
+  const normR = r / 20;
+  const curScale = normR * fishScale;
   ctx.beginPath();
-  ctx.moveTo(cx - 20 * scale + 80 * curScale, bodyY - 5 * curScale);
-  ctx.quadraticCurveTo(cx - 20 * scale + 20 * curScale, bodyY - 26 * curScale, cx - 20 * scale - 115 * curScale, bodyY - 5 * curScale);
-  ctx.lineTo(cx - 20 * scale - 115 * curScale, bodyY + 12 * curScale);
-  ctx.quadraticCurveTo(cx - 20 * scale + 20 * curScale, bodyY + 24 * curScale, cx - 20 * scale + 80 * curScale, bodyY - 5 * curScale);
+  ctx.moveTo(bodyX + 80 * curScale, bodyY - 5 * curScale);
+  ctx.quadraticCurveTo(bodyX + 20 * curScale, bodyY - 26 * curScale, bodyX - 115 * curScale, bodyY - 5 * curScale);
+  ctx.lineTo(bodyX - 115 * curScale, bodyY + 12 * curScale);
+  ctx.quadraticCurveTo(bodyX + 20 * curScale, bodyY + 24 * curScale, bodyX + 80 * curScale, bodyY - 5 * curScale);
   ctx.closePath();
-  ctx.strokeStyle = 'hsla(' + ((200 + normR * 25) % 360) + ', 90%, 68%, ' + (0.08 + normR * 0.35) + ')';
-  ctx.lineWidth = r === 16 ? 2.2 * scale : 0.9;
+  ctx.strokeStyle = hsla((baseHue + normR * 25) % 360, 90, 68, 0.08 + normR * 0.35);
+  ctx.lineWidth = r === 20 ? 2.2 * fishScale : 0.9;
   ctx.stroke();
 }
 ctx.restore();`,
 
   // 44. Giant Spider Crab
-  'giant-spider-crab': `// Japanese Giant Spider Crab (Articulated Multi-Joint Legs)
+  'giant-spider-crab': `// Japanese Giant Spider Crab (8 Articulated Chebyshev Walking Legs & Carapace Spines)
 ctx.fillStyle = '#020306';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
-const cy = height * 0.52;
-const scale = Math.min(width, height) / 520;
+const cy = height * 0.52 + Math.sin(time * 1.2) * 4;
+const crabScale = Math.min(width, height) / 520;
 const t = time * 1.1;
 
 ctx.save();
 ctx.globalCompositeOperation = 'screen';
+const baseHue = (18 + Math.sin(t * 0.5) * 15) % 360;
+const seafloorY = cy + 130 * crabScale;
 
-// 8 Hyper-Elongated Chebyshev Walking Legs
+// 8 Hyper-Elongated Walking Legs
 for (let side = -1; side <= 1; side += 2) {
   for (let leg = 0; leg < 4; leg++) {
-    const phase = t * 3.2 + leg * 0.9 + (side === 1 ? Math.PI : 0);
-    const coxaX = cx + side * (35 * scale);
-    const coxaY = cy + (leg - 1.5) * (14 * scale);
-    const kneeX = coxaX + side * ((80 + leg * 14) * scale);
-    const kneeY = coxaY - ((88 - leg * 10) * scale) + Math.sin(phase) * 22 * scale;
-    const elbowX = kneeX + side * ((68 + leg * 14) * scale);
-    const elbowY = coxaY + ((28 + leg * 14) * scale);
-    const tipX = elbowX + side * (50 * scale);
-    const tipY = cy + 130 * scale;
+    const legPhase = t * 3.2 + leg * 0.9 + (side === 1 ? Math.PI : 0);
+    const coxaX = cx + side * (35 * crabScale);
+    const coxaY = cy + (leg - 1.5) * (14 * crabScale);
+    const kneeLift = Math.sin(legPhase) * (24 * crabScale);
+    const kneeX = coxaX + side * ((80 + leg * 14) * 1.2 * crabScale);
+    const kneeY = coxaY - ((88 - leg * 12) * 1.2 * crabScale) + kneeLift;
+    const elbowX = kneeX + side * ((68 + leg * 14) * 1.2 * crabScale);
+    const elbowY = coxaY + ((28 + leg * 14) * 1.2 * crabScale);
+    const propX = elbowX + side * (32 * 1.2 * crabScale);
+    const propY = elbowY + (45 * crabScale);
+    const tipX = propX + side * (18 * 1.2 * crabScale) + Math.cos(legPhase) * (20 * crabScale);
+    const tipY = seafloorY;
 
+    for (let str = -1; str <= 1; str++) {
+      ctx.beginPath();
+      ctx.moveTo(coxaX, coxaY);
+      ctx.lineTo(kneeX + str * 2, kneeY);
+      ctx.lineTo(elbowX + str * 2, elbowY);
+      ctx.lineTo(propX, propY);
+      ctx.lineTo(tipX, tipY);
+      ctx.strokeStyle = hsla((baseHue + leg * 8) % 360, 95, 65, str === 0 ? 0.85 : 0.4);
+      ctx.lineWidth = str === 0 ? 2.8 * crabScale : 1.2;
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = '#fde047';
     ctx.beginPath();
-    ctx.moveTo(coxaX, coxaY);
-    ctx.lineTo(kneeX, kneeY);
-    ctx.lineTo(elbowX, elbowY);
-    ctx.lineTo(tipX, tipY);
-    ctx.strokeStyle = '#f97316';
-    ctx.lineWidth = 2.8 * scale;
-    ctx.stroke();
+    ctx.arc(kneeX, kneeY, 3.8 * crabScale, 0, Math.PI * 2);
+    ctx.arc(elbowX, elbowY, 3.2 * crabScale, 0, Math.PI * 2);
+    ctx.arc(propX, propY, 2.6 * crabScale, 0, Math.PI * 2);
+    ctx.fill();
   }
 }
 
-// 16 Carapace Rings
-for (let r = 1; r <= 16; r++) {
-  const normR = r / 16;
+// 20 Concentric Pear-Shaped Shell Rings
+for (let r = 1; r <= 20; r++) {
+  const normR = r / 20;
+  const curW = 42 * normR * crabScale;
+  const curH = 52 * normR * crabScale;
   ctx.beginPath();
-  ctx.ellipse(cx, cy, 42 * normR * scale, 52 * normR * scale, 0, 0, Math.PI * 2);
-  ctx.strokeStyle = 'hsla(' + ((18 + normR * 20) % 360) + ', 95%, 65%, ' + (0.08 + normR * 0.35) + ')';
-  ctx.lineWidth = r === 16 ? 2.4 * scale : 1.0;
+  const steps = 48;
+  for (let i = 0; i <= steps; i++) {
+    const phi = (i / steps) * Math.PI * 2;
+    const px = cx + Math.sin(phi) * curW * (1 + 0.15 * Math.cos(phi * 2));
+    const py = cy - Math.cos(phi) * curH + (Math.cos(phi) > 0 ? Math.cos(phi) * 12 * crabScale : 0);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = hsla((baseHue + normR * 20) % 360, 95, 65, 0.08 + normR * 0.35);
+  ctx.lineWidth = r === 20 ? 2.4 * crabScale : 1.0;
   ctx.stroke();
 }
 ctx.restore();`,
