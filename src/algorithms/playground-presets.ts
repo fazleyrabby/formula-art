@@ -1416,39 +1416,55 @@ ctx.stroke();
 ctx.restore();`,
 
   // 46. Hammerhead Shark
-  'hammerhead-shark': `// Great Hammerhead Shark
-ctx.fillStyle = '#020409';
+  'hammerhead-shark': `// Great Hammerhead Shark (Luminous 3D Hydrodynamics)
+ctx.fillStyle = '#020308';
 ctx.fillRect(0, 0, width, height);
 
-const cx = width * 0.52;
+const cx = width * 0.5;
 const cy = height * 0.5;
 const scale = Math.min(width, height) / 520;
 const t = time * 1.2;
 
 ctx.save();
 ctx.translate(cx, cy);
+ctx.globalCompositeOperation = 'screen';
 
-// Serpentine Body Spine
-ctx.beginPath();
-for (let s = 0; s < 40; s++) {
-  const normS = s / 39;
-  const x = (normS - 0.35) * (260 * scale);
-  const y = Math.sin(t * 3.2 - normS * 4) * (36 * Math.pow(normS, 1.5) * scale);
-  if (s === 0) ctx.moveTo(x, y);
-  else ctx.lineTo(x, y);
+// 3D Longitudinal Streamlines & Serpentine S-Wave
+const nodes = 36;
+for (let str = 0; str < 16; str++) {
+  const phi = (str / 16) * Math.PI * 2;
+  ctx.beginPath();
+  for (let s = 0; s < nodes; s++) {
+    const normS = s / (nodes - 1);
+    const x = (normS - 0.4) * (300 * scale);
+    const wave = Math.sin(t * 3.2 - normS * 4.2) * (42 * Math.pow(normS, 1.4) * scale);
+    const ty = Math.sin(normS * Math.PI) * (38 * scale);
+    const y = Math.sin(phi) * ty + wave * 0.35;
+    if (s === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = 'hsla(' + ((195 + str * 6) % 360) + ', 95%, 72%, 0.45)';
+  ctx.lineWidth = str % 4 === 0 ? 1.8 : 0.9;
+  ctx.stroke();
 }
-ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 14 * scale;
-ctx.stroke();
 
-// Cephalofoil T-Head Wing
-const headX = -0.35 * 260 * scale;
+// Iconic Cephalofoil T-Head Hammer
+const headX = -0.4 * 300 * scale;
+for (let h = -4; h <= 4; h++) {
+  ctx.beginPath();
+  ctx.moveTo(headX + h * 4 * scale, -95 * scale);
+  ctx.lineTo(headX + h * 4 * scale, 95 * scale);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+}
+
+// Glowing Lateral Eyes
+ctx.fillStyle = '#67e8f9';
 ctx.beginPath();
-ctx.moveTo(headX, -85 * scale);
-ctx.lineTo(headX, 85 * scale);
-ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 8 * scale;
-ctx.stroke();
+ctx.arc(headX, -95 * scale, 5 * scale, 0, Math.PI * 2);
+ctx.arc(headX, 95 * scale, 5 * scale, 0, Math.PI * 2);
+ctx.fill();
 
 ctx.restore();`,
 
