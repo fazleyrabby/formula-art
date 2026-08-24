@@ -7,7 +7,7 @@ interface Props {
 }
 
 const { artwork } = Astro.props;
-const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://art.fazleyrabby.xyz';
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://art.fazleyrabbi.xyz';
 const embedIframe = `<iframe src="${siteUrl}/embed/${artwork.slug}" width="500" height="500" frameborder="0" loading="lazy"></iframe>`;
 ---
 
