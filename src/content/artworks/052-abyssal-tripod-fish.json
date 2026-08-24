@@ -1,0 +1,43 @@
+{
+  "id": "052",
+  "slug": "abyssal-tripod-fish",
+  "title": "Abyssal Tripod Fish",
+  "subtitle": "Benthic Fin Stilts & Current Sensing",
+  "category": "creatures",
+  "description": "Bathypterois grallator abyssal fish standing poised above the abyssal sea floor on three hyper-elongated rigid stilt fins, facing into the bottom current to intercept drifting prey.",
+  "mathNotation": "\\mathbf{F}_{\\text{stilt}} = \\mathbf{p}_{\\text{seafloor}} - \\mathbf{p}_{\\text{pelvic}}, \\quad \\mathbf{p}_{\\text{pectoral}}(s, t) = \\mathbf{p}_{\\text{root}} + \\mathbf{B}(s) + \\begin{bmatrix} A_c \\sin(\\omega t) \\\\ 0 \\end{bmatrix}",
+  "formulaCompact": "stilt_fin = quadCurve(pelvic_root, groundContact),  prey_sensor = bezierCurve(pectoral_root, wave_tips)",
+  "formulaFull": "ctx.quadraticCurveTo(rootX + s * 15 * fishScale, groundContactY * 0.5, groundContactX, groundContactY);\nconst pecWave = Math.sin(t * 2 + s) * 12 * fishScale;\nctx.bezierCurveTo(pecRootX + 25 * fishScale, -65 * fishScale, pecRootX + 85 * fishScale, -110 * fishScale + pecWave, pecRootX + 115 * fishScale, -135 * fishScale + pecWave);",
+  "algorithmKey": "abyssal-tripod-fish",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "currentRate",
+      "label": "Benthic Current Velocity",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.2,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Abyssal current particle drift speed"
+    },
+    {
+      "key": "stiltLength",
+      "label": "Stilt Fin Height",
+      "type": "range",
+      "min": 0.8,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Elevation above seafloor ooze"
+    }
+  ],
+  "tags": ["tripod-fish", "bathypterois", "abyss", "deep-sea", "creatures", "benthic", "seafloor"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

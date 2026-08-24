@@ -1,0 +1,44 @@
+{
+  "id": "045",
+  "slug": "giant-siphonophore",
+  "title": "Giant Praya Siphonophore",
+  "subtitle": "Colonial Zooid Helical Chain & Bioluminescent Net",
+  "category": "creatures",
+  "description": "Deep ocean Praya dubia siphonophore colony modeled as a 3D helical coenosarc stem of swimming nectophores with trailing bioluminescent red/blue tentilla fishing lattices.",
+  "mathNotation": "\\mathbf{r}_{\\text{stem}}(s, t) = \\begin{bmatrix} s L \\\\ R_s \\sin(4\\pi s + \\omega_1 t) \\\\ R_s \\cos(4\\pi s + \\omega_1 t) \\end{bmatrix}, \\quad \\mathbf{p}_{\\text{tentilla}}(s, u, t) = \\mathbf{r}_{\\text{stem}}(s) + \\begin{bmatrix} A_w \\sin(\\omega_2 t - k u) \\\\ u H \\end{bmatrix}",
+  "formulaCompact": "stem = [s*L + sin(1.2t + 4s)*25, sin(4πs + 0.8t)*R],  tentilla = [stem.x + sin(2.5t - 6u)*15u, stem.y + u*H]",
+  "formulaFull": "const theta = norm * Math.PI * 4 + t * 0.8;\nconst stemX = cx + (norm - 0.5) * scale * 1.8 + Math.sin(t * 1.2 + norm * 4) * 25;\nconst stemY = cy + Math.sin(theta) * (scale * 0.35);\nconst wave = Math.sin(t * 2.5 - normS * 6 + k * 0.4) * (15 * normS);",
+  "algorithmKey": "giant-siphonophore",
+  "complexity": "high",
+  "particleCount": 110,
+  "parameters": [
+    {
+      "key": "flowSpeed",
+      "label": "Abyssal Drift Velocity",
+      "type": "range",
+      "min": 0.3,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 0.9,
+      "description": "Colony swimming undulation speed"
+    },
+    {
+      "key": "chainSpread",
+      "label": "Colony Extension",
+      "type": "range",
+      "min": 0.6,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Coenosarc stem span scaling"
+    }
+  ],
+  "tags": ["siphonophore", "deep-sea", "abyss", "creatures", "colonial", "bioluminescence", "helix"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

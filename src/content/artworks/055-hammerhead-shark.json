@@ -1,0 +1,43 @@
+{
+  "id": "055",
+  "slug": "hammerhead-shark",
+  "title": "Great Hammerhead Shark",
+  "subtitle": "Cephalofoil Hydrodynamics & Serpentine Swimming Wave",
+  "category": "creatures",
+  "description": "Sphyrna mokarran pelagic elasmobranch hydrodynamics capturing the wide stereoscopic T-shaped cephalofoil head, fusiform dorsal profile, and serpentine sinusoidal swimming waves.",
+  "mathNotation": "y(x, t) = A_0 \\left(\\frac{x}{L}\\right)^{1.6} \\sin\\left(\\omega t - \\frac{2\\pi x}{\\lambda}\\right), \\quad w(x) = w_{\\max} \\sin\\left(\\frac{\\pi x}{L}\\right)",
+  "formulaCompact": "spine_wave = (x/L)^1.6 * 36 * sin(3.2t - 4*(x/L)),  head_t = quadraticCurve(-45, 0, -15, headSpan)",
+  "formulaFull": "const waveAmp = Math.pow(normS, 1.6) * (36 * sharkScale);\nconst y = Math.sin(t * 3.2 - normS * 4) * waveAmp;\nconst bodyThickness = Math.sin(normS * Math.PI) * (34 * sharkScale);",
+  "algorithmKey": "hammerhead-shark",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "swimSpeed",
+      "label": "Cruising Speed",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Serpentine undulation tempo"
+    },
+    {
+      "key": "headSpan",
+      "label": "Cephalofoil Wingspan",
+      "type": "range",
+      "min": 0.8,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "T-head width multiplier"
+    }
+  ],
+  "tags": ["shark", "hammerhead", "sphyrna", "creatures", "hydrodynamics", "pelagic", "marine"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

@@ -1,0 +1,43 @@
+{
+  "id": "050",
+  "slug": "barreleye-fish",
+  "title": "Pacific Barreleye Fish",
+  "subtitle": "Transparent Cranial Shield & Tubular Green Eyes",
+  "category": "creatures",
+  "description": "Macropinna microstoma deep sea teleost anatomy featuring a completely transparent fluid-filled head dome protecting rotating, glowing emerald-green tubular optics.",
+  "mathNotation": "\\mathbf{p}_{\\text{dome}}(\\theta) = \\begin{bmatrix} R_x \\cos\\theta \\\\ R_y \\sin\\theta \\end{bmatrix}, \\quad \\theta_{\\text{eye}}(t) = -\\frac{\\pi}{2} + \\Delta\\theta \\sin(\\omega t)",
+  "formulaCompact": "dome = ellipse(35, -25, 48, 34),  tubular_eye = rotate(-π/2 + sin(1.5t)*0.35, green_lens)",
+  "formulaFull": "const eyeAngle = -Math.PI / 2 + Math.sin(t * 1.5) * 0.35;\nctx.ellipse(35 * fishScale, -25 * fishScale, 48 * fishScale, 34 * fishScale, -0.1, 0, Math.PI * 2);\nctx.arc(0, -22 * fishScale, 6.5 * fishScale, 0, Math.PI * 2);",
+  "algorithmKey": "barreleye-fish",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "eyeScanSpeed",
+      "label": "Tubular Eye Scanning",
+      "type": "range",
+      "min": 0.3,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 0.8,
+      "description": "Green optic lens rotation rate"
+    },
+    {
+      "key": "domeClarity",
+      "label": "Dome Transparency Glow",
+      "type": "range",
+      "min": 0.5,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Cranial fluid-filled shield brightness"
+    }
+  ],
+  "tags": ["barreleye", "macropinna", "deep-sea", "abyss", "creatures", "eyes", "transparent"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

@@ -1,0 +1,43 @@
+{
+  "id": "054",
+  "slug": "leafy-sea-dragon",
+  "title": "Leafy Sea Dragon",
+  "subtitle": "Prehensile Tail Spiral & Foliaceous Camouflage",
+  "category": "creatures",
+  "description": "Phycodurus eques syngnathid anatomy displaying an armored tubular pipe snout, an Archimedean/logarithmic prehensile tail curl, and undulating leafy camouflage lobes.",
+  "mathNotation": "r_{\\text{tail}}(\\theta) = r_0 e^{-b \\theta}, \\quad \\mathbf{p}_{\\text{leaf}}(s, t) = \\mathbf{p}_{\\text{stem}}(s) + \\begin{bmatrix} A_s \\sin(\\omega_s t + s) \\\\ A_s \\cos(\\omega_s t + s) \\end{bmatrix}",
+  "formulaCompact": "tail = tail_root + [35 - cos(θ)*r, 25 + sin(θ)*r],  r = 55 * exp(-0.45*θ),  leaf_sway = sin(2.5t + phase)*14",
+  "formulaFull": "const theta = normS * Math.PI * 3.5;\nconst r = 55 * dragonScale * Math.exp(-0.45 * theta);\nconst tx = 25 * dragonScale + 35 * dragonScale - Math.cos(theta) * r;\nconst ty = 45 * dragonScale + 25 * dragonScale + Math.sin(theta) * r;",
+  "algorithmKey": "leafy-sea-dragon",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "swellSpeed",
+      "label": "Ocean Swell Rhythm",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Camouflage foliage sway rate"
+    },
+    {
+      "key": "foliageSway",
+      "label": "Foliage Lobe Span",
+      "type": "range",
+      "min": 0.6,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Leafy appendage elongation"
+    }
+  ],
+  "tags": ["sea-dragon", "phycodurus", "syngnathid", "creatures", "camouflage", "spiral", "marine"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

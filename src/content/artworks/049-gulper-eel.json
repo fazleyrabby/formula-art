@@ -1,0 +1,43 @@
+{
+  "id": "049",
+  "slug": "gulper-eel",
+  "title": "Gulper Pelican Eel",
+  "subtitle": "Distensible Pelican Jaw & Luminous Whip-Tail",
+  "category": "creatures",
+  "description": "Eurypharynx pelecanoides abyssal morphology displaying a cavernous hinged jaw and distensible pouch capable of swallowing large prey, paired with a bioluminescent caudal whip-tail.",
+  "mathNotation": "\\mathbf{p}_{\\text{pouch}}(\\theta, t) = \\begin{bmatrix} L_x \\cos\\theta \\\\ L_y \\sin\\theta \\left[ 1 + \\delta \\sin(\\omega t) \\right] \\end{bmatrix}, \\quad y_{\\text{tail}}(s, t) = A_w s^{1.5} \\sin(\\omega_t t - k s)",
+  "formulaCompact": "pouch = bezierCurve(top_jaw, 95 + 85*pulse, -10 + 110*pulse, tail_root),  tail_organ = radialGradient(tip, 24*pulse)",
+  "formulaFull": "const gapePulse = 1 + 0.25 * Math.sin(t * 2) * jawExpansion;\nconst tailWave = Math.sin(t * 3.5 - normS * 7) * (32 * normS * eelScale);\nconst curX = prevX - (180 * normS * eelScale) + (Math.sin(t * 0.8) * 5);\nconst curY = prevY - (s * 3.2 * eelScale) + tailWave;",
+  "algorithmKey": "gulper-eel",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "swimSpeed",
+      "label": "Tail Wave Frequency",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Ribbon whip-tail undulation rate"
+    },
+    {
+      "key": "jawInflation",
+      "label": "Gape Distension",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Pelican pouch volume expansion"
+    }
+  ],
+  "tags": ["gulper-eel", "pelican-eel", "deep-sea", "abyss", "creatures", "jaw", "bioluminescence"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

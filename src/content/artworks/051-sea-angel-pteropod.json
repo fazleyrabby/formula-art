@@ -1,0 +1,43 @@
+{
+  "id": "051",
+  "slug": "sea-angel-pteropod",
+  "title": "Pelagic Sea Angel",
+  "subtitle": "Gymnosome Parapodia Wings & Visceral Core",
+  "category": "creatures",
+  "description": "Clione limacina pelagic gymnosome sea slug swimming with rhythmic wing-like parapodia flapping and a glowing orange-red visceral nucleus.",
+  "mathNotation": "z_{\\text{wing}}(u, t) = A_w \\sin(\\omega_w t) \\cdot u + B_w \\cos(\\omega_w t) \\cdot u^2, \\quad I_{\\text{visc}}(r) = I_0 \\exp\\left( -\\frac{r^2}{2\\sigma_v^2} \\right)",
+  "formulaCompact": "wing = bezierCurve(root, wingCurl*18, wingTip + wingWave*28),  visc_core = radialGradient(5, 2, 22)",
+  "formulaFull": "const tipY = rootY - 15 * wingSpan * angelScale + wingWave * (28 * angelScale);\nconst viscGrad = ctx.createRadialGradient(0, 5 * angelScale, 2 * angelScale, 0, 5 * angelScale, 22 * angelScale);",
+  "algorithmKey": "sea-angel-pteropod",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "wingSpeed",
+      "label": "Parapodia Stroke Rate",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.4,
+      "description": "Wing flap swimming frequency"
+    },
+    {
+      "key": "wingSpan",
+      "label": "Parapodia Wingspan",
+      "type": "range",
+      "min": 0.7,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Flapping wing amplitude scaling"
+    }
+  ],
+  "tags": ["sea-angel", "clione", "pteropod", "creatures", "wings", "pelagic", "translucent"],
+  "featured": false,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

@@ -43,12 +43,24 @@ import { createGalaxySpiralDensity } from './space/galaxy-spiral-density';
 import { createContinuousCellularAutomata } from './experimental/continuous-cellular-automata';
 import { createJuliaMorph } from './experimental/julia-morph';
 
-// Sea Creatures
+// Sea & Deep Sea Creatures
 import { createBioluminescentJellyfish } from './creatures/bioluminescent-jellyfish';
 import { createMathematicalCrab } from './creatures/mathematical-crab';
 import { createDeepSeaPrawn } from './creatures/deep-sea-prawn';
 import { createMantaRayGlide } from './creatures/manta-ray-glide';
 import { createNautilusSpiral } from './creatures/nautilus-spiral';
+import { createDeepSeaAnglerfish } from './creatures/deep-sea-anglerfish';
+import { createGiantSiphonophore } from './creatures/giant-siphonophore';
+import { createCombJellyCtenophore } from './creatures/comb-jelly-ctenophore';
+import { createVampireSquid } from './creatures/vampire-squid';
+import { createDumboOctopus } from './creatures/dumbo-octopus';
+import { createGulperEel } from './creatures/gulper-eel';
+import { createBarreleyeFish } from './creatures/barreleye-fish';
+import { createSeaAngelPteropod } from './creatures/sea-angel-pteropod';
+import { createAbyssalTripodFish } from './creatures/abyssal-tripod-fish';
+import { createGiantSpiderCrab } from './creatures/giant-spider-crab';
+import { createLeafySeaDragon } from './creatures/leafy-sea-dragon';
+import { createHammerheadShark } from './creatures/hammerhead-shark';
 
 // Nature & Botany
 import { createFractalTree } from './botany/fractal-tree';
@@ -107,12 +119,24 @@ export const algorithmRegistry: Record<string, AlgorithmFactory> = {
   'continuous-cellular-automata': createContinuousCellularAutomata,
   'julia-morph': createJuliaMorph,
 
-  // Sea Creatures
+  // Sea & Deep Sea Creatures
   'bioluminescent-jellyfish': createBioluminescentJellyfish,
   'mathematical-crab': createMathematicalCrab,
   'deep-sea-prawn': createDeepSeaPrawn,
   'manta-ray-glide': createMantaRayGlide,
   'nautilus-spiral': createNautilusSpiral,
+  'deep-sea-anglerfish': createDeepSeaAnglerfish,
+  'giant-siphonophore': createGiantSiphonophore,
+  'comb-jelly-ctenophore': createCombJellyCtenophore,
+  'vampire-squid': createVampireSquid,
+  'dumbo-octopus': createDumboOctopus,
+  'gulper-eel': createGulperEel,
+  'barreleye-fish': createBarreleyeFish,
+  'sea-angel-pteropod': createSeaAngelPteropod,
+  'abyssal-tripod-fish': createAbyssalTripodFish,
+  'giant-spider-crab': createGiantSpiderCrab,
+  'leafy-sea-dragon': createLeafySeaDragon,
+  'hammerhead-shark': createHammerheadShark,
 
   // Nature & Botany
   'fractal-tree': createFractalTree,

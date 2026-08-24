@@ -1,0 +1,43 @@
+{
+  "id": "046",
+  "slug": "comb-jelly-ctenophore",
+  "title": "Bioluminescent Comb Jelly",
+  "subtitle": "Metachronal Ctenes & Rainbow Light Diffraction",
+  "category": "creatures",
+  "description": "Marine ctenophore exhibiting 8 longitudinal rows of fused microscopic cilia (ctenes) beating metachronally to produce spectral rainbow optical diffraction waves.",
+  "mathNotation": "\\theta_{\\text{cilia}}(s, t) = A_c \\sin(\\omega t - k s + \\phi_r), \\quad \\lambda_{\\text{diffract}}(s, t) = \\lambda_0 \\left[ 1 + \\gamma \\cos(\\omega_d t - k s) \\right]",
+  "formulaCompact": "ctene_wave = sin(4t - 8s + 0.5r),  hue_diffract = (360s + wave*40) % 360",
+  "formulaFull": "const wavePhase = t * 4 - normP * 8 + r * 0.5;\nconst beatAmplitude = Math.sin(wavePhase);\nconst spectralHue = ((normP * 360) + wavePhase * 40) % 360;\nctx.strokeStyle = hsla(spectralHue, 100, 70, depthAlpha * glowScale);",
+  "algorithmKey": "comb-jelly-ctenophore",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "ciliaSpeed",
+      "label": "Ciliary Beat Frequency",
+      "type": "range",
+      "min": 0.4,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.3,
+      "description": "Metachronal wave transmission rate"
+    },
+    {
+      "key": "glowBoost",
+      "label": "Iridescent Diffraction",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Spectral rainbow intensity multiplier"
+    }
+  ],
+  "tags": ["comb-jelly", "ctenophore", "diffraction", "rainbow", "cilia", "creatures", "marine"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

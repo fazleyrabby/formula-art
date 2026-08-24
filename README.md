@@ -11,7 +11,7 @@
 
 ## ✨ Features
 
-- **43 Curated Mathematical Algorithms**: Spanning 10 disciplines (Sea Creatures, Botany & Nature, Human Anatomy, Weather & Fluid Dynamics, Particle Systems, Non-Euclidean Geometry, Wave Mechanics, Relativistic Astrophysics, and Experimental Freezing).
+- **55 Curated Mathematical Algorithms**: Featuring a deep-sea collection of 17 underwater/abyssal creatures, fluid mechanics, weather systems, human biology, fractal geometry, and astrophysics.
 - **Interactive Visual Studio (`/playground`)**: Sculpt generative art in real time using draggable radial rotary knobs, micro-sliders, archetype selectors, and style toggles.
 - **Zero-Allocation Canvas Engine**: Pre-allocated typed arrays (`Float32Array`) and primitive registers running smooth 60 FPS animations with zero garbage collection spikes.
 - **Visibility & Power Management**: Two-tier lifecycle pausing offscreen canvases via `content-visibility: auto` and `IntersectionObserver` to keep idle CPU usage at 0%.
@@ -22,20 +22,20 @@
 
 ---
 
-## 🎨 Algorithm Catalog (43 Production Artworks)
+## 🎨 Algorithm Catalog (55 Production Artworks)
 
 | Category | Count | Algorithms |
 | :--- | :--- | :--- |
-| **Fluid & Weather** | 7 | Atmospheric Tornado, Worthington Water Splash, Rainstorm Precipitation, Vortex Filament Drift, Curl Vector Field, Smoke Lattice, Viscous Gyre |
-| **Sea Creatures** | 5 | Bioluminescent Jellyfish, Mathematical Crab, Deep Sea Prawn, Manta Ray Glide, Nautilus Shell Spiral |
+| **Sea & Deep-Sea Creatures** | 17 | Deep Sea Anglerfish, Giant Praya Siphonophore, Bioluminescent Comb Jelly, Vampire Squid from Hell, Dumbo Octopus Flight, Gulper Pelican Eel, Pacific Barreleye Fish, Pelagic Sea Angel, Abyssal Tripod Fish, Japanese Giant Spider Crab, Leafy Sea Dragon, Great Hammerhead Shark, Bioluminescent Jellyfish, Mathematical Crab, Deep Sea Prawn, Manta Ray Glide, Nautilus Shell Spiral |
+| **Fluid & Weather Dynamics** | 7 | Atmospheric Tornado, Worthington Water Splash, Rainstorm Precipitation, Vortex Filament Drift, Curl Vector Field, Smoke Lattice, Viscous Gyre |
 | **Botany & Nature** | 5 | Atmospheric Snowfall, L-System Fractal Tree, Barnsley Fern IFS, Gerstner Ocean Waves, Coral Polyp Growth |
 | **Non-Euclidean Geometry & Crystals** | 5 | Microscopic Snowflake Crystal, Hyperbolic Poincaré, Sacred Mandala, Moiré Interference, Penrose Subdivision |
-| **Human Anatomy** | 4 | Cardiac Pulse & ECG, Neural Synaptic Network, DNA Double Helix, Retinal Iris Trabeculae |
-| **Organic** | 4 | Organic Wave, Phyllotaxis Spiral, Superformula Bloom, Perlin Tendrils |
+| **Human Anatomy & Biology** | 4 | Cardiac Pulse & ECG, Neural Synaptic Network, DNA Double Helix, Retinal Iris Trabeculae |
+| **Organic Harmonics** | 4 | Organic Wave, Phyllotaxis Spiral, Superformula Bloom, Perlin Tendrils |
 | **Particle Systems** | 4 | Gravitational Swarm, Lissajous Web, Brownian Constellation, Boids Emergence |
 | **Wave Mechanics** | 4 | Fourier Harmonics, Standing Wave Grid, Soliton Collision, Circular Ripples |
-| **Space & Physics** | 3 | Black Hole Lensing, Keplerian Orbits, Spiral Galaxy Density |
-| **Experimental** | 2 | Continuous Life Automata, Julia Morphism |
+| **Space & Relativistic Astrophysics** | 3 | Black Hole Lensing, Keplerian Orbits, Spiral Galaxy Density |
+| **Experimental Automata** | 2 | Continuous Life Automata, Julia Morphism |
 
 ---
 

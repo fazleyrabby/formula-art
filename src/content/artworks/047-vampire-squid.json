@@ -1,0 +1,43 @@
+{
+  "id": "047",
+  "slug": "vampire-squid",
+  "title": "Vampire Squid from Hell",
+  "subtitle": "Velvety Webbed Cloak & Arm Tip Photophores",
+  "category": "creatures",
+  "description": "Vampyroteuthis infernalis cephalopod anatomy showing the velvety red-black interbrachial web cloak, glowing blue arm tip photophores, and sensory velar filaments.",
+  "mathNotation": "\\mathbf{p}_{\\text{web}}(a, t) = \\mathbf{R}(\\theta_a + w_a(t)) \\begin{bmatrix} R_a(t) \\\\ 0.7 R_a(t) + y_0 \\end{bmatrix}, \\quad I_{\\text{photo}}(t) = I_0 \\left[ 1 + \\beta \\sin(\\omega t + a) \\right]",
+  "formulaCompact": "web_arch = quadCurve(armTip_a, midPt, armTip_next),  photophore = circle(tip, 3.5*(1 + 0.3*sin(4t + a)))",
+  "formulaFull": "const curAngle = baseAngle + armWave;\nconst armR = (110 + 20 * Math.sin(t * 2 + a)) * squidScale;\nconst photophorePulse = 1 + 0.3 * Math.sin(t * 4 + a);\nctx.arc(tip.x, tip.y, 3.5 * photophorePulse * squidScale, 0, Math.PI * 2);",
+  "algorithmKey": "vampire-squid",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "swimSpeed",
+      "label": "Mantle Pulse Velocity",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.2,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Cloaked umbrella contraction rate"
+    },
+    {
+      "key": "cloakInversion",
+      "label": "Web Flaring Angle",
+      "type": "range",
+      "min": 0.2,
+      "max": 1.5,
+      "step": 0.1,
+      "defaultValue": 0.5,
+      "description": "Interbrachial webbing spread"
+    }
+  ],
+  "tags": ["vampire-squid", "cephalopod", "deep-sea", "abyss", "creatures", "bioluminescence", "cloak"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}
