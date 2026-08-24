@@ -1,7 +1,9 @@
 import type { ArtRenderer, ParameterState, RenderContext, TimeState } from '../../types/engine';
 import { hsla } from '../common/color';
 
-// Sphyrna Mokarran (Great Hammerhead Shark) Cephalofoil Hydrodynamics & Serpentine Waves
+// Anatomically Enriched Great Hammerhead Shark (Sphyrna Mokarran)
+// Features: Cephalofoil with Ampullae of Lorenzini electroreceptors, 5 branchial gill slits,
+// acoustic lateral line canal, tall falcate first dorsal fin, and heterocercal caudal fin.
 export function createHammerheadShark(): ArtRenderer {
   return {
     setup() {},
@@ -12,7 +14,7 @@ export function createHammerheadShark(): ArtRenderer {
       const cephalofoilWidth = Number(params.headSpan || 1.2);
       const t = timeState.time * cruiseSpeed;
 
-      ctx.fillStyle = '#03070e';
+      ctx.fillStyle = '#02050b';
       ctx.fillRect(0, 0, width, height);
 
       const cx = width * 0.52 + Math.cos(t * 0.4) * (width * 0.06);
@@ -22,93 +24,138 @@ export function createHammerheadShark(): ArtRenderer {
       ctx.save();
       ctx.translate(cx, cy);
 
-      // 1. Serpentine Body Spine (Harmonic traveling wave from head to tail)
+      // 1. Serpentine Body Spine (Kinematic harmonic wave from head to tail)
       const SPINE_NODES = 50;
       const spineX: number[] = [];
       const spineY: number[] = [];
 
       for (let s = 0; s < SPINE_NODES; s++) {
         const normS = s / (SPINE_NODES - 1);
-        const x = (normS - 0.35) * (260 * sharkScale);
-        // Serpentine sinusoidal wave increasing toward caudal fin
-        const waveAmp = Math.pow(normS, 1.6) * (36 * sharkScale);
-        const y = Math.sin(t * 3.2 - normS * 4) * waveAmp;
+        const x = (normS - 0.35) * (270 * sharkScale);
+        const waveAmp = Math.pow(normS, 1.6) * (38 * sharkScale);
+        const y = Math.sin(t * 3.2 - normS * 4.2) * waveAmp;
 
         spineX.push(x);
         spineY.push(y);
       }
 
-      // 2. Hydrodynamic Shark Fusiform Body Outline
+      // 2. Hydrodynamic Fusiform Shark Body Outline
       ctx.beginPath();
-      // Dorsal / Upper profile
+      // Dorsal upper profile
       for (let s = 0; s < SPINE_NODES; s++) {
         const normS = s / (SPINE_NODES - 1);
-        const bodyThickness = Math.sin(normS * Math.PI) * (34 * sharkScale);
+        const bodyThickness = Math.sin(normS * Math.PI) * (36 * sharkScale);
         const px = spineX[s];
         const py = spineY[s] - bodyThickness;
         if (s === 0) ctx.moveTo(px, py);
         else ctx.lineTo(px, py);
       }
 
-      // Ventral / Lower profile
+      // Ventral lower profile
       for (let s = SPINE_NODES - 1; s >= 0; s--) {
         const normS = s / (SPINE_NODES - 1);
-        const bodyThickness = Math.sin(normS * Math.PI) * (34 * sharkScale);
+        const bodyThickness = Math.sin(normS * Math.PI) * (36 * sharkScale);
         const px = spineX[s];
         const py = spineY[s] + bodyThickness;
         ctx.lineTo(px, py);
       }
       ctx.closePath();
 
-      // Slate Navy/Charcoal Shark Skin
-      ctx.fillStyle = '#0f172a';
+      // Countershaded Shark Skin (Slate Grey-Navy above, White below)
+      const skinGrad = ctx.createLinearGradient(0, -40 * sharkScale, 0, 40 * sharkScale);
+      skinGrad.addColorStop(0, '#0f172a');
+      skinGrad.addColorStop(0.6, '#1e293b');
+      skinGrad.addColorStop(1, '#334155');
+
+      ctx.fillStyle = skinGrad;
       ctx.fill();
-      ctx.strokeStyle = hsla(210, 50, 45, 0.9);
+      ctx.strokeStyle = hsla(210, 50, 48, 0.95);
       ctx.lineWidth = 2.4 * sharkScale;
       ctx.stroke();
 
-      // 3. Iconic T-Shaped Cephalofoil "Hammer" Head (Front)
+      // 3. Acoustic Lateral Line Sensory Canal (Gold/Cyan streak)
+      ctx.beginPath();
+      for (let s = 8; s < SPINE_NODES - 2; s++) {
+        const px = spineX[s];
+        const py = spineY[s];
+        if (s === 8) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+
+      // 4. Five Anatomical Branchial Gill Slits
+      const gillStartX = spineX[10];
+      const gillStartY = spineY[10];
+      for (let g = 0; g < 5; g++) {
+        const gx = gillStartX + g * (5 * sharkScale);
+        const gy = gillStartY + (g % 2 === 0 ? 0 : 2);
+        ctx.beginPath();
+        ctx.moveTo(gx, gy - 14 * sharkScale);
+        ctx.quadraticCurveTo(gx + 3 * sharkScale, gy, gx, gy + 14 * sharkScale);
+        ctx.strokeStyle = hsla(215, 60, 25, 0.9);
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+      }
+
+      // 5. Iconic Cephalofoil T-Head with Ampullae of Lorenzini Pores
       const headX = spineX[0];
       const headY = spineY[0];
 
       ctx.save();
       ctx.translate(headX, headY);
 
-      const headSpan = 95 * cephalofoilWidth * sharkScale;
+      const headSpan = 98 * cephalofoilWidth * sharkScale;
       ctx.beginPath();
-      ctx.moveTo(-15 * sharkScale, -headSpan);
-      ctx.quadraticCurveTo(-45 * sharkScale, 0, -15 * sharkScale, headSpan);
-      ctx.lineTo(5 * sharkScale, headSpan * 0.85);
-      ctx.quadraticCurveTo(-15 * sharkScale, 0, 5 * sharkScale, -headSpan * 0.85);
+      ctx.moveTo(-16 * sharkScale, -headSpan);
+      ctx.quadraticCurveTo(-48 * sharkScale, 0, -16 * sharkScale, headSpan);
+      ctx.lineTo(6 * sharkScale, headSpan * 0.85);
+      ctx.quadraticCurveTo(-16 * sharkScale, 0, 6 * sharkScale, -headSpan * 0.85);
       ctx.closePath();
 
-      ctx.fillStyle = '#090d18';
+      ctx.fillStyle = '#090e1a';
       ctx.fill();
-      ctx.strokeStyle = hsla(210, 55, 52, 0.95);
-      ctx.lineWidth = 2.4 * sharkScale;
+      ctx.strokeStyle = hsla(210, 55, 55, 0.95);
+      ctx.lineWidth = 2.6 * sharkScale;
       ctx.stroke();
+
+      // Ampullae of Lorenzini Electroreceptor Pore Clusters along cephalofoil leading edge
+      for (let p = 0; p < 24; p++) {
+        const normP = (p / 23 - 0.5) * 2; // -1 to 1
+        const poreY = normP * (headSpan * 0.9);
+        const poreX = -32 * sharkScale * (1 - Math.abs(normP) * 0.5);
+
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
+        ctx.fillRect(poreX, poreY, 1.4, 1.4);
+      }
 
       // Stereoscopic Wide-Set Lateral Eyes at Wing Tips
       for (let s = -1; s <= 1; s += 2) {
         ctx.fillStyle = '#0284c7';
         ctx.beginPath();
-        ctx.arc(-14 * sharkScale, s * (headSpan - 6 * sharkScale), 4.5 * sharkScale, 0, Math.PI * 2);
+        ctx.arc(-15 * sharkScale, s * (headSpan - 6 * sharkScale), 5.0 * sharkScale, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#e0f2fe';
-        ctx.lineWidth = 1.2;
+        ctx.lineWidth = 1.4;
         ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-16 * sharkScale, s * (headSpan - 6 * sharkScale) - 1.5, 2.0 * sharkScale, 0, Math.PI * 2);
+        ctx.fill();
       }
       ctx.restore();
 
-      // 4. Tall Sickle-Shaped First Dorsal Fin
+      // 6. Tall Falcate First Dorsal Fin
       const dorsalIdx = Math.floor(SPINE_NODES * 0.35);
       const dX = spineX[dorsalIdx];
-      const dY = spineY[dorsalIdx] - (32 * sharkScale);
+      const dY = spineY[dorsalIdx] - (34 * sharkScale);
 
       ctx.beginPath();
-      ctx.moveTo(dX - 25 * sharkScale, dY);
-      ctx.quadraticCurveTo(dX - 10 * sharkScale, dY - 75 * sharkScale, dX + 15 * sharkScale, dY - 80 * sharkScale);
-      ctx.quadraticCurveTo(dX + 5 * sharkScale, dY - 30 * sharkScale, dX + 30 * sharkScale, dY + 5 * sharkScale);
+      ctx.moveTo(dX - 28 * sharkScale, dY);
+      ctx.quadraticCurveTo(dX - 12 * sharkScale, dY - 80 * sharkScale, dX + 16 * sharkScale, dY - 85 * sharkScale);
+      ctx.quadraticCurveTo(dX + 5 * sharkScale, dY - 32 * sharkScale, dX + 32 * sharkScale, dY + 6 * sharkScale);
       ctx.closePath();
       ctx.fillStyle = '#090d18';
       ctx.fill();
@@ -116,7 +163,7 @@ export function createHammerheadShark(): ArtRenderer {
       ctx.lineWidth = 2.0 * sharkScale;
       ctx.stroke();
 
-      // 5. Heterocercal Caudal Tail Fin (Upper long lobe + lower short lobe)
+      // 7. Heterocercal Caudal Tail Fin (Upper long lobe + lower short lobe)
       const tailIdx = SPINE_NODES - 1;
       const tX = spineX[tailIdx];
       const tY = spineY[tailIdx];
@@ -124,18 +171,18 @@ export function createHammerheadShark(): ArtRenderer {
       ctx.beginPath();
       ctx.moveTo(tX, tY);
       // Tall upper lobe
-      ctx.lineTo(tX + 55 * sharkScale, tY - 60 * sharkScale);
-      ctx.lineTo(tX + 42 * sharkScale, tY - 45 * sharkScale);
-      ctx.lineTo(tX + 20 * sharkScale, tY);
+      ctx.lineTo(tX + 60 * sharkScale, tY - 65 * sharkScale);
+      ctx.lineTo(tX + 46 * sharkScale, tY - 48 * sharkScale);
+      ctx.lineTo(tX + 22 * sharkScale, tY);
       // Lower lobe
-      ctx.lineTo(tX + 40 * sharkScale, tY + 38 * sharkScale);
+      ctx.lineTo(tX + 44 * sharkScale, tY + 42 * sharkScale);
       ctx.lineTo(tX, tY);
       ctx.closePath();
 
       ctx.fillStyle = '#0f172a';
       ctx.fill();
-      ctx.strokeStyle = hsla(210, 55, 48, 0.9);
-      ctx.lineWidth = 2.0 * sharkScale;
+      ctx.strokeStyle = hsla(210, 55, 50, 0.95);
+      ctx.lineWidth = 2.2 * sharkScale;
       ctx.stroke();
 
       ctx.restore();
