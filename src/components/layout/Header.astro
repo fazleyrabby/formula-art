@@ -2,10 +2,10 @@
 ---
 
 <header class="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#08090d]/80 backdrop-blur-xl transition-all">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-    <!-- Logo -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <!-- Left: Logo & Navigation Links -->
     <div class="flex items-center gap-6">
-      <a href="/" class="flex items-center gap-2.5 group">
+      <a href="/" class="flex items-center gap-2.5 group shrink-0">
         <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-cyan to-accent-indigo flex items-center justify-center shadow-glow group-hover:scale-105 transition-transform duration-300">
           <span class="font-mono font-bold text-slate-950 text-sm">ƒ(x)</span>
         </div>
@@ -20,7 +20,7 @@
       </a>
 
       <!-- Navigation Links -->
-      <nav class="hidden md:flex items-center gap-1 pl-4 border-l border-white/[0.08]">
+      <nav class="hidden md:flex items-center gap-1 pl-4 border-l border-white/[0.08] shrink-0">
         <a
           href="/"
           class="px-3 py-1.5 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-white/[0.04] transition-colors"
@@ -37,27 +37,13 @@
       </nav>
     </div>
 
-      <!-- Live Visitor Counter Badge -->
-      <a
-        href="https://counterapi.com/stats/art.fazleyrabbi.xyz/visitors/up"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-accent-cyan/30 text-slate-300 hover:text-white transition-all text-xs font-mono group cursor-pointer"
-        title="Live global visitor count • View Stats on CounterAPI"
-      >
-        <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-emerald opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-emerald"></span>
-        </span>
-        <span class="text-slate-400 group-hover:text-slate-300 text-[11px] hidden sm:inline">Views:</span>
-        <span id="header-visitor-count" class="font-bold text-accent-cyan text-xs">1</span>
-      </a>
-
+    <!-- Right: Search, Random, and Views (Right Aligned) -->
+    <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
       <!-- Search Trigger Button -->
       <button
         type="button"
         id="search-trigger"
-        class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.15] text-slate-400 hover:text-slate-200 transition-all text-xs font-mono group"
+        class="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.15] text-slate-400 hover:text-slate-200 transition-all text-xs font-mono group"
         aria-label="Search formulas"
       >
         <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-accent-cyan transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -73,7 +59,7 @@
       <button
         type="button"
         id="random-btn"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 hover:bg-accent-cyan/20 text-accent-cyan text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-glow"
+        class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 hover:bg-accent-cyan/20 text-accent-cyan text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-glow"
         title="Discover random formula"
       >
         <svg class="w-3.5 h-3.5 animate-spin-hover" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -82,6 +68,21 @@
         <span>Random</span>
       </button>
 
+      <!-- Live Visitor Counter Badge -->
+      <a
+        href="https://counterapi.com/stats/art.fazleyrabbi.xyz/visitors/up"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-accent-cyan/30 text-slate-300 hover:text-white transition-all text-xs font-mono group cursor-pointer"
+        title="Live global visitor count • View Stats on CounterAPI"
+      >
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-emerald opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-emerald"></span>
+        </span>
+        <span class="text-slate-400 group-hover:text-slate-300 text-[11px] hidden sm:inline">Views:</span>
+        <span id="header-visitor-count" class="font-bold text-accent-cyan text-xs">1</span>
+      </a>
     </div>
   </div>
 </header>
