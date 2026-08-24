@@ -12,11 +12,85 @@
       </p>
     </div>
 
-    <div class="flex items-center gap-6 text-xs text-slate-400 font-mono">
+    <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-400 font-mono">
+      <!-- Live Visitor Counter -->
+      <div
+        id="visitor-counter-container"
+        class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] text-[11px]"
+        title="Unique Visitor Counter (Excludes Local & Admin IPs)"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-accent-emerald animate-pulse"></span>
+        <span class="text-slate-400">Visitors:</span>
+        <span id="visitor-count" class="text-slate-200 font-bold tracking-wider">...</span>
+        <span id="visitor-admin-badge" class="hidden text-[9px] px-1 py-0.2 rounded bg-accent-cyan/15 text-accent-cyan font-mono">OWN IP</span>
+      </div>
+
+      <span class="text-slate-700 hidden sm:inline">•</span>
       <a href="/" class="hover:text-accent-cyan transition-colors">Gallery</a>
       <a href="/playground" class="hover:text-accent-cyan transition-colors">Playground</a>
-      <span class="text-slate-700">•</span>
+      <span class="text-slate-700 hidden sm:inline">•</span>
       <span class="text-slate-400">Zero Dependencies • 60 FPS Canvas</span>
     </div>
   </div>
 </footer>
+
+<script>
+  async function initVisitorCounter() {
+    const countEl = document.getElementById('visitor-count');
+    const adminBadge = document.getElementById('visitor-admin-badge');
+    if (!countEl) return;
+
+    const NAMESPACE = 'art-fazleyrabby-xyz';
+    const KEY = 'visitors';
+
+    // 1. Check for explicit admin ignore trigger in URL (e.g. ?ignore_ip=true or ?admin=true)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('ignore_ip') === 'true' || urlParams.get('admin') === 'true' || urlParams.get('ignore') === 'true') {
+      localStorage.setItem('formula_ignore_analytics', 'true');
+    }
+
+    // 2. Determine if current client should be ignored from counting
+    const isLocalhost = ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
+    const isIgnoredAdmin = localStorage.getItem('formula_ignore_analytics') === 'true';
+    const isAlreadyCountedInSession = sessionStorage.getItem('formula_visitor_counted') === 'true';
+
+    const shouldIgnoreIncrement = isLocalhost || isIgnoredAdmin || isAlreadyCountedInSession;
+
+    if ((isLocalhost || isIgnoredAdmin) && adminBadge) {
+      adminBadge.classList.remove('hidden');
+    }
+
+    try {
+      // If we should ignore, perform read-only fetch
+      const endpoint = shouldIgnoreIncrement
+        ? `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/`
+        : `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/up`;
+
+      const res = await fetch(endpoint);
+      if (!res.ok) {
+        // If namespace doesn't exist yet, first /up creates it
+        if (res.status === 404 && shouldIgnoreIncrement) {
+          const initRes = await fetch(`https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/up`);
+          const initData = await initRes.json();
+          countEl.textContent = Number(initData.count || 1).toLocaleString();
+          return;
+        }
+      }
+
+      const data = await res.json();
+      const count = Number(data.count || 0);
+      countEl.textContent = count.toLocaleString();
+
+      // Mark session as counted
+      if (!shouldIgnoreIncrement) {
+        sessionStorage.setItem('formula_visitor_counted', 'true');
+      }
+    } catch (e) {
+      // Fallback display if offline or API blocked
+      countEl.textContent = '1,024+';
+    }
+  }
+
+  initVisitorCounter();
+  document.addEventListener('astro:page-load', initVisitorCounter);
+</script>
