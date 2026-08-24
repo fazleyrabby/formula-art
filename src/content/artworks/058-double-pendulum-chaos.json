@@ -1,0 +1,40 @@
+{
+  "id": "058",
+  "slug": "double-pendulum-chaos",
+  "title": "Double Pendulum Mechanics",
+  "subtitle": "Lagrangian Mechanics & Chaotic Phase Space Orbit",
+  "category": "physics",
+  "description": "Rigorous classical mechanics simulation of coupled dual pendulums governed by Euler-Lagrange equations. Features real-time chaotic trajectory ribbon tracing, total mechanical energy tracking, and a live Phase Space (θ₁, dθ₁/dt) orbit inset.",
+  "mathNotation": "\\mathcal{L} = T - V, \\quad \\frac{d}{dt}\\left(\\frac{\\partial \\mathcal{L}}{\\partial \\dot{\\theta}_i}\\right) - \\frac{\\partial \\mathcal{L}}{\\partial \\theta_i} = 0",
+  "formulaCompact": "alpha1 = num1(th1,th2,w1,w2)/den1; alpha2 = num2(th1,th2,w1,w2)/den2;",
+  "formulaFull": "// Euler-Lagrange Double Pendulum\nconst alpha1 = num1 / den1;\nconst alpha2 = num2 / den2;\nw1 += alpha1 * dt; w2 += alpha2 * dt;\nth1 += w1 * dt; th2 += w2 * dt;",
+  "algorithmKey": "double-pendulum-chaos",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "massRatio",
+      "label": "Mass Ratio (m₂/m₁)",
+      "type": "range",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Ratio of bob 2 mass to bob 1 mass"
+    }
+  ],
+  "tags": [
+    "classical-mechanics",
+    "lagrangian",
+    "double-pendulum",
+    "phase-space",
+    "physics-study",
+    "chaos"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Classical Mechanics Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

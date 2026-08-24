@@ -1,0 +1,50 @@
+{
+  "id": "059",
+  "slug": "fourier-epicycles-transform",
+  "title": "Fourier Epicycles Transform",
+  "subtitle": "Complex Phasor Harmonic Decomposition & Spectrum Analyzer",
+  "category": "physics",
+  "description": "Visualizes the mathematical foundation of the Fourier Transform in the complex plane. Chains rotating complex exponential phasor gears (epicycles) summing harmonic modes to reconstruct complex geometric curves, complete with live amplitude spectrum bars.",
+  "mathNotation": "f(t) = \\sum_{k=-N}^{N} c_k e^{i k \\omega t}, \\quad c_k = \\frac{1}{T} \\int_0^T f(t) e^{-i k \\omega t} dt",
+  "formulaCompact": "z(t) = sum(c_k * exp(i * k * omega * t))",
+  "formulaFull": "// Complex Fourier Series Phasors\nlet x = cx, y = cy;\nfor (let i = 0; i < terms; i++) {\n  const theta = h.k * t + h.phase;\n  x += h.radius * Math.cos(theta);\n  y += h.radius * Math.sin(theta);\n}",
+  "algorithmKey": "fourier-epicycles-transform",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "termsCount",
+      "label": "Harmonic Terms (N)",
+      "type": "range",
+      "min": 2,
+      "max": 24,
+      "step": 1,
+      "defaultValue": 16,
+      "description": "Number of active Fourier epicycle phasor modes"
+    },
+    {
+      "key": "cycleSpeed",
+      "label": "Rotation Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 0.6,
+      "description": "Fundamental angular frequency ω"
+    }
+  ],
+  "tags": [
+    "fourier-transform",
+    "complex-analysis",
+    "epicycles",
+    "phasors",
+    "math-study",
+    "signal-processing"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Harmonic Analysis Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

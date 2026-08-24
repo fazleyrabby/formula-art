@@ -11,7 +11,7 @@
 
 ## ✨ Features
 
-- **55 Curated Mathematical Algorithms**: Featuring a deep-sea collection of 17 underwater/abyssal creatures, fluid mechanics, weather systems, human biology, fractal geometry, and astrophysics.
+- **61 Curated Mathematical Algorithms**: Featuring a deep-sea collection of 17 underwater/abyssal creatures, physics & mathematical study visualizations, fluid mechanics, weather systems, human biology, fractal geometry, and astrophysics.
 - **Interactive Visual Studio (`/playground`)**: Sculpt generative art in real time using draggable radial rotary knobs, micro-sliders, archetype selectors, and style toggles.
 - **Zero-Allocation Canvas Engine**: Pre-allocated typed arrays (`Float32Array`) and primitive registers running smooth 60 FPS animations with zero garbage collection spikes.
 - **Visibility & Power Management**: Two-tier lifecycle pausing offscreen canvases via `content-visibility: auto` and `IntersectionObserver` to keep idle CPU usage at 0%.
@@ -22,12 +22,13 @@
 
 ---
 
-## 🎨 Algorithm Catalog (55 Production Artworks)
+## 🎨 Algorithm Catalog (61 Production Artworks)
 
 | Category | Count | Algorithms |
 | :--- | :--- | :--- |
 | **Sea & Deep-Sea Creatures** | 17 | Deep Sea Anglerfish, Giant Praya Siphonophore, Bioluminescent Comb Jelly, Vampire Squid from Hell, Dumbo Octopus Flight, Gulper Pelican Eel, Pacific Barreleye Fish, Pelagic Sea Angel, Abyssal Tripod Fish, Japanese Giant Spider Crab, Leafy Sea Dragon, Great Hammerhead Shark, Bioluminescent Jellyfish, Mathematical Crab, Deep Sea Prawn, Manta Ray Glide, Nautilus Shell Spiral |
 | **Fluid & Weather Dynamics** | 7 | Atmospheric Tornado, Worthington Water Splash, Rainstorm Precipitation, Vortex Filament Drift, Curl Vector Field, Smoke Lattice, Viscous Gyre |
+| **Physics & Mathematics Study** | 6 | Quantum Hydrogen Orbital, Lorenz Strange Attractor, Double Pendulum Chaos, Fourier Epicycles Transform, Maxwell's EM Wave Propagation, Spacetime Curvature & Geodesics |
 | **Botany & Nature** | 5 | Atmospheric Snowfall, L-System Fractal Tree, Barnsley Fern IFS, Gerstner Ocean Waves, Coral Polyp Growth |
 | **Non-Euclidean Geometry & Crystals** | 5 | Microscopic Snowflake Crystal, Hyperbolic Poincaré, Sacred Mandala, Moiré Interference, Penrose Subdivision |
 | **Human Anatomy & Biology** | 4 | Cardiac Pulse & ECG, Neural Synaptic Network, DNA Double Helix, Retinal Iris Trabeculae |

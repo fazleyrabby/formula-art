@@ -8,6 +8,7 @@ export type ArtworkCategory =
   | 'creatures'
   | 'botany'
   | 'anatomy'
+  | 'physics'
   | 'experimental';
 
 export interface ParameterDefinition {

@@ -75,6 +75,14 @@ import { createNeuralSynapse } from './anatomy/neural-synapse';
 import { createDNADoubleHelix } from './anatomy/dna-double-helix';
 import { createRetinalIris } from './anatomy/retinal-iris';
 
+// Physics & Mathematics Study
+import { createQuantumHydrogenOrbital } from './physics/quantum-hydrogen-orbital';
+import { createLorenzAttractor } from './physics/lorenz-attractor-chaos';
+import { createDoublePendulum } from './physics/double-pendulum-chaos';
+import { createFourierEpicycles } from './physics/fourier-epicycles-transform';
+import { createMaxwellEMWave } from './physics/maxwell-em-wave';
+import { createSpacetimeCurvature } from './physics/spacetime-curvature-geodesic';
+
 export const algorithmRegistry: Record<string, AlgorithmFactory> = {
   // Organic
   'organic-wave': createOrganicWave,
@@ -150,6 +158,14 @@ export const algorithmRegistry: Record<string, AlgorithmFactory> = {
   'neural-synapse': createNeuralSynapse,
   'dna-double-helix': createDNADoubleHelix,
   'retinal-iris': createRetinalIris,
+
+  // Physics & Mathematics Study
+  'quantum-hydrogen-orbital': createQuantumHydrogenOrbital,
+  'lorenz-attractor-chaos': createLorenzAttractor,
+  'double-pendulum-chaos': createDoublePendulum,
+  'fourier-epicycles-transform': createFourierEpicycles,
+  'maxwell-em-wave': createMaxwellEMWave,
+  'spacetime-curvature-geodesic': createSpacetimeCurvature,
 };
 
 export function getAlgorithmRenderer(key: string): ArtRenderer {

@@ -16,6 +16,7 @@ export const artworkSchema = z.object({
     'creatures',
     'botany',
     'anatomy',
+    'physics',
     'experimental'
   ]),
   description: z.string(),

@@ -1,0 +1,51 @@
+{
+  "id": "056",
+  "slug": "quantum-hydrogen-orbital",
+  "title": "Quantum Hydrogen Orbital",
+  "subtitle": "Schrödinger Wavefunction Probability Density Cloud & Spherical Harmonics",
+  "category": "physics",
+  "description": "Rigorous quantum mechanical visualization of the hydrogen atom wavefunction ψ_nlm(r, θ, φ). Renders volumetric 3D electron probability density clouds, spherical harmonics Y_l^m lobes, nodal boundary surfaces, and complex phase transitions for physics and chemistry study.",
+  "mathNotation": "\\psi_{nlm}(r,\\theta,\\phi) = R_{nl}(r) Y_l^m(\\theta,\\phi), \\quad P(r,\\theta,\\phi) = |\\psi_{nlm}|^2",
+  "formulaCompact": "P = Math.pow(r*n, l) * Math.exp(-r*2) * Math.abs(Y_lm(theta, phi))",
+  "formulaFull": "// Quantum Hydrogen Orbital Wavefunction\nconst radialProb = Math.pow(rNorm * quantumN, quantumL) * Math.exp(-rNorm * 2.2);\nconst angularFactor = quantumL === 1 ? Math.abs(Math.cos(theta)) * 1.8 : Math.abs(3*Math.cos(theta)**2 - 1);\nconst P = radialProb * angularFactor;",
+  "algorithmKey": "quantum-hydrogen-orbital",
+  "complexity": "high",
+  "particleCount": 800,
+  "parameters": [
+    {
+      "key": "principalN",
+      "label": "Principal (n)",
+      "type": "range",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "defaultValue": 3,
+      "description": "Principal quantum energy level n"
+    },
+    {
+      "key": "angularL",
+      "label": "Angular (l)",
+      "type": "range",
+      "min": 0,
+      "max": 3,
+      "step": 1,
+      "defaultValue": 2,
+      "description": "Orbital angular momentum quantum number (0=s, 1=p, 2=d, 3=f)"
+    }
+  ],
+  "tags": [
+    "quantum-mechanics",
+    "physics-study",
+    "schrodinger-equation",
+    "hydrogen-orbital",
+    "spherical-harmonics",
+    "3d-cloud"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Quantum Physics Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

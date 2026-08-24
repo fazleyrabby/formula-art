@@ -1,0 +1,40 @@
+{
+  "id": "061",
+  "slug": "spacetime-curvature-geodesic",
+  "title": "Spacetime Curvature & Geodesics",
+  "subtitle": "Einstein Field Equations & Gravitational Lensing Deflection",
+  "category": "physics",
+  "description": "3D Flamm's paraboloid embedding visualization of curved 4D spacetime around a massive central body. Demonstrates Schwarzschild metric curvature funneling, stable orbital geodesics, and gravitational light ray deflection angles (Δφ ≈ 4GM/c²b).",
+  "mathNotation": "G_{\\mu\\nu} = \\frac{8\\pi G}{c^4} T_{\\mu\\nu}, \\quad ds^2 = -\\left(1-\\frac{r_s}{r}\\right)c^2dt^2 + \\left(1-\\frac{r_s}{r}\\right)^{-1}dr^2 + r^2d\\Omega^2",
+  "formulaCompact": "z(r) = 2 * Math.sqrt(rs * (r - rs)); defAngle = (4 * GM) / (c^2 * b);",
+  "formulaFull": "// Schwarzschild Spacetime Embedding & Null Geodesics\nconst depthZ = (130 * scale) - 2 * Math.sqrt(Math.max(0, rs * (r - rs))) * 4.2;\nconst defAmount = (4 * rs) / (dist + rs * 0.5);",
+  "algorithmKey": "spacetime-curvature-geodesic",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "massDensity",
+      "label": "Central Mass (M)",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Mass determining Schwarzschild radius r_s = 2GM/c²"
+    }
+  ],
+  "tags": [
+    "general-relativity",
+    "einstein-field-equations",
+    "spacetime-curvature",
+    "geodesics",
+    "gravitational-lensing",
+    "physics-study"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Relativity Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

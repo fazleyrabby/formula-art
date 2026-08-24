@@ -1763,6 +1763,219 @@ for (let s = 0; s < strands; s++) {
 ctx.fillStyle = '#000000';
 ctx.beginPath();
 ctx.arc(cx, cy, innerR * 0.8, 0, Math.PI * 2);
+ctx.fill();`,
+
+  // 56. Quantum Hydrogen Orbital
+  'quantum-hydrogen-orbital': `// Quantum Hydrogen Orbital Wavefunction (|ψ_nlm|^2)
+ctx.fillStyle = '#020307';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const scale = Math.min(width, height) * 0.38;
+const t = time * 0.8;
+
+ctx.save();
+ctx.globalCompositeOperation = 'screen';
+
+// Probability Density Cloud
+for (let i = 0; i < 400; i++) {
+  const theta = (i / 400) * Math.PI;
+  const phi = (i * 137.5) * (Math.PI / 180) + t;
+  // 3d orbital factor
+  const angular = Math.abs(3 * Math.cos(theta) * Math.cos(theta) - 1);
+  const r = scale * (0.3 + angular * 0.5) * (1 + 0.1 * Math.sin(phi * 4 + t));
+
+  const px = cx + r * Math.sin(theta) * Math.cos(phi);
+  const py = cy + r * Math.cos(theta);
+
+  ctx.fillStyle = 'hsla(' + ((phi * 40 + t * 30) % 360) + ', 95%, 72%, 0.85)';
+  ctx.fillRect(px, py, 2.2, 2.2);
+}
+
+// Central Proton Core
+ctx.fillStyle = '#ffffff';
+ctx.beginPath();
+ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+ctx.fill();
+ctx.restore();`,
+
+  // 57. Lorenz Strange Attractor
+  'lorenz-attractor-chaos': `// Lorenz Strange Attractor (Chaos Theory)
+ctx.fillStyle = 'rgba(2, 3, 7, 0.25)';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.52;
+const scale = Math.min(width, height) * 0.018;
+const t = time;
+
+let x = 0.1, y = 0.0, z = 0.0;
+const sigma = 10, rho = 28, beta = 8/3;
+const dt = 0.008;
+
+ctx.beginPath();
+for (let i = 0; i < 600; i++) {
+  const dx = sigma * (y - x);
+  const dy = x * (rho - z) - y;
+  const dz = x * y - beta * z;
+  x += dx * dt;
+  y += dy * dt;
+  z += dz * dt;
+
+  const rotAngle = t * 0.4;
+  const rx = (x * Math.cos(rotAngle) - y * Math.sin(rotAngle)) * scale * 22;
+  const ry = -(z - 25) * scale * 22;
+
+  const px = cx + rx;
+  const py = cy + ry;
+
+  if (i === 0) ctx.moveTo(px, py);
+  else ctx.lineTo(px, py);
+}
+ctx.strokeStyle = '#38bdf8';
+ctx.lineWidth = 1.6;
+ctx.stroke();`,
+
+  // 58. Double Pendulum
+  'double-pendulum-chaos': `// Double Pendulum (Lagrangian Mechanics)
+ctx.fillStyle = 'rgba(2, 3, 7, 0.22)';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.38;
+const l1 = 110, l2 = 90;
+const t = time * 2.0;
+
+const th1 = Math.sin(t) * 1.5;
+const th2 = Math.sin(t * 1.4) * 2.2;
+
+const x1 = cx + l1 * Math.sin(th1);
+const y1 = cy + l1 * Math.cos(th1);
+const x2 = x1 + l2 * Math.sin(th2);
+const y2 = y1 + l2 * Math.cos(th2);
+
+// Rods
+ctx.beginPath();
+ctx.moveTo(cx, cy);
+ctx.lineTo(x1, y1);
+ctx.lineTo(x2, y2);
+ctx.strokeStyle = '#64748b';
+ctx.lineWidth = 2.8;
+ctx.stroke();
+
+// Bobs
+ctx.fillStyle = '#0284c7';
+ctx.beginPath();
+ctx.arc(x1, y1, 8, 0, Math.PI * 2);
+ctx.fill();
+
+ctx.fillStyle = '#38bdf8';
+ctx.beginPath();
+ctx.arc(x2, y2, 10, 0, Math.PI * 2);
+ctx.fill();`,
+
+  // 59. Fourier Epicycles Transform
+  'fourier-epicycles-transform': `// Fourier Transform & Epicycles Decomposition
+ctx.fillStyle = '#020409';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const t = time * 0.8;
+const terms = 12;
+
+let curX = cx;
+let curY = cy;
+
+for (let k = 1; k <= terms; k++) {
+  const prevX = curX;
+  const prevY = curY;
+  const freq = (k % 2 === 1) ? k : -k;
+  const radius = (100 / Math.abs(freq));
+  const theta = freq * t;
+
+  curX += radius * Math.cos(theta);
+  curY += radius * Math.sin(theta);
+
+  ctx.beginPath();
+  ctx.arc(prevX, prevY, radius, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+  ctx.lineWidth = 1.0;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(prevX, prevY);
+  ctx.lineTo(curX, curY);
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+}
+
+ctx.fillStyle = '#f43f5e';
+ctx.beginPath();
+ctx.arc(curX, curY, 5, 0, Math.PI * 2);
+ctx.fill();`,
+
+  // 60. Maxwell's EM Wave
+  'maxwell-em-wave': `// Maxwell's Electromagnetic Wave Propagation (E ⊥ B ⊥ S)
+ctx.fillStyle = '#020308';
+ctx.fillRect(0, 0, width, height);
+
+const cy = height * 0.5;
+const t = time * 2.5;
+const nodes = 30;
+
+for (let i = 0; i < nodes; i++) {
+  const x = (i / (nodes - 1)) * (width * 0.8) + (width * 0.1);
+  const phase = (i * 0.3) - t;
+  const eVal = Math.sin(phase) * 65;
+  const bVal = Math.cos(phase) * 45;
+
+  // E-Field Vector (Cyan vertical)
+  ctx.beginPath();
+  ctx.moveTo(x, cy);
+  ctx.lineTo(x, cy - eVal);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.0;
+  ctx.stroke();
+
+  // B-Field Vector (Magenta oblique)
+  ctx.beginPath();
+  ctx.moveTo(x, cy);
+  ctx.lineTo(x + bVal * 0.6, cy + bVal * 0.4);
+  ctx.strokeStyle = '#f43f5e';
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+}`,
+
+  // 61. Spacetime Curvature & Geodesics
+  'spacetime-curvature-geodesic': `// General Relativity: Spacetime Curvature Funnel
+ctx.fillStyle = '#010205';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.52;
+const scale = Math.min(width, height) * 0.4;
+const t = time * 0.8;
+
+// Warped Coordinate Rings
+for (let r = 1; r <= 16; r++) {
+  const normR = r / 16;
+  const rad = normR * scale;
+  const depth = (1 - normR) * 85;
+
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + depth, rad, rad * 0.4, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = 'hsla(' + ((200 + normR * 40) % 360) + ', 90%, 68%, ' + (0.1 + (1 - normR) * 0.5) + ')';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+}
+
+// Central Mass
+ctx.fillStyle = '#f59e0b';
+ctx.beginPath();
+ctx.arc(cx, cy + 85, 14, 0, Math.PI * 2);
 ctx.fill();`
 };
 

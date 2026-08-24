@@ -1,6 +1,6 @@
 ---
 interface Props {
-  variant?: 'organic' | 'fluid' | 'particles' | 'geometry' | 'waves' | 'space' | 'creatures' | 'botany' | 'anatomy' | 'experimental' | 'default';
+  variant?: 'organic' | 'fluid' | 'particles' | 'geometry' | 'waves' | 'space' | 'creatures' | 'botany' | 'anatomy' | 'physics' | 'experimental' | 'default';
   className?: string;
 }
 
@@ -16,6 +16,7 @@ const categoryColors: Record<string, string> = {
   creatures: 'bg-teal-500/10 text-teal-300 border-teal-500/20',
   botany: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
   anatomy: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
+  physics: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   experimental: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
   default: 'bg-slate-800/60 text-slate-300 border-white/10'
 };

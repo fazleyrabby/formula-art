@@ -1,0 +1,50 @@
+{
+  "id": "060",
+  "slug": "maxwell-em-wave",
+  "title": "Maxwell's EM Wave Propagation",
+  "subtitle": "Orthogonal E & B Vector Fields & Poynting Energy Flow",
+  "category": "physics",
+  "description": "True 3D vector field visualization of an electromagnetic wave derived from Maxwell's equations. Displays mutually perpendicular transverse Electric field E vectors (Cyan), Magnetic field B vectors (Rose), and the longitudinal Poynting energy propagation vector S = 1/μ₀(E × B).",
+  "mathNotation": "\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}, \\quad \\nabla \\times \\mathbf{B} = \\mu_0\\epsilon_0\\frac{\\partial \\mathbf{E}}{\\partial t}, \\quad \\mathbf{S} = \\frac{1}{\\mu_0}(\\mathbf{E} \\times \\mathbf{B})",
+  "formulaCompact": "E(z,t) = E_0 sin(kz - wt) j_hat; B(z,t) = B_0 sin(kz - wt) k_hat;",
+  "formulaFull": "// Transverse EM Wave Fields\nconst eField = Math.sin(xPos * k - t * 3.5) * (70 * waveAmp);\nconst bField = Math.sin(xPos * k - t * 3.5) * (70 * waveAmp);\n// Poynting vector S along propagation axis",
+  "algorithmKey": "maxwell-em-wave",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "frequency",
+      "label": "Wave Frequency (ω)",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Angular frequency of the electromagnetic oscillation"
+    },
+    {
+      "key": "amplitude",
+      "label": "Field Amplitude (E₀)",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Peak electric and magnetic field amplitude"
+    }
+  ],
+  "tags": [
+    "electrodynamics",
+    "maxwell-equations",
+    "em-wave",
+    "poynting-vector",
+    "physics-study",
+    "vector-fields"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Electrodynamics Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}
