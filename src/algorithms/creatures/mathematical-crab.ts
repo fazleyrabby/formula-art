@@ -1,9 +1,10 @@
 import type { ArtRenderer, ParameterState, RenderContext, TimeState } from '../../types/engine';
 import { hsla } from '../common/color';
+import { project3D } from '../common/projection3d';
 
-// Anatomically Enriched Mathematical Crab (Brachyura Anatomy)
-// Features: Carapace regional sulci (gastric, cardiac, branchial), anterolateral denticles,
-// 5-segmented pereiopods with articulated dactylar claws, toothed chelipeds, and flicking antennules.
+// Full 3D Volumetric Mathematical Crab (Brachyura 3D Kinematics)
+// Features: 3D perspective seafloor, 3D 5-segmented pereiopod walking kinematics,
+// 3D carapace dome mesh with regional sulci, and 3D toothed chelipeds reaching out.
 export function createMathematicalCrab(): ArtRenderer {
   return {
     setup() {},
@@ -14,234 +15,167 @@ export function createMathematicalCrab(): ArtRenderer {
       const clawPinch = Number(params.clawPinch || 1.0);
       const t = timeState.time * speed;
 
-      ctx.fillStyle = '#05070c';
+      ctx.fillStyle = '#020409';
       ctx.fillRect(0, 0, width, height);
 
-      const cx = width * 0.5 + Math.sin(t * 0.8) * (width * 0.1);
-      const cy = height * 0.52 + Math.cos(t * 1.6) * 4;
+      const cx = width * 0.5;
+      const cy = height * 0.52;
       const crabScale = Math.min(width, height) / 520;
 
-      // 1. Eight 5-Segmented Walking Pereiopods (4 Left, 4 Right)
+      // Dynamic 3D Camera Angles (Looking down at crab on the seafloor)
+      const rotY = Math.sin(t * 0.5) * 0.25; // Yaw
+      const rotX = 0.55 + Math.sin(t * 0.7) * 0.12; // Pitch
+      const rotZ = Math.sin(t * 0.5) * 0.08; // Roll
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+
+      const baseHue = (20 + Math.sin(t * 0.6) * 15) % 360;
+
+      // 1. 3D Perspective Seafloor Grid Lines
+      ctx.beginPath();
+      for (let gx = -300; gx <= 300; gx += 60) {
+        const p1 = project3D(gx * crabScale, 110 * crabScale, -300 * crabScale, rotX, rotY, rotZ, cx, cy, 450, 520);
+        const p2 = project3D(gx * crabScale, 110 * crabScale, 300 * crabScale, rotX, rotY, rotZ, cx, cy, 450, 520);
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+      }
+      for (let gz = -300; gz <= 300; gz += 60) {
+        const p1 = project3D(-300 * crabScale, 110 * crabScale, gz * crabScale, rotX, rotY, rotZ, cx, cy, 450, 520);
+        const p2 = project3D(300 * crabScale, 110 * crabScale, gz * crabScale, rotX, rotY, rotZ, cx, cy, 450, 520);
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+      }
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+      ctx.lineWidth = 1.0;
+      ctx.stroke();
+
+      // 2. Eight 3D 5-Segmented Walking Legs
       for (let side = -1; side <= 1; side += 2) {
         for (let leg = 0; leg < 4; leg++) {
           const legPhase = t * 4 + leg * 0.85 + (side === 1 ? Math.PI : 0);
-          
-          // Segment 1: Coxa base
-          const baseAngle = (side * 0.35) + (leg - 1.5) * 0.22;
-          const coxaX = cx + side * (Math.cos(baseAngle) * 55 * crabScale);
-          const coxaY = cy + (leg - 1.5) * (16 * crabScale);
 
-          // Segment 2: Merus High Knee Joint (Lift & Stride)
-          const kneeLift = Math.sin(legPhase) * (16 * crabScale);
-          const kneeReach = Math.cos(legPhase) * (20 * crabScale);
-          const merusX = coxaX + side * ((48 + leg * 6) * crabScale) + kneeReach;
-          const merusY = coxaY - ((25 - leg * 4) * crabScale) + kneeLift;
+          // Joint 1: Coxa base on 3D carapace
+          const baseAngle = (side * 0.35) + (leg - 1.5) * 0.25;
+          const coxaX = side * (Math.cos(baseAngle) * 55 * crabScale);
+          const coxaY = 0;
+          const coxaZ = (leg - 1.5) * (26 * crabScale);
 
-          // Segment 3: Carpus Elbow
-          const carpusX = merusX + side * ((28 + leg * 4) * crabScale);
-          const carpusY = merusY + ((18 + leg * 3) * crabScale);
+          // Joint 2: Merus High Knee Joint (Lifted in 3D Y-axis)
+          const kneeLift = Math.sin(legPhase) * (22 * crabScale);
+          const kneeReach = Math.cos(legPhase) * (26 * crabScale);
+          const merusX = coxaX + side * ((52 + leg * 6) * crabScale) + kneeReach;
+          const merusY = coxaY - ((38 - leg * 4) * crabScale) + kneeLift;
+          const merusZ = coxaZ + (leg - 1.5) * (14 * crabScale);
 
-          // Segment 4: Propodus Shin
-          const propodusX = carpusX + side * (18 * crabScale);
-          const propodusY = carpusY + ((24 + leg * 4) * crabScale);
+          // Joint 3: Carpus Elbow
+          const carpusX = merusX + side * ((32 + leg * 4) * crabScale);
+          const carpusY = merusY + ((22 + leg * 3) * crabScale);
+          const carpusZ = merusZ + 10 * crabScale;
 
-          // Segment 5: Dactylus Pointed Claw (Ground contact)
-          const dactylX = propodusX + side * (12 * crabScale);
-          const dactylY = propodusY + ((18 + leg * 3) * crabScale);
+          // Joint 4 & 5: Dactylus Tip (Ground Contact at Y = 110)
+          const dactylX = carpusX + side * (24 * crabScale);
+          const dactylY = 110 * crabScale;
+          const dactylZ = carpusZ + 15 * crabScale;
 
-          // Draw Segmented Leg Limbs
+          const p1 = project3D(coxaX, coxaY, coxaZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+          const p2 = project3D(merusX, merusY, merusZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+          const p3 = project3D(carpusX, carpusY, carpusZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+          const p4 = project3D(dactylX, dactylY, dactylZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+
           ctx.beginPath();
-          ctx.moveTo(coxaX, coxaY);
-          ctx.lineTo(merusX, merusY);
-          ctx.lineTo(carpusX, carpusY);
-          ctx.lineTo(propodusX, propodusY);
-          ctx.lineTo(dactylX, dactylY);
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.lineTo(p3.x, p3.y);
+          ctx.lineTo(p4.x, p4.y);
 
-          const legHue = (18 + leg * 6) % 360;
-          ctx.strokeStyle = hsla(legHue, 88, 52, 0.95);
-          ctx.lineWidth = (4.5 - leg * 0.5) * crabScale;
-          ctx.lineCap = 'round';
-          ctx.lineJoin = 'round';
+          const legHue = (baseHue + leg * 8) % 360;
+          ctx.strokeStyle = hsla(legHue, 90, 65, 0.75 * p2.depth);
+          ctx.lineWidth = Math.max(0.8, 2.8 * p2.depth);
           ctx.stroke();
 
-          // Articulation Condyle Nodes
-          ctx.fillStyle = hsla(legHue + 15, 95, 75, 0.95);
+          // 3D Condyle Nodes
+          ctx.fillStyle = hsla(legHue + 20, 95, 80, 0.95);
           ctx.beginPath();
-          ctx.arc(merusX, merusY, 3.2 * crabScale, 0, Math.PI * 2);
-          ctx.arc(carpusX, carpusY, 2.8 * crabScale, 0, Math.PI * 2);
-          ctx.arc(propodusX, propodusY, 2.2 * crabScale, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Spiny Dactylus Tip Claw
-          ctx.fillStyle = '#fde047';
-          ctx.beginPath();
-          ctx.arc(dactylX, dactylY, 1.8 * crabScale, 0, Math.PI * 2);
+          ctx.arc(p2.x, p2.y, 3.2 * p2.depth, 0, Math.PI * 2);
+          ctx.arc(p3.x, p3.y, 2.6 * p3.depth, 0, Math.PI * 2);
+          ctx.arc(p4.x, p4.y, 2.0 * p4.depth, 0, Math.PI * 2);
           ctx.fill();
         }
       }
 
-      // 2. Carapace (Exoskeleton Anatomy with Regional Grooves & Spines)
-      ctx.save();
-      ctx.translate(cx, cy);
+      // 3. 3D Carapace Dome Rings (Volumetric Shell Contour Rings)
+      for (let ring = 1; ring <= 10; ring++) {
+        const normR = ring / 10;
+        const curW = 75 * normR * crabScale;
+        const curZ = 52 * normR * crabScale;
+        const curY = -Math.sin(normR * Math.PI * 0.5) * (24 * crabScale); // Dome elevation
 
-      // Carapace base with 5 anterolateral teeth per side
-      ctx.beginPath();
-      const shellW = 78 * crabScale;
-      const shellH = 54 * crabScale;
-      const spineSteps = 80;
-
-      for (let i = 0; i <= spineSteps; i++) {
-        const a = (i / spineSteps) * Math.PI * 2;
-        // Anterolateral teeth spikes along side margins
-        let spine = 1.0;
-        if (Math.abs(Math.cos(a)) > 0.6 && Math.sin(a) < 0.2) {
-          spine = 1.0 + 0.14 * Math.abs(Math.sin(a * 10));
-        }
-        const px = Math.cos(a) * shellW * spine;
-        const py = Math.sin(a) * shellH;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-      }
-      ctx.closePath();
-
-      // Carapace Dorsal Gradient
-      const shellGrad = ctx.createRadialGradient(0, -10, 5, 0, 0, shellW);
-      shellGrad.addColorStop(0, hsla(24, 90, 55, 0.95));
-      shellGrad.addColorStop(0.7, hsla(16, 85, 45, 0.95));
-      shellGrad.addColorStop(1, hsla(8, 90, 32, 0.95));
-
-      ctx.fillStyle = shellGrad;
-      ctx.fill();
-      ctx.strokeStyle = hsla(28, 95, 72, 0.95);
-      ctx.lineWidth = 2.8 * crabScale;
-      ctx.stroke();
-
-      // Cervical & Gastrocardiac Sulci Grooves (Anatomical shell boundaries)
-      // Cardiac region U-groove
-      ctx.beginPath();
-      ctx.arc(0, 5 * crabScale, 18 * crabScale, 0.1 * Math.PI, 0.9 * Math.PI);
-      ctx.strokeStyle = hsla(10, 85, 30, 0.85);
-      ctx.lineWidth = 2.2 * crabScale;
-      ctx.stroke();
-
-      // Gastric region crest
-      ctx.beginPath();
-      ctx.moveTo(-25 * crabScale, -15 * crabScale);
-      ctx.quadraticCurveTo(0, -32 * crabScale, 25 * crabScale, -15 * crabScale);
-      ctx.strokeStyle = hsla(10, 85, 30, 0.85);
-      ctx.lineWidth = 2.0 * crabScale;
-      ctx.stroke();
-
-      // Branchial region lateral grooves
-      for (let s = -1; s <= 1; s += 2) {
         ctx.beginPath();
-        ctx.moveTo(s * 35 * crabScale, -10 * crabScale);
-        ctx.quadraticCurveTo(s * 48 * crabScale, 10 * crabScale, s * 28 * crabScale, 28 * crabScale);
-        ctx.strokeStyle = hsla(10, 85, 30, 0.7);
-        ctx.lineWidth = 1.8 * crabScale;
+        const steps = 40;
+        let avgDepth = 0;
+
+        for (let i = 0; i <= steps; i++) {
+          const theta = (i / steps) * Math.PI * 2;
+          const rx = Math.cos(theta) * curW;
+          const rz = Math.sin(theta) * curZ;
+
+          const p = project3D(rx, curY, rz, rotX, rotY, rotZ, cx, cy, 450, 520);
+          avgDepth += p.depth;
+
+          if (i === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        }
+
+        avgDepth /= (steps + 1);
+
+        ctx.strokeStyle = hsla(baseHue, 95, 68, (0.08 + normR * 0.3) * avgDepth);
+        ctx.lineWidth = Math.max(0.8, (ring === 10 ? 2.2 : 1.0) * avgDepth);
+        ctx.stroke();
+      }
+
+      // 4. Two 3D Chelipeds (Claws reaching forward in 3D space)
+      for (let side = -1; side <= 1; side += 2) {
+        const armBaseX = side * 50 * crabScale;
+        const armBaseY = -5 * crabScale;
+        const armBaseZ = -35 * crabScale;
+
+        const merusX = armBaseX + side * (42 * crabScale);
+        const merusY = armBaseY - (30 * crabScale);
+        const merusZ = armBaseZ - (45 * crabScale); // Reaching forward
+
+        const clawX = merusX + side * (25 * crabScale);
+        const clawY = merusY - (10 * crabScale);
+        const clawZ = merusZ - (35 * crabScale);
+
+        const pBase = project3D(armBaseX, armBaseY, armBaseZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+        const pMerus = project3D(merusX, merusY, merusZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+        const pClaw = project3D(clawX, clawY, clawZ, rotX, rotY, rotZ, cx, cy, 450, 520);
+
+        ctx.beginPath();
+        ctx.moveTo(pBase.x, pBase.y);
+        ctx.lineTo(pMerus.x, pMerus.y);
+        ctx.lineTo(pClaw.x, pClaw.y);
+        ctx.strokeStyle = hsla(baseHue - 10, 95, 70, 0.85 * pClaw.depth);
+        ctx.lineWidth = Math.max(1.2, 4.5 * pClaw.depth);
+        ctx.stroke();
+
+        // 3D Chela Palm & Movable Fingers
+        const pinch = (0.35 + 0.25 * Math.sin(t * 3 + side)) * clawPinch;
+        const pDactylTip = project3D(clawX + side * 15 * crabScale, clawY - 18 * pinch * crabScale, clawZ - 25 * crabScale, rotX, rotY, rotZ, cx, cy, 450, 520);
+        const pPollexTip = project3D(clawX + side * 15 * crabScale, clawY + 18 * pinch * crabScale, clawZ - 25 * crabScale, rotX, rotY, rotZ, cx, cy, 450, 520);
+
+        ctx.beginPath();
+        ctx.moveTo(pClaw.x, pClaw.y);
+        ctx.lineTo(pDactylTip.x, pDactylTip.y);
+        ctx.moveTo(pClaw.x, pClaw.y);
+        ctx.lineTo(pPollexTip.x, pPollexTip.y);
+        ctx.strokeStyle = hsla(baseHue - 15, 100, 75, 0.95);
+        ctx.lineWidth = Math.max(1.0, 3.2 * pClaw.depth);
         ctx.stroke();
       }
 
       ctx.restore();
-
-      // 3. Stalked Compound Eyes & Flicking Antennules
-      for (let s = -1; s <= 1; s += 2) {
-        const eyeBaseX = cx + s * (20 * crabScale);
-        const eyeBaseY = cy - (44 * crabScale);
-        const eyeTipX = eyeBaseX + s * (10 * crabScale) + Math.sin(t * 2 + s) * 2;
-        const eyeTipY = eyeBaseY - (16 * crabScale);
-
-        // Eyestalk
-        ctx.beginPath();
-        ctx.moveTo(eyeBaseX, eyeBaseY);
-        ctx.lineTo(eyeTipX, eyeTipY);
-        ctx.strokeStyle = hsla(20, 80, 50, 0.95);
-        ctx.lineWidth = 3.5 * crabScale;
-        ctx.stroke();
-
-        // Compound Eye Dome
-        ctx.fillStyle = '#090d16';
-        ctx.beginPath();
-        ctx.arc(eyeTipX, eyeTipY, 4.5 * crabScale, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        // Active Olfactory Antennules (flicking in water)
-        const antAngle = -Math.PI / 2 + s * 0.2 + Math.sin(t * 8 + s) * 0.25;
-        const antX = cx + s * (6 * crabScale);
-        const antY = cy - (48 * crabScale);
-        ctx.beginPath();
-        ctx.moveTo(antX, antY);
-        ctx.lineTo(antX + Math.cos(antAngle) * (18 * crabScale), antY + Math.sin(antAngle) * (18 * crabScale));
-        ctx.strokeStyle = 'rgba(253, 224, 71, 0.85)';
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-      }
-
-      // 4. Chelipeds (Massive Front Claws with Toothed Dentition)
-      for (let side = -1; side <= 1; side += 2) {
-        const clawBaseX = cx + side * (52 * crabScale);
-        const clawBaseY = cy - (25 * crabScale);
-
-        // Merus segment
-        const merusAngle = side * 0.9 + Math.sin(t * 2 + side) * 0.15;
-        const merusX = clawBaseX + side * Math.cos(merusAngle) * (45 * crabScale);
-        const merusY = clawBaseY - Math.sin(merusAngle) * (38 * crabScale);
-
-        // Carpus wrist
-        const carpusX = merusX + side * (26 * crabScale);
-        const carpusY = merusY - (32 * crabScale);
-
-        ctx.beginPath();
-        ctx.moveTo(clawBaseX, clawBaseY);
-        ctx.lineTo(merusX, merusY);
-        ctx.lineTo(carpusX, carpusY);
-        ctx.strokeStyle = hsla(15, 88, 52, 0.95);
-        ctx.lineWidth = 7 * crabScale;
-        ctx.stroke();
-
-        // Propodus Palm
-        ctx.save();
-        ctx.translate(carpusX, carpusY);
-        ctx.rotate(side * 0.4 + Math.sin(t * 2.5 + side) * 0.15);
-
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 26 * crabScale, 16 * crabScale, 0, 0, Math.PI * 2);
-        ctx.fillStyle = hsla(14, 92, 50, 0.95);
-        ctx.fill();
-        ctx.strokeStyle = hsla(28, 95, 70, 0.95);
-        ctx.lineWidth = 2.4 * crabScale;
-        ctx.stroke();
-
-        // Movable Finger (Dactylus) with Interlocking Teeth
-        const pinchAngle = (0.32 + 0.28 * Math.sin(t * 3 + side)) * clawPinch;
-        ctx.beginPath();
-        ctx.moveTo(12 * crabScale, -6 * crabScale);
-        ctx.quadraticCurveTo(32 * crabScale, -22 * crabScale * pinchAngle, 44 * crabScale, -2 * crabScale);
-        ctx.quadraticCurveTo(28 * crabScale, -4 * crabScale, 12 * crabScale, 0);
-        ctx.fillStyle = hsla(6, 95, 54, 0.95);
-        ctx.fill();
-
-        // Fixed Finger (Pollex)
-        ctx.beginPath();
-        ctx.moveTo(12 * crabScale, 6 * crabScale);
-        ctx.quadraticCurveTo(32 * crabScale, 22 * crabScale * pinchAngle, 44 * crabScale, 2 * crabScale);
-        ctx.quadraticCurveTo(28 * crabScale, 4 * crabScale, 12 * crabScale, 0);
-        ctx.fillStyle = hsla(6, 95, 54, 0.95);
-        ctx.fill();
-
-        // White Molariform Crushing Denticles along inner jaws
-        for (let tooth = 1; tooth <= 4; tooth++) {
-          const tx = (16 + tooth * 6) * crabScale;
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(tx, -2 * crabScale * pinchAngle, 2, 2);
-          ctx.fillRect(tx, 2 * crabScale * pinchAngle, 2, 2);
-        }
-
-        ctx.restore();
-      }
     },
   };
 }
