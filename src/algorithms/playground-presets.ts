@@ -2671,21 +2671,72 @@ for (let f = 0; f < folds; f++) {
   ctx.save();
   ctx.rotate((f / folds) * Math.PI * 2 + t * 0.05);
 
+  const baseAngle = (f / folds) * Math.PI * 2;
+  ctx.save();
+  ctx.rotate(baseAngle + t * 0.05);
+
   ctx.beginPath();
-  const steps = 50;
-  for (let i = 0; i <= steps; i++) {
-    const u = i / steps;
-    const theta = u * Math.PI * 2.2;
-    const r = (maxR * 0.16) + (maxR * 0.84) * Math.pow(u, 0.9);
-    const curl = Math.sin(theta) * (maxR * 0.14 * (1 - u));
-    const px = Math.cos(theta * 0.45) * r + curl;
+  const armSteps = 70;
+  const armPoints = [];
+
+  for (let i = 0; i <= armSteps; i++) {
+    const u = i / armSteps;
+    const theta = u * Math.PI * 1.8 * tightness;
+    const r = coreR + (maxR - coreR) * Math.pow(u, 0.88) * (1 + 0.08 * Math.sin(t * 1.5 + f));
+    const curlOffset = Math.sin(theta) * (maxR * 0.14 * (1 - u) * tightness);
+    const px = Math.cos(theta * 0.45) * r + curlOffset;
     const py = Math.sin(theta * 0.45) * r;
+    armPoints.push({ x: px, y: py });
     if (i === 0) ctx.moveTo(px, py);
     else ctx.lineTo(px, py);
   }
-  ctx.strokeStyle = 'hsla(' + ((42 + Math.sin(t * 3 + f) * 8) % 360) + ', 92%, 70%, 0.85)';
-  ctx.lineWidth = 1.8;
+
+  const shimmer = Math.sin(t * 3 + f * 0.8) * 10;
+  ctx.strokeStyle = hsla(baseHue + shimmer, 92, 70, 0.85);
+  ctx.lineWidth = 2.0;
   ctx.stroke();
+
+  // C-Scroll Fluke
+  ctx.beginPath();
+  const cSteps = 45;
+  const cPoints = [];
+  const midAnchor = armPoints[Math.floor(armSteps * 0.52)];
+
+  for (let j = 0; j <= cSteps; j++) {
+    const v = j / cSteps;
+    const phi = -v * Math.PI * 1.6 * tightness + Math.PI * 0.35;
+    const cr = (maxR * 0.28) * Math.pow(v, 0.9);
+    const cx_p = midAnchor.x + Math.cos(phi) * cr;
+    const cy_p = midAnchor.y + Math.sin(phi) * cr;
+    cPoints.push({ x: cx_p, y: cy_p });
+    if (j === 0) ctx.moveTo(cx_p, cy_p);
+    else ctx.lineTo(cx_p, cy_p);
+  }
+  ctx.strokeStyle = hsla(baseHue + 8, 85, 76, 0.7);
+  ctx.lineWidth = 1.3;
+  ctx.stroke();
+
+  // Wire Bridges
+  for (let w = 1; w <= webDensity; w++) {
+    const frac = w / (webDensity + 1);
+    const pA = armPoints[Math.min(armPoints.length - 1, Math.floor(frac * armSteps * 0.85))];
+    const pB = cPoints[Math.min(cPoints.length - 1, Math.floor((1 - frac) * cSteps))];
+    ctx.beginPath();
+    ctx.moveTo(pA.x, pA.y);
+    const midX = (pA.x + pB.x) * 0.5 + Math.sin(t * 2 + w) * 6;
+    const midY = (pA.y + pB.y) * 0.5 + Math.cos(t * 2 + w) * 6;
+    ctx.quadraticCurveTo(midX, midY, pB.x, pB.y);
+    ctx.strokeStyle = hsla(baseHue - 4 + (w % 3) * 6, 80, 78, 0.35);
+    ctx.lineWidth = 0.75;
+    ctx.stroke();
+  }
+
+  // Granulation Pearls
+  const tipA = armPoints[armPoints.length - 1];
+  ctx.fillStyle = hsla(baseHue + 15, 100, 88, 0.95);
+  ctx.beginPath();
+  ctx.arc(tipA.x, tipA.y, 3.2, 0, Math.PI * 2);
+  ctx.fill();
 
   ctx.restore();
 }
@@ -2693,68 +2744,92 @@ ctx.restore();`,
 
   // 63. Guilloché Horology Lace Filigree
   'guilloche-filigrane': `// 063 - Guilloché Horology & Banknote Lace Filigree
+const gearRatio = 7;
+const eccentricity = 0.75;
+const waveMod = 12;
+const t = time * 0.4;
+
 ctx.fillStyle = '#04060c';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const cy = height * 0.5;
 const baseR = Math.min(width, height) * 0.42;
-const gearRatio = 7;
-const t = time * 0.4;
 
 ctx.save();
 ctx.translate(cx, cy);
 
-for (let layer = 0; layer < 4; layer++) {
-  const layerFrac = (layer + 1) / 4;
+const layers = 5;
+const totalSteps = 480;
+
+for (let layer = 0; layer < layers; layer++) {
+  const layerFrac = (layer + 1) / layers;
   const R = baseR * (0.35 + 0.65 * layerFrac);
-  const r = R / gearRatio;
-  const d = r * 0.75;
-  const phase = t * (layer % 2 === 0 ? 0.35 : -0.28) + (layer * Math.PI) / 4;
+  const r = (R / gearRatio) * (1 + 0.05 * Math.sin(t * 0.8 + layer));
+  const d = r * eccentricity * (1 + 0.15 * Math.cos(t * 1.2 + layer));
+  const layerPhase = t * (layer % 2 === 0 ? 0.35 : -0.28) + (layer * Math.PI) / layers;
+  const baseHue = (210 + layer * 22 + t * 15) % 360;
 
   ctx.beginPath();
-  const steps = 360;
-  for (let i = 0; i <= steps; i++) {
-    const theta = (i / steps) * Math.PI * 2 * gearRatio;
+  for (let i = 0; i <= totalSteps; i++) {
+    const theta = (i / totalSteps) * Math.PI * 2 * gearRatio;
     const diff = R - r;
     const k = diff / r;
-    const wave = Math.sin(theta * 1.7 + phase) * (baseR * 0.04);
-    const x = diff * Math.cos(theta) + (d + wave) * Math.cos(k * theta + phase);
-    const y = diff * Math.sin(theta) - (d + wave) * Math.sin(k * theta + phase);
+    const modHarmonic = Math.sin(theta * (waveMod / gearRatio) + layerPhase) * (baseR * 0.04 * layerFrac);
+    const x = (diff * Math.cos(theta) + (d + modHarmonic) * Math.cos(k * theta + layerPhase));
+    const y = (diff * Math.sin(theta) - (d + modHarmonic) * Math.sin(k * theta + layerPhase));
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   }
   ctx.closePath();
-  ctx.strokeStyle = 'hsla(' + ((205 + layer * 25 + time * 15) % 360) + ', 95%, 75%, 0.65)';
-  ctx.lineWidth = 1.1;
+  ctx.strokeStyle = hsla(baseHue, 92, 74, 0.55 + layer * 0.08);
+  ctx.lineWidth = 1.0;
   ctx.stroke();
 }
+
+ctx.beginPath();
+ctx.arc(0, 0, baseR * 0.07, 0, Math.PI * 2);
+ctx.fillStyle = 'rgba(14, 165, 233, 0.25)';
+ctx.fill();
+ctx.strokeStyle = hsla(195, 100, 85, 0.9);
+ctx.lineWidth = 1.6;
+ctx.stroke();
+
 ctx.restore();`,
 
   // 64. Damascene Star Tracery Filigree
   'damascene-filigrane': `// 064 - Damascene Islamic Star Tracery Filigree
+const symmetry = 8;
+const weaveDepth = 0.8;
+const laceRings = 4;
+const t = time * 0.5;
+
 ctx.fillStyle = '#030806';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const cy = height * 0.5;
 const maxR = Math.min(width, height) * 0.43;
-const sym = 8;
-const t = time * 0.5;
 
 ctx.save();
 ctx.translate(cx, cy);
-ctx.rotate(t * 0.05);
+ctx.rotate(t * 0.04);
 
-for (let ring = 1; ring <= 3; ring++) {
-  const rOuter = maxR * (ring / 3);
-  const rInner = maxR * ((ring - 0.7) / 3);
+const goldHue = 44;
+const emeraldHue = 158;
+
+for (let ring = 1; ring <= laceRings; ring++) {
+  const ringFrac = ring / laceRings;
+  const rOuter = maxR * ringFrac;
+  const rInner = maxR * (ringFrac - (0.75 / laceRings) * weaveDepth);
+  const ringPhase = t * (ring % 2 === 0 ? 0.25 : -0.2) + ring * 0.4;
   const isGold = ring % 2 === 1;
+  const strokeHue = isGold ? goldHue : emeraldHue;
 
-  for (let s = 0; s < sym; s++) {
-    const a1 = (s / sym) * Math.PI * 2 + ring * 0.3;
-    const a2 = ((s + 0.5) / sym) * Math.PI * 2 + ring * 0.3;
-    const a3 = ((s + 1) / sym) * Math.PI * 2 + ring * 0.3;
+  for (let s = 0; s < symmetry; s++) {
+    const a1 = (s / symmetry) * Math.PI * 2 + ringPhase;
+    const a2 = ((s + 0.5) / symmetry) * Math.PI * 2 + ringPhase;
+    const a3 = ((s + 1) / symmetry) * Math.PI * 2 + ringPhase;
 
     const p1x = Math.cos(a1) * rInner;
     const p1y = Math.sin(a1) * rInner;
@@ -2763,49 +2838,116 @@ for (let ring = 1; ring <= 3; ring++) {
     const p3x = Math.cos(a3) * rInner;
     const p3y = Math.sin(a3) * rInner;
 
-    ctx.beginPath();
-    ctx.moveTo(p1x, p1y);
-    ctx.quadraticCurveTo((p1x + p2x) * 0.5, (p1y + p2y) * 0.5, p2x, p2y);
-    ctx.quadraticCurveTo((p2x + p3x) * 0.5, (p2y + p3y) * 0.5, p3x, p3y);
+    for (const offset of [-1.8, 1.8]) {
+      ctx.beginPath();
+      ctx.moveTo(p1x, p1y);
+      const ctrlX = (p1x + p2x) * 0.5 + Math.cos(a2 + Math.PI / 2) * offset;
+      const ctrlY = (p1y + p2y) * 0.5 + Math.sin(a2 + Math.PI / 2) * offset;
+      ctx.quadraticCurveTo(ctrlX, ctrlY, p2x, p2y);
 
-    ctx.strokeStyle = isGold ? 'hsla(44, 95%, 72%, 0.8)' : 'hsla(158, 90%, 68%, 0.8)';
-    ctx.lineWidth = 1.4;
-    ctx.stroke();
+      const ctrl2X = (p2x + p3x) * 0.5 + Math.cos(a2 - Math.PI / 2) * offset;
+      const ctrl2Y = (p2y + p3y) * 0.5 + Math.sin(a2 - Math.PI / 2) * offset;
+      ctx.quadraticCurveTo(ctrl2X, ctrl2Y, p3x, p3y);
+
+      ctx.strokeStyle = hsla(strokeHue, 90, 72, 0.7);
+      ctx.lineWidth = 1.1;
+      ctx.stroke();
+    }
+
+    if (ring === laceRings) {
+      ctx.fillStyle = hsla(isGold ? emeraldHue : goldHue, 100, 70, 0.95);
+      ctx.beginPath();
+      ctx.arc(p2x, p2y, 2.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 }
+
 ctx.restore();`,
 
   // 65. Victorian Botanical Vine Filigree
   'botanical-filigrane': `// 065 - Victorian Botanical Vine & Acanthus Filigree
+const tendrils = 6;
+const budCoils = 4;
+const t = time * 0.5;
+
 ctx.fillStyle = '#060706';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const cy = height * 0.5;
 const maxR = Math.min(width, height) * 0.44;
-const tendrils = 6;
-const t = time * 0.5;
 
 ctx.save();
 ctx.translate(cx, cy);
 
+const goldHue = 46;
+const coreR = maxR * 0.14;
+
 for (let tr = 0; tr < tendrils; tr++) {
+  const baseAngle = (tr / tendrils) * Math.PI * 2;
   ctx.save();
-  ctx.rotate((tr / tendrils) * Math.PI * 2 + t * 0.06);
+  ctx.rotate(baseAngle + t * 0.06);
+
+  const vinePoints = [];
+  const vineSteps = 60;
 
   ctx.beginPath();
-  const steps = 40;
-  for (let i = 0; i <= steps; i++) {
-    const u = i / steps;
-    const r = (maxR * 0.12) + (maxR * 0.88) * Math.pow(u, 0.9);
-    const arc = u * Math.PI * 1.2;
-    const vx = Math.cos(arc * 0.6) * r;
-    const vy = Math.sin(arc * 0.6) * r;
+  for (let i = 0; i <= vineSteps; i++) {
+    const u = i / vineSteps;
+    const arcAngle = u * Math.PI * 1.25;
+    const r = coreR + (maxR - coreR) * Math.pow(u, 0.9);
+    const lateralWarp = Math.sin(u * Math.PI * 2 + t) * (maxR * 0.12 * (1 - u));
+    const vx = Math.cos(arcAngle * 0.6) * r + lateralWarp;
+    const vy = Math.sin(arcAngle * 0.6) * r;
+    vinePoints.push({ x: vx, y: vy });
     if (i === 0) ctx.moveTo(vx, vy);
     else ctx.lineTo(vx, vy);
   }
-  ctx.strokeStyle = 'hsla(46, 92%, 70%, 0.9)';
-  ctx.lineWidth = 2.0;
+  ctx.strokeStyle = hsla(goldHue + Math.sin(t * 2 + tr) * 6, 92, 70, 0.85);
+  ctx.lineWidth = 2.2;
+  ctx.stroke();
+
+  // Side leaves
+  for (let s = 1; s <= 5; s++) {
+    const stemIdx = Math.floor((s / 6) * vineSteps);
+    const stemPt = vinePoints[stemIdx];
+    const side = s % 2 === 0 ? 1 : -1;
+    const leafLen = maxR * 0.22 * (1 - s / 7);
+    const leafAngle = Math.PI * 0.45 * side + (s * 0.2);
+    const lx = stemPt.x + Math.cos(leafAngle) * leafLen;
+    const ly = stemPt.y + Math.sin(leafAngle) * leafLen;
+
+    ctx.beginPath();
+    ctx.moveTo(stemPt.x, stemPt.y);
+    const ctrlX = stemPt.x + Math.cos(leafAngle - 0.3 * side) * (leafLen * 0.7);
+    const ctrlY = stemPt.y + Math.sin(leafAngle - 0.3 * side) * (leafLen * 0.7);
+    ctx.quadraticCurveTo(ctrlX, ctrlY, lx, ly);
+    const ctrl2X = stemPt.x + Math.cos(leafAngle + 0.3 * side) * (leafLen * 0.7);
+    const ctrl2Y = stemPt.y + Math.sin(leafAngle + 0.3 * side) * (leafLen * 0.7);
+    ctx.quadraticCurveTo(ctrl2X, ctrl2Y, stemPt.x, stemPt.y);
+
+    ctx.fillStyle = hsla(92, 60, 50, 0.15);
+    ctx.fill();
+    ctx.strokeStyle = hsla(goldHue - 6 + s * 4, 85, 75, 0.7);
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+  }
+
+  const tip = vinePoints[vinePoints.length - 1];
+  ctx.beginPath();
+  const budSteps = budCoils * 18;
+  for (let b = 0; b <= budSteps; b++) {
+    const bt = b / budSteps;
+    const theta = -bt * Math.PI * 2 * (budCoils * 0.85);
+    const br = (maxR * 0.16) * Math.pow(1 - bt, 1.4);
+    const bx = tip.x + Math.cos(theta) * br;
+    const by = tip.y + Math.sin(theta) * br;
+    if (b === 0) ctx.moveTo(bx, by);
+    else ctx.lineTo(bx, by);
+  }
+  ctx.strokeStyle = hsla(goldHue + 10, 95, 82, 0.9);
+  ctx.lineWidth = 1.4;
   ctx.stroke();
 
   ctx.restore();
@@ -2814,83 +2956,355 @@ ctx.restore();`,
 
   // 66. Maurer Rhodonea Rose
   'rhodonea-rose': `// 066 - Maurer Rhodonea Rose
+const petals = 6;
+const maurerD = 71;
+const layers = 4;
+const t = time * 0.5;
+
 ctx.fillStyle = '#060305';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const cy = height * 0.5;
 const maxR = Math.min(width, height) * 0.43;
-const k = 6;
-const d = 71;
-const t = time * 0.4;
 
 ctx.save();
 ctx.translate(cx, cy);
 
-// Maurer Chords
-for (let layer = 1; layer <= 3; layer++) {
-  const layerR = maxR * (0.3 + 0.7 * (layer / 3)) * (1 + 0.05 * Math.sin(t * 0.8 + layer));
+const baseHue = 345;
+
+for (let layer = 1; layer <= layers; layer++) {
+  const lFrac = layer / layers;
+  const layerR = maxR * (0.25 + 0.75 * lFrac) * (1 + 0.05 * Math.sin(t * 0.6 + layer));
+  const k = petals;
+  const stepAngle = maurerD;
+  const layerRotation = t * 0.08 * (layer % 2 === 0 ? 1 : -0.7) + (layer * Math.PI) / layers;
+
   ctx.save();
-  ctx.rotate(t * 0.08 * (layer % 2 === 0 ? 1 : -0.7) + (layer * Math.PI) / 3);
+  ctx.rotate(layerRotation);
 
   ctx.beginPath();
   for (let i = 0; i <= 360; i++) {
-    const theta = ((i * d) * Math.PI) / 180;
+    const theta = ((i * stepAngle) * Math.PI) / 180;
     const r = layerR * Math.sin(k * theta);
     const px = Math.cos(theta) * r;
     const py = Math.sin(theta) * r;
     if (i === 0) ctx.moveTo(px, py);
     else ctx.lineTo(px, py);
   }
-  ctx.strokeStyle = 'hsla(' + ((345 + layer * 15) % 360) + ', 85%, 72%, 0.35)';
-  ctx.lineWidth = 0.9;
+  ctx.strokeStyle = hsla(baseHue + layer * 12, 85, 75, 0.2 + lFrac * 0.22);
+  ctx.lineWidth = 0.85;
   ctx.stroke();
+
+  ctx.beginPath();
+  for (let j = 0; j <= 360; j++) {
+    const phi = (j / 360) * Math.PI * 2;
+    const rSmooth = layerR * Math.sin(k * phi);
+    const sx = Math.cos(phi) * rSmooth;
+    const sy = Math.sin(phi) * rSmooth;
+    if (j === 0) ctx.moveTo(sx, sy);
+    else ctx.lineTo(sx, sy);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = hsla(baseHue - 8 + layer * 8, 92, 68, 0.7);
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
   ctx.restore();
 }
 
-// Center Stamens
-for (let s = 0; s < 24; s++) {
-  const sa = (s / 24) * Math.PI * 2 + t * 0.2;
-  const sx = Math.cos(sa) * 18;
-  const sy = Math.sin(sa) * 18;
-  ctx.fillStyle = '#fbbf24';
+const coreR = maxR * 0.12;
+const stamenCount = petals * 4;
+for (let s = 0; s < stamenCount; s++) {
+  const sAngle = (s / stamenCount) * Math.PI * 2 + t * 0.2;
+  const stamenLen = coreR * (1.2 + 0.4 * Math.sin(s * 3 + t * 3));
+  const sx = Math.cos(sAngle) * stamenLen;
+  const sy = Math.sin(sAngle) * stamenLen;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(sx, sy);
+  ctx.strokeStyle = hsla(45, 95, 72, 0.6);
+  ctx.stroke();
+
+  ctx.fillStyle = hsla(48, 100, 85, 0.95);
   ctx.beginPath();
   ctx.arc(sx, sy, 1.8, 0, Math.PI * 2);
   ctx.fill();
 }
 ctx.restore();`,
 
-  // 67. Sacred Water Lotus
+  // 67. Sacred Water Lotus Bloom
   'sacred-lotus': `// 067 - Sacred Water Lotus Bloom
+const petals = 12;
+const whorls = 4;
+const bloomDepth = 1.0;
+const t = time * 0.4;
+
 ctx.fillStyle = '#03060a';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const cy = height * 0.5;
 const maxR = Math.min(width, height) * 0.44;
-const petals = 12;
-const t = time * 0.4;
 
 ctx.save();
 ctx.translate(cx, cy);
 
-for (let w = 3; w >= 1; w--) {
-  const pLen = maxR * (0.4 + 0.6 * (w / 3));
-  const pWidth = pLen * 0.38;
-  const whorlOff = (w * Math.PI) / petals + t * 0.1;
+// Layered Petal Whorls
+for (let w = whorls; w >= 1; w--) {
+  const wFrac = w / whorls;
+  const petalLen = maxR * (0.35 + 0.65 * wFrac) * bloomDepth;
+  const petalWidth = petalLen * (0.42 - wFrac * 0.1);
+  const whorlOffset = (w * Math.PI) / petals + Math.sin(t * 0.8 + w) * 0.06;
+  const baseHue = 330 - (whorls - w) * 14;
 
   for (let p = 0; p < petals; p++) {
+    const angle = (p / petals) * Math.PI * 2 + whorlOffset;
     ctx.save();
-    ctx.rotate((p / petals) * Math.PI * 2 + whorlOff);
+    ctx.rotate(angle);
 
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(-pWidth, pLen * 0.45, -pWidth * 0.3, pLen * 0.85, 0, pLen);
-    ctx.bezierCurveTo(pWidth * 0.3, pLen * 0.85, pWidth, pLen * 0.45, 0, 0);
+    const c1x = -petalWidth * (0.8 + 0.1 * Math.sin(t * 2 + p));
+    const c1y = petalLen * 0.45;
+    const tipX = 0;
+    const tipY = petalLen;
+    const c2x = petalWidth * (0.8 + 0.1 * Math.sin(t * 2 + p));
+    const c2y = petalLen * 0.45;
 
-    ctx.fillStyle = 'hsla(' + (330 - (3 - w) * 15) + ', 85%, 68%, 0.25)';
+    ctx.bezierCurveTo(c1x, c1y, -petalWidth * 0.3, petalLen * 0.85, tipX, tipY);
+    ctx.bezierCurveTo(petalWidth * 0.3, petalLen * 0.85, c2x, c2y, 0, 0);
+
+    ctx.fillStyle = hsla(baseHue + (p % 2) * 8, 85, 65 + (whorls - w) * 6, 0.22);
     ctx.fill();
-    ctx.strokeStyle = 'hsla(345, 90%, 80%, 0.7)';
+    ctx.strokeStyle = hsla(baseHue + 15, 90, 80, 0.65);
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, petalLen * 0.9);
+    ctx.strokeStyle = hsla(baseHue + 25, 95, 88, 0.4);
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+
+    ctx.restore();
+  }
+}
+
+// Golden Lotus Seed Pod
+const podR = maxR * 0.15;
+for (let s = 0; s < petals * 3; s++) {
+  const sAng = (s / (petals * 3)) * Math.PI * 2 + t * 0.15;
+  const sLen = podR * (1.1 + 0.3 * Math.sin(s * 4 + t * 3));
+  const px = Math.cos(sAng) * sLen;
+  const py = Math.sin(sAng) * sLen;
+  ctx.beginPath();
+  ctx.moveTo(Math.cos(sAng) * (podR * 0.7), Math.sin(sAng) * (podR * 0.7));
+  ctx.lineTo(px, py);
+  ctx.strokeStyle = hsla(45, 95, 75, 0.7);
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  ctx.fillStyle = hsla(50, 100, 85, 0.95);
+  ctx.beginPath();
+  ctx.arc(px, py, 1.6, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+ctx.beginPath();
+ctx.arc(0, 0, podR * 0.75, 0, Math.PI * 2);
+ctx.fillStyle = 'rgba(234, 179, 8, 0.35)';
+ctx.fill();
+ctx.strokeStyle = hsla(48, 95, 80, 0.9);
+ctx.lineWidth = 1.6;
+ctx.stroke();
+ctx.restore();`,
+
+  // 68. Chrysanthemum Polar Blossom
+  'chrysanthemum-bloom': `// 068 - Chrysanthemum Polar Blossom
+const petalDensity = 11;
+const curlIntensity = 4;
+const layers = 3;
+const t = time * 0.5;
+
+ctx.fillStyle = '#060504';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.42;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+const baseHue = 38;
+const totalSteps = 1200;
+const totalTurns = 16 * Math.PI;
+
+for (let layer = 1; layer <= layers; layer++) {
+  const lFrac = layer / layers;
+  const scale = (maxR / 11) * (0.4 + 0.6 * lFrac);
+  const pMod = petalDensity + Math.sin(t * 0.5 + layer) * 0.4;
+  const layerPhase = t * (layer % 2 === 0 ? 0.35 : -0.28) + (layer * Math.PI) / layers;
+
+  ctx.beginPath();
+  for (let i = 0; i <= totalSteps; i++) {
+    const u = i / totalSteps;
+    const theta = u * totalTurns;
+    const p1 = 5 * (1 + Math.sin((pMod * theta) / 5 + layerPhase));
+    const p2 = curlIntensity * Math.pow(Math.sin((17 * theta) / 3 - t * 0.8), 4);
+    const p3 = Math.pow(Math.sin(9 * theta - Math.PI * 0.5 + layerPhase * 0.5), 8);
+    const r = Math.max(0.1, (p1 - p2 * p3)) * scale;
+
+    const px = Math.cos(theta) * r;
+    const py = Math.sin(theta) * r;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+
+  const layerHue = (baseHue + (layer - 1) * 14 + Math.sin(t * 2) * 6) % 360;
+  ctx.strokeStyle = hsla(layerHue, 92, 68 + layer * 4, 0.45 + lFrac * 0.35);
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+}
+
+// Center florets
+const coreR = maxR * 0.12;
+for (let f = 0; f < 60; f++) {
+  const theta = f * 137.508 * (Math.PI / 180) + t * 0.1;
+  const fr = coreR * Math.sqrt(f / 60);
+  ctx.fillStyle = hsla(baseHue - 15 + (f % 10) * 2, 95, 78, 0.85);
+  ctx.beginPath();
+  ctx.arc(Math.cos(theta) * fr, Math.sin(theta) * fr, 1.8, 0, Math.PI * 2);
+  ctx.fill();
+}
+ctx.restore();`,
+
+  // 69. Bioluminescent Orchid
+  'bioluminescent-orchid': `// 069 - Bioluminescent Orchid Epiphyte
+const glow = 1.0;
+const veinDensity = 5;
+const t = time * 0.5;
+
+ctx.fillStyle = '#040308';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.52;
+const maxR = Math.min(width, height) * 0.42;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+const cyanHue = 185;
+const violetHue = 285;
+const pulse = 1 + 0.08 * Math.sin(t * 2);
+
+function drawPetal(ctrl1X, ctrl1Y, tipX, tipY, ctrl2X, ctrl2Y, hue, alpha) {
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(ctrl1X, ctrl1Y, tipX * 0.7, tipY * 0.9, tipX, tipY);
+  ctx.bezierCurveTo(tipX * 0.3, tipY * 0.9, ctrl2X, ctrl2Y, 0, 0);
+  ctx.fillStyle = hsla(hue, 90, 60, alpha * 0.35 * glow);
+  ctx.fill();
+  ctx.strokeStyle = hsla(hue + 15, 95, 78, alpha * glow);
+  ctx.lineWidth = 1.3;
+  ctx.stroke();
+
+  for (let v = 1; v <= veinDensity; v++) {
+    const vFrac = v / (veinDensity + 1);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    const vx = tipX * vFrac + (ctrl1X + ctrl2X) * 0.25 * (1 - vFrac);
+    const vy = tipY * vFrac;
+    ctx.quadraticCurveTo(vx * 0.7, vy * 0.7, vx, vy);
+    ctx.strokeStyle = hsla(cyanHue, 100, 85, 0.25 * glow);
+    ctx.lineWidth = 0.75;
+    ctx.stroke();
+  }
+}
+
+// Dorsal Sepal
+const dLen = maxR * 0.75 * pulse;
+const dWidth = dLen * 0.38;
+drawPetal(-dWidth, -dLen * 0.45, 0, -dLen, dWidth, -dLen * 0.45, violetHue, 0.85);
+
+// Lateral Sepals
+const latSepLen = maxR * 0.78 * pulse;
+const latSepWidth = latSepLen * 0.35;
+for (const sSide of [-1, 1]) {
+  ctx.save();
+  ctx.rotate(sSide * (Math.PI * 0.38 + Math.sin(t) * 0.03));
+  drawPetal(-latSepWidth, latSepLen * 0.45, 0, latSepLen, latSepWidth, latSepLen * 0.45, violetHue + 15, 0.8);
+  ctx.restore();
+}
+
+// Upper Lateral Petals
+const wingLen = maxR * 0.88 * pulse;
+const wingWidth = wingLen * 0.45;
+for (const wSide of [-1, 1]) {
+  ctx.save();
+  ctx.rotate(wSide * (Math.PI * 0.58 + Math.sin(t * 1.2) * 0.04));
+  drawPetal(-wingWidth * 0.7, -wingLen * 0.3, 0, -wingLen, wingWidth * 0.7, -wingLen * 0.3, violetHue - 15, 0.9);
+  ctx.restore();
+}
+
+// Labellum Lip
+const lipLen = maxR * 0.55 * pulse;
+const lipWidth = lipLen * 0.65;
+ctx.beginPath();
+ctx.moveTo(0, 0);
+ctx.bezierCurveTo(-lipWidth * 0.8, lipLen * 0.3, -lipWidth, lipLen * 0.8, 0, lipLen);
+ctx.bezierCurveTo(lipWidth, lipLen * 0.8, lipWidth * 0.8, lipLen * 0.3, 0, 0);
+ctx.fillStyle = hsla(cyanHue, 95, 55, 0.45 * glow);
+ctx.fill();
+ctx.strokeStyle = hsla(cyanHue + 15, 100, 85, 0.95 * glow);
+ctx.lineWidth = 1.6;
+ctx.stroke();
+
+ctx.restore();`,
+
+  // 70. Fibonacci Sunflower Florets
+  'fibonacci-sunflower': `// 070 - Fibonacci Sunflower Florets
+const florets = 450;
+const divAngleRad = (137.507764 * Math.PI) / 180;
+const rayCount = 21;
+const t = time * 0.5;
+
+ctx.fillStyle = '#060503';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.44;
+const diskR = maxR * 0.55;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+// Ray Petals
+for (let layer = 0; layer < 2; layer++) {
+  const count = layer === 0 ? rayCount : Math.round(rayCount * 1.2);
+  const lOffset = layer === 0 ? 0 : Math.PI / count;
+  const petalLen = maxR * (0.85 + 0.15 * layer) * (1 + 0.03 * Math.sin(t * 1.5 + layer));
+  const petalW = (petalLen - diskR) * 0.42;
+
+  for (let p = 0; p < count; p++) {
+    const baseAngle = (p / count) * Math.PI * 2 + lOffset;
+    const sway = Math.sin(t * 1.8 + p * 0.4) * 0.04;
+    ctx.save();
+    ctx.rotate(baseAngle + sway);
+
+    ctx.beginPath();
+    ctx.moveTo(0, diskR * 0.85);
+    ctx.bezierCurveTo(-petalW * 0.8, diskR + (petalLen - diskR) * 0.45, -petalW * 0.25, petalLen * 0.9, 0, petalLen);
+    ctx.bezierCurveTo(petalW * 0.25, petalLen * 0.9, petalW * 0.8, diskR + (petalLen - diskR) * 0.45, 0, diskR * 0.85);
+
+    const petalHue = layer === 0 ? 44 + (p % 3) * 3 : 40 + (p % 3) * 2;
+    ctx.fillStyle = hsla(petalHue, 95, layer === 0 ? 64 : 56, 0.85);
+    ctx.fill();
+    ctx.strokeStyle = hsla(petalHue + 8, 95, 78, 0.9);
     ctx.lineWidth = 1.2;
     ctx.stroke();
 
@@ -2898,252 +3312,188 @@ for (let w = 3; w >= 1; w--) {
   }
 }
 
-// Golden Receptacle Pod
-ctx.beginPath();
-ctx.arc(0, 0, maxR * 0.12, 0, Math.PI * 2);
-ctx.fillStyle = '#eab308';
-ctx.fill();
-ctx.restore();`,
-
-  // 68. Chrysanthemum Polar Blossom
-  'chrysanthemum-bloom': `// 068 - Chrysanthemum Polar Blossom
-ctx.fillStyle = '#060504';
-ctx.fillRect(0, 0, width, height);
-
-const cx = width * 0.5;
-const cy = height * 0.5;
-const scale = Math.min(width, height) * 0.038;
-const t = time * 0.5;
-
-ctx.save();
-ctx.translate(cx, cy);
-
-for (let layer = 1; layer <= 3; layer++) {
-  const lScale = scale * (0.5 + 0.5 * (layer / 3));
-  ctx.beginPath();
-  const steps = 900;
-  for (let i = 0; i <= steps; i++) {
-    const theta = (i / steps) * 16 * Math.PI;
-    const p1 = 5 * (1 + Math.sin((11 * theta) / 5 + t * 0.3));
-    const p2 = 4 * Math.pow(Math.sin((17 * theta) / 3 - t * 0.5), 4);
-    const p3 = Math.pow(Math.sin(9 * theta - Math.PI * 0.5), 8);
-    const r = Math.max(0.1, p1 - p2 * p3) * lScale;
-
-    const px = Math.cos(theta) * r;
-    const py = Math.sin(theta) * r;
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
-  }
-  ctx.strokeStyle = 'hsla(' + ((38 + layer * 15) % 360) + ', 92%, 70%, 0.55)';
-  ctx.lineWidth = 1.2;
-  ctx.stroke();
-}
-ctx.restore();`,
-
-  // 69. Bioluminescent Orchid
-  'bioluminescent-orchid': `// 069 - Bioluminescent Orchid Epiphyte
-ctx.fillStyle = '#040308';
-ctx.fillRect(0, 0, width, height);
-
-const cx = width * 0.5;
-const cy = height * 0.52;
-const maxR = Math.min(width, height) * 0.42;
-const t = time * 0.5;
-
-ctx.save();
-ctx.translate(cx, cy);
-
-// Dorsal Sepal
-ctx.beginPath();
-ctx.moveTo(0, 0);
-ctx.bezierCurveTo(-maxR * 0.28, -maxR * 0.35, 0, -maxR * 0.7, 0, -maxR * 0.75);
-ctx.bezierCurveTo(0, -maxR * 0.7, maxR * 0.28, -maxR * 0.35, 0, 0);
-ctx.fillStyle = 'hsla(285, 90%, 60%, 0.35)';
-ctx.fill();
-ctx.strokeStyle = '#c084fc';
-ctx.lineWidth = 1.4;
-ctx.stroke();
-
-// Flared Wings
-for (const side of [-1, 1]) {
-  ctx.save();
-  ctx.rotate(side * Math.PI * 0.58);
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.bezierCurveTo(-maxR * 0.2, -maxR * 0.3, 0, -maxR * 0.8, 0, -maxR * 0.85);
-  ctx.bezierCurveTo(0, -maxR * 0.8, maxR * 0.2, -maxR * 0.3, 0, 0);
-  ctx.fillStyle = 'hsla(270, 90%, 65%, 0.3)';
-  ctx.fill();
-  ctx.strokeStyle = '#a855f7';
-  ctx.lineWidth = 1.4;
-  ctx.stroke();
-  ctx.restore();
-}
-
-// Cyan Labellum Lip
-ctx.beginPath();
-ctx.moveTo(0, 0);
-ctx.bezierCurveTo(-maxR * 0.35, maxR * 0.2, -maxR * 0.4, maxR * 0.45, 0, maxR * 0.55);
-ctx.bezierCurveTo(maxR * 0.4, maxR * 0.45, maxR * 0.35, maxR * 0.2, 0, 0);
-ctx.fillStyle = 'hsla(185, 95%, 55%, 0.45)';
-ctx.fill();
-ctx.strokeStyle = '#38bdf8';
-ctx.lineWidth = 1.8;
-ctx.stroke();
-
-// Glowing Core
-ctx.fillStyle = '#fef08a';
-ctx.beginPath();
-ctx.arc(0, 0, 4, 0, Math.PI * 2);
-ctx.fill();
-ctx.restore();`,
-
-  // 70. Fibonacci Sunflower Florets
-  'fibonacci-sunflower': `// 070 - Fibonacci Sunflower Florets
-ctx.fillStyle = '#060503';
-ctx.fillRect(0, 0, width, height);
-
-const cx = width * 0.5;
-const cy = height * 0.5;
-const maxR = Math.min(width, height) * 0.44;
-const florets = 400;
-const divAngle = (137.507764 * Math.PI) / 180;
-const t = time * 0.5;
-
-ctx.save();
-ctx.translate(cx, cy);
-
-const diskR = maxR * 0.55;
-
-// Ray Petals
-const rayPetals = 21;
-for (let p = 0; p < rayPetals; p++) {
-  const ang = (p / rayPetals) * Math.PI * 2 + Math.sin(t * 1.5 + p * 0.4) * 0.04;
-  ctx.save();
-  ctx.rotate(ang);
-
-  ctx.beginPath();
-  ctx.moveTo(0, diskR * 0.85);
-  ctx.bezierCurveTo(-22, diskR + 25, -6, maxR * 0.95, 0, maxR);
-  ctx.bezierCurveTo(6, maxR * 0.95, 22, diskR + 25, 0, diskR * 0.85);
-
-  ctx.fillStyle = '#facc15';
-  ctx.fill();
-  ctx.strokeStyle = '#f59e0b';
-  ctx.lineWidth = 1.2;
-  ctx.stroke();
-
-  ctx.restore();
-}
-
 // Vogel Seed Disk
 const c = diskR / Math.sqrt(florets);
 for (let n = 1; n <= florets; n++) {
-  const theta = n * divAngle + t * 0.03;
+  const theta = n * divAngleRad + t * 0.03;
   const r = c * Math.sqrt(n);
   const px = Math.cos(theta) * r;
   const py = Math.sin(theta) * r;
-
   const nNorm = n / florets;
-  ctx.fillStyle = 'hsla(' + (26 + nNorm * 22) + ', 90%, ' + (24 + nNorm * 48) + '%, 0.95)';
+  const seedHue = 26 + nNorm * 22;
+  const seedLight = 24 + nNorm * 48;
+  ctx.fillStyle = hsla(seedHue, 90, seedLight, 0.95);
   ctx.beginPath();
-  ctx.arc(px, py, 1.2 + nNorm * 2.2, 0, Math.PI * 2);
+  ctx.arc(px, py, Math.max(1.4, 1.2 + nNorm * 2.2), 0, Math.PI * 2);
   ctx.fill();
 }
 ctx.restore();`,
 
   // 71. Temple Fay Mathematical Butterfly
   'mathematical-butterfly': `// 071 - Temple Fay Mathematical Butterfly
+const flapSpeed = 1.2;
+const venationDensity = 5;
+const t = time * flapSpeed;
+
 ctx.fillStyle = '#040308';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const cy = height * 0.5;
 const maxR = Math.min(width, height) * 0.44;
-const flapX = 0.35 + 0.65 * Math.cos(time * 4.2);
+
+const flapScaleX = 0.35 + 0.65 * Math.cos(t * 3.5);
+const hoverY = Math.sin(t * 2) * 10;
 
 ctx.save();
-ctx.translate(cx, cy + Math.sin(time * 2.5) * 8);
+ctx.translate(cx, cy + hoverY);
+
+const baseHue = 195;
 
 for (const side of [-1, 1]) {
   ctx.save();
-  ctx.scale(side * flapX, 1);
+  ctx.scale(side * flapScaleX, 1);
 
   // Forewing
   ctx.beginPath();
-  const fSteps = 50;
+  const fPoints = [];
+  const fSteps = 70;
   for (let i = 0; i <= fSteps; i++) {
     const u = i / fSteps;
     const theta = u * Math.PI * 0.75 - Math.PI * 0.15;
     const r = maxR * (0.3 + 0.68 * Math.pow(Math.sin(u * Math.PI), 0.7));
     const fx = Math.sin(theta) * r * 1.2;
     const fy = -Math.cos(theta) * r * 0.95;
+    fPoints.push({ x: fx, y: fy });
     if (i === 0) ctx.moveTo(fx, fy);
     else ctx.lineTo(fx, fy);
   }
-  ctx.fillStyle = 'hsla(195, 90%, 52%, 0.5)';
+  ctx.closePath();
+  ctx.fillStyle = hsla(baseHue, 90, 52, 0.45);
   ctx.fill();
-  ctx.strokeStyle = '#38bdf8';
+  ctx.strokeStyle = hsla(baseHue + 25, 95, 80, 0.85);
   ctx.lineWidth = 1.4;
   ctx.stroke();
 
+  // Venation
+  for (let v = 1; v <= venationDensity; v++) {
+    const vFrac = v / (venationDensity + 1);
+    const targetPt = fPoints[Math.floor(vFrac * fSteps)];
+    ctx.beginPath();
+    ctx.moveTo(0, -maxR * 0.08);
+    ctx.quadraticCurveTo(targetPt.x * 0.4, targetPt.y * 0.6, targetPt.x, targetPt.y);
+    ctx.strokeStyle = hsla(baseHue + 35, 90, 85, 0.35);
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+
   // Hindwing
   ctx.beginPath();
-  const hSteps = 40;
-  for (let j = 0; j <= hSteps; j++) {
-    const v = j / hSteps;
+  for (let j = 0; j <= 50; j++) {
+    const v = j / 50;
     const phi = v * Math.PI * 0.8 + Math.PI * 0.4;
-    const hr = maxR * (0.25 + 0.48 * Math.sin(v * Math.PI));
+    const scallop = Math.sin(v * Math.PI * 4) * (maxR * 0.04);
+    const hr = maxR * (0.25 + 0.48 * Math.sin(v * Math.PI)) + scallop;
     const hx = Math.sin(phi) * hr * 0.9;
     const hy = -Math.cos(phi) * hr * 0.9;
     if (j === 0) ctx.moveTo(hx, hy);
     else ctx.lineTo(hx, hy);
   }
-  ctx.fillStyle = 'hsla(180, 90%, 45%, 0.45)';
+  ctx.closePath();
+  ctx.fillStyle = hsla(baseHue - 20, 90, 48, 0.4);
   ctx.fill();
-  ctx.strokeStyle = '#22d3ee';
-  ctx.lineWidth = 1.2;
+  ctx.strokeStyle = hsla(baseHue + 15, 95, 76, 0.8);
+  ctx.lineWidth = 1.3;
   ctx.stroke();
 
   ctx.restore();
 }
 
-// Abdomen & Antennae
+// Body & Antennae
 ctx.beginPath();
-ctx.ellipse(0, 0, 5, 25, 0, 0, Math.PI * 2);
+ctx.ellipse(0, 0, maxR * 0.045, maxR * 0.22, 0, 0, Math.PI * 2);
 ctx.fillStyle = '#0f172a';
 ctx.fill();
-ctx.strokeStyle = '#38bdf8';
+ctx.strokeStyle = hsla(baseHue, 90, 65, 0.7);
 ctx.stroke();
+
+for (const antSide of [-1, 1]) {
+  ctx.beginPath();
+  ctx.moveTo(antSide * 2, -maxR * 0.2);
+  const tipX = antSide * (maxR * 0.18) + Math.sin(t * 3 + antSide) * 8;
+  const tipY = -maxR * 0.38;
+  ctx.quadraticCurveTo(antSide * (maxR * 0.06), -maxR * 0.32, tipX, tipY);
+  ctx.strokeStyle = hsla(baseHue + 30, 95, 85, 0.85);
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+}
 ctx.restore();`,
 
   // 72. Iridescent Jewel Scarab Beetle
   'scarab-beetle': `// 072 - Iridescent Jewel Scarab Beetle
+const crawlSpeed = 0.8;
+const elytraSpread = 0.25;
+const t = time * crawlSpeed;
+
 ctx.fillStyle = '#030504';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const cy = height * 0.5;
 const maxR = Math.min(width, height) * 0.42;
-const t = time * 0.8;
 
 ctx.save();
 ctx.translate(cx, cy + Math.sin(t * 2) * 4);
 
 const baseHue = (145 + Math.sin(t * 0.8) * 35) % 360;
 
-// Elytra Shells
+// 6 Articulated Legs
+for (const side of [-1, 1]) {
+  for (let leg = 0; leg < 3; leg++) {
+    const legPhase = t * 3 + leg * 1.2 + (side === 1 ? Math.PI : 0);
+    const reach = Math.sin(legPhase) * 12;
+    const lift = Math.cos(legPhase) * 6;
+    const coxaX = side * (maxR * 0.15);
+    const coxaY = (leg - 1) * (maxR * 0.14);
+
+    const femurLen = maxR * (0.28 + leg * 0.04);
+    const kneeAngle = (leg === 0 ? -Math.PI * 0.25 : leg === 1 ? 0 : Math.PI * 0.28) + (side * 0.2);
+    const kneeX = coxaX + side * Math.cos(kneeAngle) * femurLen + reach * 0.5;
+    const kneeY = coxaY + Math.sin(kneeAngle) * femurLen + lift;
+
+    const tibiaLen = maxR * 0.24;
+    const ankleAngle = kneeAngle + (side * 0.45);
+    const footX = kneeX + side * Math.cos(ankleAngle) * tibiaLen + reach;
+    const footY = kneeY + Math.sin(ankleAngle) * tibiaLen;
+
+    ctx.beginPath();
+    ctx.moveTo(coxaX, coxaY);
+    ctx.lineTo(kneeX, kneeY);
+    ctx.lineTo(footX, footY);
+    ctx.strokeStyle = hsla(baseHue - 30, 85, 45, 0.9);
+    ctx.lineWidth = 2.4 - leg * 0.2;
+    ctx.stroke();
+  }
+}
+
+// Split Elytra Shells
+const elytraLen = maxR * 0.58;
+const elytraWidth = maxR * 0.28;
+
 for (const eSide of [-1, 1]) {
   ctx.save();
-  ctx.rotate(eSide * 0.15);
+  ctx.rotate(eSide * elytraSpread * (0.4 + 0.05 * Math.sin(t * 2)));
 
   ctx.beginPath();
   ctx.moveTo(0, -maxR * 0.02);
-  ctx.bezierCurveTo(eSide * maxR * 0.35, -maxR * 0.02, eSide * maxR * 0.35, maxR * 0.5, eSide * 2, maxR * 0.58);
+  ctx.bezierCurveTo(eSide * elytraWidth * 1.3, -maxR * 0.02, eSide * elytraWidth * 1.3, elytraLen * 0.85, eSide * 2, elytraLen);
   ctx.lineTo(0, -maxR * 0.02);
-  ctx.fillStyle = 'hsla(' + baseHue + ', 88%, 42%, 0.95)';
+  ctx.closePath();
+
+  const eHue = (baseHue + eSide * 15) % 360;
+  ctx.fillStyle = hsla(eHue, 88, 42, 0.9);
   ctx.fill();
-  ctx.strokeStyle = 'hsla(' + (baseHue + 40) + ', 95%, 80%, 0.95)';
+  ctx.strokeStyle = hsla(eHue + 30, 95, 78, 0.95);
   ctx.lineWidth = 1.6;
   ctx.stroke();
 
@@ -3151,242 +3501,417 @@ for (const eSide of [-1, 1]) {
 }
 
 // Pronotum Shield
+const pWidth = maxR * 0.26;
 ctx.beginPath();
-ctx.ellipse(0, -maxR * 0.12, maxR * 0.22, maxR * 0.1, 0, 0, Math.PI * 2);
-ctx.fillStyle = 'hsla(' + (baseHue + 20) + ', 85%, 36%, 0.95)';
+ctx.moveTo(-pWidth * 0.7, -maxR * 0.22);
+ctx.bezierCurveTo(-pWidth, -maxR * 0.14, -pWidth, -maxR * 0.04, -pWidth * 0.85, -maxR * 0.02);
+ctx.lineTo(pWidth * 0.85, -maxR * 0.02);
+ctx.bezierCurveTo(pWidth, -maxR * 0.04, pWidth, -maxR * 0.14, pWidth * 0.7, -maxR * 0.22);
+ctx.closePath();
+ctx.fillStyle = hsla(baseHue + 20, 85, 38, 0.95);
 ctx.fill();
-ctx.strokeStyle = '#fbbf24';
-ctx.lineWidth = 1.5;
+ctx.strokeStyle = hsla(baseHue + 50, 95, 80, 0.9);
+ctx.lineWidth = 1.6;
 ctx.stroke();
 
 // Head & Horns
+const hWidth = maxR * 0.16;
 ctx.beginPath();
-ctx.arc(0, -maxR * 0.24, maxR * 0.1, 0, Math.PI * 2);
+ctx.arc(0, -maxR * 0.26, hWidth, -Math.PI * 0.85, -Math.PI * 0.15);
+ctx.lineTo(hWidth * 0.8, -maxR * 0.22);
+ctx.lineTo(-hWidth * 0.8, -maxR * 0.22);
+ctx.closePath();
 ctx.fillStyle = '#06130b';
 ctx.fill();
+ctx.strokeStyle = hsla(baseHue + 10, 90, 70, 0.9);
+ctx.lineWidth = 1.4;
+ctx.stroke();
 ctx.restore();`,
 
   // 73. Golden Mathematical Honeybee
   'golden-honeybee': `// 073 - Golden Mathematical Honeybee
+const t = time * 1.4;
+
 ctx.fillStyle = '#060402';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const cy = height * 0.52;
 const maxR = Math.min(width, height) * 0.42;
-const strokePhase = Math.sin(time * 25);
 
 ctx.save();
 ctx.translate(cx, cy);
 
+const goldHue = 42;
+
+// Hexagonal Honeycomb Matrix
+const hexSize = maxR * 0.14;
+for (let hr = 1; hr <= 2; hr++) {
+  const count = hr * 6;
+  for (let i = 0; i < count; i++) {
+    const a = (i / count) * Math.PI * 2 + t * 0.05;
+    const hDist = maxR * (0.65 + 0.28 * (hr / 2));
+    const hx = Math.cos(a) * hDist;
+    const hy = Math.sin(a) * hDist;
+
+    ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const ha = (k / 6) * Math.PI * 2 + Math.PI / 6;
+      const px = hx + Math.cos(ha) * hexSize;
+      const py = hy + Math.sin(ha) * hexSize;
+      if (k === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = hsla(goldHue, 90, 70, 0.25);
+    ctx.lineWidth = 1.0;
+    ctx.stroke();
+  }
+}
+
 // Rapid Wings
+const strokePhase = Math.sin(t * 18);
 for (const wSide of [-1, 1]) {
   ctx.save();
   ctx.rotate(-Math.PI * 0.48 * wSide + strokePhase * 0.35 * wSide);
   ctx.scale(1, 0.4 + 0.6 * Math.abs(strokePhase));
 
+  const wLen = maxR * 0.82;
+  const wWidth = wLen * 0.36;
   ctx.beginPath();
   ctx.moveTo(0, 0);
-  ctx.bezierCurveTo(wSide * 35, -30, wSide * 40, -80, 0, -maxR * 0.8);
-  ctx.bezierCurveTo(-wSide * 15, -70, -wSide * 10, -20, 0, 0);
-  ctx.fillStyle = 'rgba(254, 240, 138, 0.25)';
+  ctx.bezierCurveTo(wSide * wWidth * 0.8, -wLen * 0.3, wSide * wWidth * 0.9, -wLen * 0.8, 0, -wLen);
+  ctx.bezierCurveTo(-wSide * wWidth * 0.3, -wLen * 0.7, -wSide * wWidth * 0.2, -wLen * 0.2, 0, 0);
+  ctx.fillStyle = 'rgba(254, 240, 138, 0.2)';
   ctx.fill();
-  ctx.strokeStyle = '#fef08a';
-  ctx.lineWidth = 1.2;
+  ctx.strokeStyle = hsla(50, 100, 85, 0.85);
+  ctx.lineWidth = 1.4;
   ctx.stroke();
-
   ctx.restore();
 }
 
-// Striped Abdomen
+// Banded Abdomen
 for (let s = 0; s < 6; s++) {
-  const sy = s * 14 + 10;
+  const sFrac = s / 6;
+  const sy = (sFrac * maxR * 0.48) + maxR * 0.04;
+  const sw = (maxR * 0.18) * Math.sin((sFrac + 0.15) * Math.PI);
   ctx.beginPath();
-  ctx.ellipse(0, sy, (6 - s * 0.8) * 4, 8, 0, 0, Math.PI * 2);
-  ctx.fillStyle = s % 2 === 0 ? '#f59e0b' : '#0a0806';
+  ctx.ellipse(0, sy, sw, maxR * 0.04, 0, 0, Math.PI * 2);
+  ctx.fillStyle = s % 2 === 0 ? hsla(goldHue + 4, 95, 62, 0.95) : '#0a0806';
   ctx.fill();
-  ctx.strokeStyle = '#fbbf24';
-  ctx.lineWidth = 1.0;
+  ctx.strokeStyle = hsla(goldHue + 15, 100, 80, 0.9);
+  ctx.lineWidth = 1.2;
   ctx.stroke();
 }
 
 // Thorax & Head
 ctx.beginPath();
-ctx.arc(0, -10, 18, 0, Math.PI * 2);
+ctx.ellipse(0, -maxR * 0.06, maxR * 0.15, maxR * 0.14, 0, 0, Math.PI * 2);
 ctx.fillStyle = '#1c1308';
 ctx.fill();
-ctx.strokeStyle = '#f59e0b';
-ctx.lineWidth = 1.6;
+ctx.strokeStyle = hsla(goldHue, 95, 75, 0.9);
+ctx.lineWidth = 1.8;
 ctx.stroke();
 
 ctx.beginPath();
-ctx.arc(0, -30, 12, 0, Math.PI * 2);
+ctx.arc(0, -maxR * 0.22, maxR * 0.1, 0, Math.PI * 2);
 ctx.fillStyle = '#0f0a04';
 ctx.fill();
+ctx.strokeStyle = hsla(goldHue, 90, 70, 0.85);
+ctx.lineWidth = 1.4;
+ctx.stroke();
 ctx.restore();`,
 
   // 74. Bioluminescent Odonata Dragonfly
   'bioluminescent-dragonfly': `// 074 - Bioluminescent Odonata Dragonfly
+const t = time * 1.5;
+
 ctx.fillStyle = '#020508';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const cy = height * 0.48;
 const maxR = Math.min(width, height) * 0.44;
-const t = time * 1.5;
 
 ctx.save();
 ctx.translate(cx, cy + Math.sin(t * 2.5) * 8);
 
-// 4 Counter-Phase Wings
+const cyanHue = 175;
+
+// Counter-Phase 4 Wings
 for (const wSide of [-1, 1]) {
   // Forewing
+  const forePhase = Math.sin(t * 8);
   ctx.save();
-  ctx.translate(wSide * 6, -10);
-  ctx.rotate(wSide * (-Math.PI * 0.42 + Math.sin(t * 8) * 0.15));
+  ctx.translate(wSide * (maxR * 0.05), -maxR * 0.06);
+  ctx.rotate(wSide * (-Math.PI * 0.42 + forePhase * 0.15));
   ctx.scale(1, 0.35 + 0.65 * Math.cos(t * 8));
 
+  const fwLen = maxR * 0.95;
+  const fwWidth = fwLen * 0.22;
   ctx.beginPath();
   ctx.moveTo(0, 0);
-  ctx.bezierCurveTo(wSide * 20, -30, wSide * 25, -70, 0, -maxR * 0.95);
-  ctx.bezierCurveTo(-wSide * 15, -70, -wSide * 10, -30, 0, 0);
-  ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+  ctx.bezierCurveTo(wSide * fwWidth * 0.5, -fwLen * 0.3, wSide * fwWidth, -fwLen * 0.7, 0, -fwLen);
+  ctx.bezierCurveTo(-wSide * fwWidth * 0.5, -fwLen * 0.7, -wSide * fwWidth * 0.3, -fwLen * 0.3, 0, 0);
+  ctx.fillStyle = hsla(cyanHue, 95, 60, 0.2);
   ctx.fill();
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 1.2;
+  ctx.strokeStyle = hsla(cyanHue + 15, 100, 80, 0.85);
+  ctx.lineWidth = 1.3;
   ctx.stroke();
   ctx.restore();
 
   // Hindwing
+  const hindPhase = Math.sin(t * 8 - Math.PI * 0.5);
   ctx.save();
-  ctx.translate(wSide * 6, 8);
-  ctx.rotate(wSide * (-Math.PI * 0.55 + Math.sin(t * 8 - Math.PI * 0.5) * 0.15));
+  ctx.translate(wSide * (maxR * 0.05), maxR * 0.02);
+  ctx.rotate(wSide * (-Math.PI * 0.55 + hindPhase * 0.15));
   ctx.scale(1, 0.35 + 0.65 * Math.cos(t * 8 - Math.PI * 0.5));
 
+  const hwLen = maxR * 0.88;
+  const hwWidth = hwLen * 0.26;
   ctx.beginPath();
   ctx.moveTo(0, 0);
-  ctx.bezierCurveTo(wSide * 22, -25, wSide * 26, -60, 0, -maxR * 0.88);
-  ctx.bezierCurveTo(-wSide * 16, -60, -wSide * 10, -25, 0, 0);
-  ctx.fillStyle = 'rgba(34, 211, 238, 0.18)';
+  ctx.bezierCurveTo(wSide * hwWidth * 0.6, -hwLen * 0.3, wSide * hwWidth, -hwLen * 0.65, 0, -hwLen);
+  ctx.bezierCurveTo(-wSide * hwWidth * 0.4, -hwLen * 0.65, -wSide * hwWidth * 0.2, -hwLen * 0.3, 0, 0);
+  ctx.fillStyle = hsla(cyanHue - 20, 95, 55, 0.18);
   ctx.fill();
-  ctx.strokeStyle = '#22d3ee';
-  ctx.lineWidth = 1.1;
+  ctx.strokeStyle = hsla(cyanHue, 100, 75, 0.75);
+  ctx.lineWidth = 1.2;
   ctx.stroke();
   ctx.restore();
 }
 
-// Slender Abdomen
+// 10-Segment Abdomen
 for (let s = 1; s <= 10; s++) {
+  const sNorm = s / 10;
+  const sy = (sNorm * maxR * 0.62) + maxR * 0.05;
+  const sw = Math.max(1.8, (maxR * 0.035) * (1 - sNorm * 0.4));
   ctx.beginPath();
-  ctx.ellipse(0, s * 14 + 10, 3.5, 6, 0, 0, Math.PI * 2);
-  ctx.fillStyle = '#062024';
+  ctx.ellipse(0, sy, sw, maxR * 0.028, 0, 0, Math.PI * 2);
+  ctx.fillStyle = hsla(cyanHue + (s % 2) * 15, 90, 35 + s * 3, 0.95);
   ctx.fill();
-  ctx.strokeStyle = '#38bdf8';
+  ctx.strokeStyle = hsla(cyanHue + 25, 100, 80, 0.8);
+  ctx.lineWidth = 1.0;
   ctx.stroke();
 }
 
-// Head & Glowing Eyes
-ctx.beginPath();
-ctx.arc(0, -18, 12, 0, Math.PI * 2);
-ctx.fillStyle = '#062024';
-ctx.fill();
-ctx.strokeStyle = '#22d3ee';
-ctx.stroke();
+// Head & Compound Eyes
+for (const eyeSide of [-1, 1]) {
+  ctx.beginPath();
+  ctx.arc(eyeSide * (maxR * 0.055), -maxR * 0.12, maxR * 0.05, 0, Math.PI * 2);
+  ctx.fillStyle = hsla(cyanHue + 30, 95, 55, 0.95);
+  ctx.fill();
+  ctx.strokeStyle = hsla(cyanHue + 50, 100, 90, 0.95);
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+}
 ctx.restore();`,
 
   // 75. Royal Siamese Betta Splendens
   'siamese-betta': `// 075 - Royal Siamese Betta Splendens
+const swimSpeed = 0.85;
+const finFlow = 1.1;
+const iridescence = 1.0;
+const t = time * swimSpeed;
+
 ctx.fillStyle = '#02060d';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.48;
 const cy = height * 0.5;
 const maxR = Math.min(width, height) * 0.44;
-const t = time * 0.85;
 
 ctx.save();
 ctx.translate(cx, cy);
 
-// Volumetric Veil Fin Rays
-const rays = 24;
-for (let r = 0; r < rays; r++) {
-  const u = r / (rays - 1);
-  const ang = (u - 0.5) * Math.PI * 0.85;
-  const wave = Math.sin(t * 3.5 - u * 2.5) * (maxR * 0.12);
-  const len = maxR * 0.85 * (0.7 + 0.3 * Math.sin(u * Math.PI));
+const royalHue = 215;
+const magentaHue = 325;
 
-  ctx.beginPath();
-  ctx.moveTo(maxR * 0.1, 0);
-  ctx.quadraticCurveTo(maxR * 0.4 + wave, Math.sin(ang) * (len * 0.5), Math.cos(ang) * len + wave * 1.5, Math.sin(ang) * len);
-  ctx.strokeStyle = 'hsla(' + (215 + u * 80) + ', 95%, 62%, 0.4)';
-  ctx.lineWidth = 1.6;
-  ctx.stroke();
+// Spine Undulation
+const spineJoints = 20;
+const spinePoints = [];
+const bodyLen = maxR * 0.95;
+
+for (let j = 0; j <= spineJoints; j++) {
+  const frac = j / spineJoints;
+  const amp = Math.pow(frac, 1.5) * (maxR * 0.16);
+  const wave = Math.sin(t * 3.2 - frac * Math.PI * 2.2);
+  const sx = -bodyLen * 0.45 + frac * bodyLen * 0.8;
+  const sy = wave * amp;
+  let bWidth = frac < 0.25 ? Math.sin((frac / 0.25) * (Math.PI * 0.5)) * (maxR * 0.13) : Math.cos(((frac - 0.25) / 0.75) * (Math.PI * 0.5)) * (maxR * 0.13);
+  spinePoints.push({ x: sx, y: sy, angle: 0, width: Math.max(2, bWidth) });
 }
 
-// Torpedo Body & Head
+for (let j = 0; j <= spineJoints; j++) {
+  const next = spinePoints[Math.min(spineJoints, j + 1)];
+  const prev = spinePoints[Math.max(0, j - 1)];
+  spinePoints[j].angle = Math.atan2(next.y - prev.y, next.x - prev.x);
+}
+
+// Flowing Caudal Veil Tail
+const tailRoot = spinePoints[spineJoints];
+const finRays = 32;
+const tailLen = maxR * 0.85 * finFlow;
+
+for (let layer = 0; layer < 3; layer++) {
+  const layerAlpha = (0.2 + layer * 0.18) * iridescence;
+  for (let r = 0; r < finRays; r++) {
+    const rFrac = r / (finRays - 1);
+    const fanAngle = tailRoot.angle + (rFrac - 0.5) * Math.PI * 0.85 + (layer - 1) * 0.15;
+    const rayWave1 = Math.sin(t * 3.5 - rFrac * 2.0) * (maxR * 0.12);
+    const rayWave2 = Math.cos(t * 2.8 - rFrac * 1.5) * (maxR * 0.08);
+    const rLen = tailLen * (0.7 + 0.3 * Math.sin(rFrac * Math.PI));
+
+    ctx.beginPath();
+    ctx.moveTo(tailRoot.x, tailRoot.y);
+    ctx.quadraticCurveTo(tailRoot.x + Math.cos(fanAngle) * (rLen * 0.4) + rayWave1, tailRoot.y + Math.sin(fanAngle) * (rLen * 0.4) + rayWave2, tailRoot.x + Math.cos(fanAngle) * rLen + rayWave1 * 1.6, tailRoot.y + Math.sin(fanAngle) * rLen + rayWave2 * 1.6);
+    ctx.strokeStyle = hsla(royalHue + rFrac * 80 + layer * 25, 95, 62, layerAlpha);
+    ctx.lineWidth = 1.2 + (1 - rFrac) * 1.5;
+    ctx.stroke();
+  }
+}
+
+// Torso Contour
 ctx.beginPath();
-ctx.moveTo(-maxR * 0.35, 0);
-ctx.bezierCurveTo(-maxR * 0.2, -maxR * 0.14, maxR * 0.05, -maxR * 0.12, maxR * 0.12, 0);
-ctx.bezierCurveTo(maxR * 0.05, maxR * 0.12, -maxR * 0.2, maxR * 0.14, -maxR * 0.35, 0);
-ctx.fillStyle = '#0c1a38';
+ctx.moveTo(spinePoints[0].x, spinePoints[0].y);
+for (let j = 1; j <= spineJoints; j++) {
+  const pt = spinePoints[j];
+  ctx.lineTo(pt.x - Math.sin(pt.angle) * pt.width, pt.y + Math.cos(pt.angle) * pt.width);
+}
+for (let j = spineJoints; j >= 0; j--) {
+  const pt = spinePoints[j];
+  ctx.lineTo(pt.x + Math.sin(pt.angle) * pt.width, pt.y - Math.cos(pt.angle) * pt.width);
+}
+ctx.closePath();
+const bodyGrad = ctx.createLinearGradient(spinePoints[0].x, 0, spinePoints[spineJoints].x, 0);
+bodyGrad.addColorStop(0, '#0c1a38');
+bodyGrad.addColorStop(0.5, hsla(royalHue, 90, 35, 0.95));
+bodyGrad.addColorStop(1, '#050a17');
+ctx.fillStyle = bodyGrad;
 ctx.fill();
-ctx.strokeStyle = '#38bdf8';
+ctx.strokeStyle = hsla(royalHue + 20, 100, 75, 0.85);
 ctx.lineWidth = 1.4;
 ctx.stroke();
 
 // Golden Eye
 ctx.beginPath();
-ctx.arc(-maxR * 0.26, -3, 3.5, 0, Math.PI * 2);
+ctx.arc(spinePoints[1].x - 4, spinePoints[1].y - 3, 3.5, 0, Math.PI * 2);
 ctx.fillStyle = '#f59e0b';
 ctx.fill();
 ctx.restore();`,
 
   // 76. Imperial Japanese Nishikigoi
   'japanese-koi': `// 076 - Imperial Japanese Nishikigoi
+const swimRate = 0.75;
+const t = time * swimRate;
+
 ctx.fillStyle = '#03080d';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.5;
 const cy = height * 0.5;
 const maxR = Math.min(width, height) * 0.44;
-const t = time * 0.75;
 
 ctx.save();
 ctx.translate(cx, cy);
 
-// S-Curve Torpedo Body
+// S-Curve Spine
+const spineJoints = 22;
+const spinePoints = [];
+const bodyLen = maxR * 1.1;
+
+for (let j = 0; j <= spineJoints; j++) {
+  const frac = j / spineJoints;
+  const amp = Math.pow(frac, 1.4) * (maxR * 0.18);
+  const wave = Math.sin(t * 3.0 - frac * Math.PI * 2.4);
+  const sx = -bodyLen * 0.48 + frac * bodyLen * 0.9;
+  const sy = wave * amp;
+  let bWidth = frac < 0.3 ? Math.sin((frac / 0.3) * (Math.PI * 0.5)) * (maxR * 0.16) : Math.cos(((frac - 0.3) / 0.7) * (Math.PI * 0.5)) * (maxR * 0.16);
+  spinePoints.push({ x: sx, y: sy, angle: 0, width: Math.max(2, bWidth) });
+}
+
+for (let j = 0; j <= spineJoints; j++) {
+  const next = spinePoints[Math.min(spineJoints, j + 1)];
+  const prev = spinePoints[Math.max(0, j - 1)];
+  spinePoints[j].angle = Math.atan2(next.y - prev.y, next.x - prev.x);
+}
+
+// Pectoral Fins
+const pectPt = spinePoints[3];
+for (const pSide of [-1, 1]) {
+  const pPhase = Math.sin(t * 3.2 + (pSide === 1 ? 0 : Math.PI * 0.2)) * 0.3;
+  const pBaseAngle = pectPt.angle + pSide * (Math.PI * 0.55 + pPhase);
+  const pLen = maxR * 0.38;
+
+  ctx.save();
+  ctx.translate(pectPt.x - Math.sin(pectPt.angle) * (pSide * pectPt.width * 0.8), pectPt.y + Math.cos(pectPt.angle) * (pSide * pectPt.width * 0.8));
+  ctx.rotate(pBaseAngle);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(pLen * 0.6, -pLen * 0.3, pLen, -pLen * 0.1, pLen, 0);
+  ctx.bezierCurveTo(pLen * 0.8, pLen * 0.3, pLen * 0.4, pLen * 0.2, 0, 0);
+  ctx.fillStyle = 'rgba(254, 243, 199, 0.3)';
+  ctx.fill();
+  ctx.strokeStyle = hsla(45, 95, 80, 0.85);
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+  ctx.restore();
+}
+
+// Torso Contour
 ctx.beginPath();
-ctx.moveTo(-maxR * 0.45, 0);
-ctx.bezierCurveTo(-maxR * 0.2, -maxR * 0.16, maxR * 0.1, -maxR * 0.12, maxR * 0.4, 0);
-ctx.bezierCurveTo(maxR * 0.1, maxR * 0.12, -maxR * 0.2, maxR * 0.16, -maxR * 0.45, 0);
+ctx.moveTo(spinePoints[0].x, spinePoints[0].y);
+for (let j = 1; j <= spineJoints; j++) {
+  const pt = spinePoints[j];
+  ctx.lineTo(pt.x - Math.sin(pt.angle) * pt.width, pt.y + Math.cos(pt.angle) * pt.width);
+}
+for (let j = spineJoints; j >= 0; j--) {
+  const pt = spinePoints[j];
+  ctx.lineTo(pt.x + Math.sin(pt.angle) * pt.width, pt.y - Math.cos(pt.angle) * pt.width);
+}
+ctx.closePath();
 ctx.fillStyle = '#fffbeb';
 ctx.fill();
 ctx.strokeStyle = '#f59e0b';
 ctx.lineWidth = 1.5;
 ctx.stroke();
 
-// Kohaku Cinnabar Red Pattern
+// Kohaku Cinnabar Red & Sumi Markings
+const crownPt = spinePoints[2];
 ctx.beginPath();
-ctx.ellipse(-maxR * 0.28, 0, 16, 12, 0, 0, Math.PI * 2);
+ctx.ellipse(crownPt.x, crownPt.y, maxR * 0.11, maxR * 0.08, crownPt.angle, 0, Math.PI * 2);
 ctx.fillStyle = '#dc2626';
 ctx.fill();
 
+const saddlePt = spinePoints[7];
 ctx.beginPath();
-ctx.ellipse(-maxR * 0.05, -2, 22, 14, 0, 0, Math.PI * 2);
+ctx.ellipse(saddlePt.x, saddlePt.y - 2, maxR * 0.15, maxR * 0.11, saddlePt.angle, 0, Math.PI * 2);
 ctx.fillStyle = '#ea580c';
 ctx.fill();
 
-// Barbels
+const sumiPt = spinePoints[13];
 ctx.beginPath();
-ctx.moveTo(-maxR * 0.44, 4);
-ctx.quadraticCurveTo(-maxR * 0.5, 12, -maxR * 0.54, 16);
-ctx.strokeStyle = '#fef08a';
-ctx.lineWidth = 1.2;
-ctx.stroke();
+ctx.ellipse(sumiPt.x, sumiPt.y + 4, maxR * 0.08, maxR * 0.06, sumiPt.angle, 0, Math.PI * 2);
+ctx.fillStyle = '#090a0f';
+ctx.fill();
+
+// Barbels
+for (const bSide of [-1, 1]) {
+  ctx.beginPath();
+  ctx.moveTo(spinePoints[0].x + 2, spinePoints[0].y + bSide * 5);
+  ctx.quadraticCurveTo(spinePoints[0].x - 12, spinePoints[0].y + bSide * 16, spinePoints[0].x - 22, spinePoints[0].y + bSide * 20);
+  ctx.strokeStyle = '#fef08a';
+  ctx.lineWidth = 1.3;
+  ctx.stroke();
+}
 ctx.restore();`,
 
   // 77. Royal Symphysodon Discus
   'symphysodon-discus': `// 077 - Royal Symphysodon Discus
+const neonGlow = 1.1;
+const verticalBars = 7;
+const t = time * 0.8;
+
 ctx.fillStyle = '#050403';
 ctx.fillRect(0, 0, width, height);
 
@@ -3395,71 +3920,138 @@ const cy = height * 0.5;
 const maxR = Math.min(width, height) * 0.44;
 
 ctx.save();
-ctx.translate(cx, cy + Math.sin(time * 2) * 5);
+ctx.translate(cx, cy + Math.sin(t * 2.2) * 5);
 
-// Disc Torso
+const turquoiseHue = 185;
+const baseAmberHue = 28;
+
+// Dorsal & Anal Fin Fringe
+for (const fSide of [-1, 1]) {
+  for (let r = 0; r < 40; r++) {
+    const rFrac = r / 39;
+    const rAngle = -Math.PI * 0.6 + rFrac * Math.PI * 1.2;
+    const rBaseX = Math.sin(rAngle) * (maxR * 0.52);
+    const rBaseY = fSide * (Math.cos(rAngle) * (maxR * 0.52));
+    const wave = Math.sin(t * 3.5 - rFrac * 4.0) * 8;
+    const finHeight = maxR * 0.22 * Math.sin(rFrac * Math.PI);
+    ctx.beginPath();
+    ctx.moveTo(rBaseX, rBaseY);
+    ctx.lineTo(rBaseX + wave * 0.4, rBaseY + fSide * finHeight);
+    ctx.strokeStyle = hsla(turquoiseHue + rFrac * 30, 95, 65, 0.45 * neonGlow);
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+  }
+}
+
+// Disc Body
 ctx.beginPath();
 ctx.ellipse(0, 0, maxR * 0.52, maxR * 0.54, 0, 0, Math.PI * 2);
-ctx.fillStyle = '#451a03';
+const discGrad = ctx.createRadialGradient(0, 0, maxR * 0.1, 0, 0, maxR * 0.54);
+discGrad.addColorStop(0, hsla(baseAmberHue + 15, 95, 52, 0.98));
+discGrad.addColorStop(0.65, hsla(baseAmberHue, 90, 36, 0.95));
+discGrad.addColorStop(1, hsla(turquoiseHue - 20, 85, 25, 0.95));
+ctx.fillStyle = discGrad;
 ctx.fill();
-ctx.strokeStyle = '#22d3ee';
+ctx.strokeStyle = hsla(turquoiseHue, 100, 80, 0.9 * neonGlow);
 ctx.lineWidth = 1.8;
 ctx.stroke();
 
-// Heckel Melanin Bars
-for (let b = -2; b <= 2; b++) {
-  const bx = b * 22;
+// Heckel Stress Bars
+for (let b = 1; b <= verticalBars; b++) {
+  const bFrac = b / (verticalBars + 1);
+  const bx = -maxR * 0.42 + bFrac * (maxR * 0.84);
+  const bHalfH = Math.sqrt(Math.max(0, Math.pow(maxR * 0.52, 2) - bx * bx)) * 0.92;
   ctx.beginPath();
-  ctx.moveTo(bx, -maxR * 0.48);
-  ctx.lineTo(bx, maxR * 0.48);
-  ctx.strokeStyle = 'rgba(15, 10, 6, 0.45)';
-  ctx.lineWidth = b === 0 ? 3.5 : 2.0;
+  ctx.moveTo(bx, -bHalfH);
+  ctx.lineTo(bx, bHalfH);
+  ctx.strokeStyle = Math.abs(b - verticalBars / 2) < 1 ? 'rgba(8, 6, 4, 0.75)' : 'rgba(15, 10, 6, 0.45)';
+  ctx.lineWidth = Math.abs(b - verticalBars / 2) < 1 ? 3.5 : 2.0;
   ctx.stroke();
 }
 
 // Ruby Red Eye
 ctx.beginPath();
-ctx.arc(-maxR * 0.32, -maxR * 0.12, 5, 0, Math.PI * 2);
-ctx.fillStyle = '#dc2626';
+ctx.arc(-maxR * 0.32, -maxR * 0.12, 5.5, 0, Math.PI * 2);
+ctx.fillStyle = '#b91c1c';
+ctx.fill();
+ctx.strokeStyle = hsla(45, 100, 75, 0.9);
+ctx.lineWidth = 1.4;
+ctx.stroke();
+
+ctx.beginPath();
+ctx.arc(-maxR * 0.32, -maxR * 0.12, 2.5, 0, Math.PI * 2);
+ctx.fillStyle = '#000000';
 ctx.fill();
 ctx.restore();`,
 
   // 78. Electric Radiant Lionfish
   'electric-lionfish': `// 078 - Electric Radiant Lionfish
+const spineSpread = 1.1;
+const t = time * 0.85;
+
 ctx.fillStyle = '#020509';
 ctx.fillRect(0, 0, width, height);
 
 const cx = width * 0.46;
 const cy = height * 0.5;
 const maxR = Math.min(width, height) * 0.44;
-const t = time * 0.85;
 
 ctx.save();
 ctx.translate(cx, cy + Math.sin(t * 1.8) * 6);
+ctx.rotate(Math.sin(t * 1.2) * 0.05);
+
+const amberHue = 24;
 
 // 13 Venomous Spines
 for (let s = 0; s < 13; s++) {
-  const u = s / 12;
-  const ang = -Math.PI * 0.65 + u * Math.PI * 0.55;
-  const len = maxR * (0.8 + 0.35 * Math.sin(u * Math.PI));
+  const sFrac = s / 12;
+  const sAngle = -Math.PI * 0.65 + sFrac * Math.PI * 0.55;
+  const sLen = maxR * (0.8 + 0.35 * Math.sin(sFrac * Math.PI)) * spineSpread;
+  const sRootX = -maxR * 0.2 + sFrac * (maxR * 0.45);
+  const sRootY = -maxR * 0.12;
   const sWave = Math.sin(t * 2.8 - s * 0.4) * (maxR * 0.08);
+  const sTipX = sRootX + Math.cos(sAngle) * sLen + sWave;
+  const sTipY = sRootY + Math.sin(sAngle) * sLen;
 
   ctx.beginPath();
-  ctx.moveTo(-maxR * 0.2 + u * maxR * 0.45, -maxR * 0.12);
-  ctx.lineTo(-maxR * 0.2 + u * maxR * 0.45 + Math.cos(ang) * len + sWave, -maxR * 0.12 + Math.sin(ang) * len);
-  ctx.strokeStyle = '#ea580c';
-  ctx.lineWidth = 1.5;
+  ctx.moveTo(sRootX, sRootY);
+  ctx.quadraticCurveTo(sRootX + Math.cos(sAngle) * (sLen * 0.5), sRootY + Math.sin(sAngle) * (sLen * 0.5) - 10, sTipX, sTipY);
+  ctx.strokeStyle = hsla(amberHue + s * 3, 90, 68, 0.95);
+  ctx.lineWidth = 1.6;
   ctx.stroke();
+
+  ctx.fillStyle = hsla(180, 100, 85, 0.95);
+  ctx.beginPath();
+  ctx.arc(sTipX, sTipY, 1.4, 0, Math.PI * 2);
+  ctx.fill();
 }
 
-// Zebra Body
+// Zebra Torso
 ctx.beginPath();
-ctx.ellipse(0, 0, maxR * 0.32, maxR * 0.18, 0, 0, Math.PI * 2);
-ctx.fillStyle = '#7c2d12';
+ctx.moveTo(-maxR * 0.35, -maxR * 0.02);
+ctx.bezierCurveTo(-maxR * 0.2, -maxR * 0.22, maxR * 0.15, -maxR * 0.18, maxR * 0.35, 0);
+ctx.bezierCurveTo(maxR * 0.15, maxR * 0.18, -maxR * 0.2, maxR * 0.22, -maxR * 0.35, -maxR * 0.02);
+ctx.closePath();
+const bodyGrad = ctx.createLinearGradient(-maxR * 0.35, 0, maxR * 0.35, 0);
+bodyGrad.addColorStop(0, '#1c0803');
+bodyGrad.addColorStop(0.4, '#c2410c');
+bodyGrad.addColorStop(1, '#1c0803');
+ctx.fillStyle = bodyGrad;
 ctx.fill();
 ctx.strokeStyle = '#fb923c';
 ctx.lineWidth = 1.6;
 ctx.stroke();
+
+// Zebra Stripes
+for (let s = 1; s <= 7; s++) {
+  const sx = -maxR * 0.28 + s * (maxR * 0.08);
+  ctx.beginPath();
+  ctx.moveTo(sx, -maxR * 0.12);
+  ctx.quadraticCurveTo(sx + 6, 0, sx, maxR * 0.12);
+  ctx.strokeStyle = '#fff7ed';
+  ctx.lineWidth = 2.0;
+  ctx.stroke();
+}
 ctx.restore();`
 };
 
