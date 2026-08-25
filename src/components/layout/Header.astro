@@ -172,6 +172,63 @@
     });
   }
 
-  setupRandomButton();
-  document.addEventListener('astro:page-load', setupRandomButton);
+  async function initVisitorCounter() {
+    const headerCountEl = document.getElementById('header-visitor-count');
+    if (!headerCountEl) return;
+
+    const DOMAIN = 'art.fazleyrabbi.xyz';
+
+    // 1. Check for explicit admin ignore trigger in URL (e.g. ?ignore_ip=true or ?admin=true)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('ignore_ip') === 'true' || urlParams.get('admin') === 'true' || urlParams.get('ignore') === 'true') {
+      localStorage.setItem('formula_ignore_analytics', 'true');
+    }
+
+    // 2. Determine if current client should be ignored from counting
+    const isLocalhost = ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
+    const isIgnoredAdmin = localStorage.getItem('formula_ignore_analytics') === 'true';
+    const isAlreadyCountedInSession = sessionStorage.getItem('formula_visitor_counted') === 'true';
+
+    const shouldIgnoreIncrement = isLocalhost || isIgnoredAdmin || isAlreadyCountedInSession;
+
+    function setDisplayCount(num: number) {
+      if (headerCountEl) headerCountEl.textContent = num.toLocaleString();
+    }
+
+    try {
+      // If we should ignore, perform read-only fetch
+      const endpoint = shouldIgnoreIncrement
+        ? `https://counterapi.com/api/${DOMAIN}/visitors/`
+        : `https://counterapi.com/api/${DOMAIN}/visitors/up`;
+
+      const res = await fetch(endpoint);
+      if (res.ok) {
+        const data = await res.json();
+        const count = Number(data.value || data.count || 1);
+        setDisplayCount(count);
+
+        if (!shouldIgnoreIncrement) {
+          sessionStorage.setItem('formula_visitor_counted', 'true');
+        }
+      } else {
+        // Fallback read
+        const fallbackRes = await fetch(`https://counterapi.com/api/${DOMAIN}/visitors/`);
+        if (fallbackRes.ok) {
+          const fbData = await fallbackRes.json();
+          setDisplayCount(Number(fbData.value || 1));
+        }
+      }
+    } catch (e) {
+      // Offline fallback
+      setDisplayCount(1);
+    }
+  }
+
+  function initHeader() {
+    setupRandomButton();
+    initVisitorCounter();
+  }
+
+  initHeader();
+  document.addEventListener('astro:page-load', initHeader);
 </script>
