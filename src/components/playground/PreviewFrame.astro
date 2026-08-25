@@ -75,12 +75,87 @@
           let fps = 60;
           let fpsBuffer = [];
 
-          function hsla(h, s, l, a = 1) {
-            return 'hsla(' + h + ', ' + s + '%, ' + l + '%, ' + a + ')';
+          function hsla(h, s, l, a) {
+            return 'hsla(' + h + ', ' + s + '%, ' + l + '%, ' + (a !== undefined ? a : 1) + ')';
+          }
+
+          function lerp(start, end, t) {
+            return start * (1 - t) + end * t;
           }
 
           function clamp(val, min, max) {
             return Math.min(Math.max(val, min), max);
+          }
+
+          function map(val, inMin, inMax, outMin, outMax) {
+            return outMin + ((val - inMin) / (inMax - inMin)) * (outMax - outMin);
+          }
+
+          function dist(x1, y1, x2, y2) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            return Math.sqrt(dx * dx + dy * dy);
+          }
+
+          // Deterministic Noise Generator
+          const PERM = new Uint8Array(512);
+          const GRAD_X = new Float32Array(512);
+          const GRAD_Y = new Float32Array(512);
+          (function initNoise() {
+            const p = new Uint8Array(256);
+            for (let i = 0; i < 256; i++) p[i] = i;
+            let seed = 1337;
+            for (let i = 255; i > 0; i--) {
+              seed = (seed * 16807) % 2147483647;
+              const j = seed % (i + 1);
+              const tmp = p[i];
+              p[i] = p[j];
+              p[j] = tmp;
+            }
+            for (let i = 0; i < 512; i++) {
+              PERM[i] = p[i & 255];
+              const angle = (PERM[i] / 256) * Math.PI * 2;
+              GRAD_X[i] = Math.cos(angle);
+              GRAD_Y[i] = Math.sin(angle);
+            }
+          })();
+
+          function fade(t) {
+            return t * t * t * (t * (t * 6 - 15) + 10);
+          }
+
+          function noise2D(x, y) {
+            const X = Math.floor(x) & 255;
+            const Y = Math.floor(y) & 255;
+            const xf = x - Math.floor(x);
+            const yf = y - Math.floor(y);
+            const u = fade(xf);
+            const v = fade(yf);
+            const aa = PERM[PERM[X] + Y];
+            const ab = PERM[PERM[X] + Y + 1];
+            const ba = PERM[PERM[X + 1] + Y];
+            const bb = PERM[PERM[X + 1] + Y + 1];
+            const g1 = GRAD_X[aa] * xf + GRAD_Y[aa] * yf;
+            const g2 = GRAD_X[ba] * (xf - 1) + GRAD_Y[ba] * yf;
+            const g3 = GRAD_X[ab] * xf + GRAD_Y[ab] * (yf - 1);
+            const g4 = GRAD_X[bb] * (xf - 1) + GRAD_Y[bb] * (yf - 1);
+            const x1 = lerp(g1, g2, u);
+            const x2 = lerp(g3, g4, u);
+            return lerp(x1, x2, v);
+          }
+
+          function fbm2D(x, y, octaves = 3, lacunarity = 2.0, gain = 0.5) {
+            let total = 0;
+            let frequency = 1.0;
+            let amplitude = 1.0;
+            let maxValue = 0;
+            for (let i = 0; i < octaves; i++) {
+              total += noise2D(x * frequency, y * frequency) * amplitude;
+              maxValue += amplitude;
+              amplitude *= gain;
+              frequency *= lacunarity;
+            }
+            return total / maxValue;
           }
 
           function project3D(x, y, z, rotX, rotY, rotZ, cx, cy, fov, distance) {
@@ -133,7 +208,7 @@
 
             if (renderFn) {
               try {
-                renderFn(ctx, canvas.width, canvas.height, elapsed, dt, project3D, hsla);
+                renderFn(ctx, canvas.width, canvas.height, elapsed, dt, project3D, hsla, noise2D, fbm2D);
               } catch (err) {
                 window.parent.postMessage({ type: 'STATUS', fps: 0, hasError: true, error: err.message }, '*');
               }
@@ -145,8 +220,10 @@
           window.addEventListener('message', (e) => {
             if (e.data && e.data.type === 'EXECUTE') {
               try {
-                // Compile user code with full project3D and hsla scope
-                renderFn = new Function('ctx', 'width', 'height', 'time', 'dt', 'project3D', 'hsla', e.data.code);
+                // Clear any cached instances on new code execution
+                window.__art_instances = {};
+                // Compile user code with full project3D, hsla, and noise scope
+                renderFn = new Function('ctx', 'width', 'height', 'time', 'dt', 'project3D', 'hsla', 'noise2D', 'fbm2D', e.data.code);
                 window.parent.postMessage({ type: 'STATUS', fps, hasError: false }, '*');
               } catch (err) {
                 window.parent.postMessage({ type: 'STATUS', fps: 0, hasError: true, error: err.message }, '*');
