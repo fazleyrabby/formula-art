@@ -5,9 +5,11 @@ import CopyButton from '../common/CopyButton.astro';
 
 interface Props {
   artwork: ArtworkData;
+  index?: number;
 }
 
-const { artwork } = Astro.props;
+const { artwork, index = 0 } = Astro.props;
+const isBelowTheFold = index >= 8;
 ---
 
 <article
@@ -15,6 +17,7 @@ const { artwork } = Astro.props;
   data-slug={artwork.slug}
   data-algorithm={artwork.algorithmKey}
   data-category={artwork.category}
+  style={isBelowTheFold ? 'content-visibility: auto; contain-intrinsic-size: auto 340px;' : ''}
 >
   <!-- Canvas Preview Wrapper -->
   <a
@@ -29,8 +32,7 @@ const { artwork } = Astro.props;
       data-params={JSON.stringify(
         artwork.parameters.reduce((acc, p) => ({ ...acc, [p.key]: p.defaultValue }), {})
       )}
-      role="img"
-      aria-label={`Mathematical generative animation of ${artwork.title}`}
+      aria-hidden="true"
     ></canvas>
 
     <!-- Top Right Category Badge -->

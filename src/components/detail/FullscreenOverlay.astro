@@ -42,7 +42,7 @@
 
     if (!overlay || !fsCanvas || !detailCanvas) return;
 
-    function openFullscreen() {
+    async function openFullscreen() {
       overlay?.classList.remove('hidden');
       overlay?.classList.add('flex');
 
@@ -50,7 +50,9 @@
       const mainEngine = (window as any).__MATH_ART_ENGINE__;
       const params = mainEngine ? mainEngine.getParams() : {};
 
-      const renderer = getAlgorithmRenderer(algorithmKey);
+      const renderer = await getAlgorithmRenderer(algorithmKey);
+      if (overlay?.classList.contains('hidden')) return;
+
       fsEngine = new CanvasEngine({
         canvas: fsCanvas,
         renderer,

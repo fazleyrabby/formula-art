@@ -46,8 +46,10 @@ const { initialCode } = Astro.props;
 
   <!-- Editable Code Area -->
   <div class="relative flex-1 min-h-[420px] bg-[#0c0e17] overflow-auto font-mono text-xs sm:text-sm p-4">
+    <label for="code-editor-textarea" class="sr-only">Mathematical formula JavaScript code editor</label>
     <textarea
       id="code-editor-textarea"
+      aria-label="Mathematical formula JavaScript code editor"
       class="w-full h-full min-h-[420px] bg-transparent text-slate-100 font-mono resize-none focus:outline-none leading-relaxed selection:bg-accent-cyan/30"
       spellcheck="false"
       autocomplete="off"

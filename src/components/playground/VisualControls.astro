@@ -104,7 +104,7 @@ import RadialKnob from './RadialKnob.astro';
       <!-- Amplitude -->
       <div class="flex flex-col gap-1.5">
         <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-300">Wave Amplitude (A)</span>
+          <label for="slider-amp" class="text-slate-300 cursor-pointer">Wave Amplitude (A)</label>
           <span id="val-slider-amp" class="text-accent-cyan font-bold">1.20</span>
         </div>
         <input
@@ -114,6 +114,7 @@ import RadialKnob from './RadialKnob.astro';
           max="3.0"
           step="0.05"
           value="1.2"
+          aria-label="Wave Amplitude"
           class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-accent-cyan focus:outline-none"
         />
       </div>
@@ -121,7 +122,7 @@ import RadialKnob from './RadialKnob.astro';
       <!-- Speed -->
       <div class="flex flex-col gap-1.5">
         <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-300">Animation Velocity (dt)</span>
+          <label for="slider-speed" class="text-slate-300 cursor-pointer">Animation Velocity (dt)</label>
           <span id="val-slider-speed" class="text-accent-cyan font-bold">1.00x</span>
         </div>
         <input
@@ -131,6 +132,7 @@ import RadialKnob from './RadialKnob.astro';
           max="3.0"
           step="0.1"
           value="1.0"
+          aria-label="Animation Velocity"
           class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-accent-cyan focus:outline-none"
         />
       </div>
@@ -138,7 +140,7 @@ import RadialKnob from './RadialKnob.astro';
       <!-- Turbulence -->
       <div class="flex flex-col gap-1.5">
         <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-300">Chaos / Turbulence (σ)</span>
+          <label for="slider-chaos" class="text-slate-300 cursor-pointer">Chaos / Turbulence (σ)</label>
           <span id="val-slider-chaos" class="text-accent-cyan font-bold">0.30</span>
         </div>
         <input
@@ -148,6 +150,7 @@ import RadialKnob from './RadialKnob.astro';
           max="1.0"
           step="0.02"
           value="0.3"
+          aria-label="Chaos Turbulence"
           class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-accent-cyan focus:outline-none"
         />
       </div>
@@ -155,7 +158,7 @@ import RadialKnob from './RadialKnob.astro';
       <!-- Particle Density -->
       <div class="flex flex-col gap-1.5">
         <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-300">Geometry Density (N)</span>
+          <label for="slider-density" class="text-slate-300 cursor-pointer">Geometry Density (N)</label>
           <span id="val-slider-density" class="text-accent-cyan font-bold">240</span>
         </div>
         <input
@@ -165,6 +168,7 @@ import RadialKnob from './RadialKnob.astro';
           max="600"
           step="10"
           value="240"
+          aria-label="Geometry Density"
           class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-accent-cyan focus:outline-none"
         />
       </div>

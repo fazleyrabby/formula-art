@@ -1,216 +1,139 @@
 import type { AlgorithmFactory, ArtRenderer } from '../types/engine';
 
-// Organic
-import { createOrganicWave } from './organic/organic-wave';
-import { createPhyllotaxisSpiral } from './organic/phyllotaxis-spiral';
-import { createSuperformulaBloom } from './organic/superformula-bloom';
-import { createPerlinTendrils } from './organic/perlin-tendrils';
+export type AlgorithmModuleLoader = () => Promise<Record<string, any>>;
 
-// Fluid
-import { createVortexFilament } from './fluid/vortex-filament';
-import { createCurlVectorField } from './fluid/curl-vector-field';
-import { createSmokeLattice } from './fluid/smoke-lattice';
-import { createViscousGyre } from './fluid/viscous-gyre';
-import { createAtmosphericTornado } from './fluid/atmospheric-tornado';
-import { createWaterSplash } from './fluid/water-splash';
-import { createRainEffect } from './fluid/rain-effect';
-
-// Particles
-import { createGravitationalSwarm } from './particles/gravitational-swarm';
-import { createLissajousWeb } from './particles/lissajous-web';
-import { createBrownianConstellation } from './particles/brownian-constellation';
-import { createBoidsFlocking } from './particles/boids-flocking';
-
-// Geometry
-import { createHyperbolicTessellation } from './geometry/hyperbolic-tessellation';
-import { createSacredMandala } from './geometry/sacred-mandala';
-import { createMoireInterference } from './geometry/moire-interference';
-import { createPenroseSubdivision } from './geometry/penrose-subdivision';
-import { createMicroscopicIceCrystal } from './geometry/microscopic-ice-crystal';
-import { createBaroqueFiligrane } from './geometry/baroque-filigrane';
-import { createGuillocheFiligrane } from './geometry/guilloche-filigrane';
-import { createDamasceneFiligrane } from './geometry/damascene-filigrane';
-
-// Waves
-import { createFourierHarmonics } from './waves/fourier-harmonics';
-import { createStandingWaveGrid } from './waves/standing-wave-grid';
-import { createSolitonPulse } from './waves/soliton-pulse';
-import { createCircularRipples } from './waves/circular-ripples';
-
-// Space
-import { createBlackHoleLensing } from './space/black-hole-lensing';
-import { createKeplerOrbits } from './space/kepler-orbits';
-import { createGalaxySpiralDensity } from './space/galaxy-spiral-density';
-
-// Experimental
-import { createContinuousCellularAutomata } from './experimental/continuous-cellular-automata';
-import { createJuliaMorph } from './experimental/julia-morph';
-
-// Sea & Deep Sea Creatures
-import { createBioluminescentJellyfish } from './creatures/bioluminescent-jellyfish';
-import { createMathematicalCrab } from './creatures/mathematical-crab';
-import { createDeepSeaPrawn } from './creatures/deep-sea-prawn';
-import { createMantaRayGlide } from './creatures/manta-ray-glide';
-import { createNautilusSpiral } from './creatures/nautilus-spiral';
-import { createDeepSeaAnglerfish } from './creatures/deep-sea-anglerfish';
-import { createGiantSiphonophore } from './creatures/giant-siphonophore';
-import { createCombJellyCtenophore } from './creatures/comb-jelly-ctenophore';
-import { createVampireSquid } from './creatures/vampire-squid';
-import { createDumboOctopus } from './creatures/dumbo-octopus';
-import { createGulperEel } from './creatures/gulper-eel';
-import { createBarreleyeFish } from './creatures/barreleye-fish';
-import { createSeaAngelPteropod } from './creatures/sea-angel-pteropod';
-import { createAbyssalTripodFish } from './creatures/abyssal-tripod-fish';
-import { createGiantSpiderCrab } from './creatures/giant-spider-crab';
-import { createLeafySeaDragon } from './creatures/leafy-sea-dragon';
-import { createHammerheadShark } from './creatures/hammerhead-shark';
-import { createSiameseBetta } from './creatures/siamese-betta';
-import { createJapaneseKoi } from './creatures/japanese-koi';
-import { createSymphysodonDiscus } from './creatures/symphysodon-discus';
-import { createElectricLionfish } from './creatures/electric-lionfish';
-
-// Insects
-import { createMathematicalButterfly } from './insects/mathematical-butterfly';
-import { createScarabBeetle } from './insects/scarab-beetle';
-import { createGoldenHoneybee } from './insects/golden-honeybee';
-import { createBioluminescentDragonfly } from './insects/bioluminescent-dragonfly';
-
-// Nature & Botany
-import { createFractalTree } from './botany/fractal-tree';
-import { createBarnsleyFern } from './botany/barnsley-fern';
-import { createGerstnerOceanWaves } from './botany/gerstner-ocean-waves';
-import { createCoralPolypGrowth } from './botany/coral-polyp-growth';
-import { createSnowFall } from './botany/snow-fall';
-import { createBotanicalFiligrane } from './botany/botanical-filigrane';
-import { createRhodoneaRose } from './botany/rhodonea-rose';
-import { createSacredLotus } from './botany/sacred-lotus';
-import { createChrysanthemumBloom } from './botany/chrysanthemum-bloom';
-import { createBioluminescentOrchid } from './botany/bioluminescent-orchid';
-import { createFibonacciSunflower } from './botany/fibonacci-sunflower';
-
-// Human Anatomy & Biology
-import { createCardiacPulse } from './anatomy/cardiac-pulse';
-import { createNeuralSynapse } from './anatomy/neural-synapse';
-import { createDNADoubleHelix } from './anatomy/dna-double-helix';
-import { createRetinalIris } from './anatomy/retinal-iris';
-
-// Physics & Mathematics Study
-import { createQuantumHydrogenOrbital } from './physics/quantum-hydrogen-orbital';
-import { createLorenzAttractor } from './physics/lorenz-attractor-chaos';
-import { createDoublePendulum } from './physics/double-pendulum-chaos';
-import { createFourierEpicycles } from './physics/fourier-epicycles-transform';
-import { createMaxwellEMWave } from './physics/maxwell-em-wave';
-import { createSpacetimeCurvature } from './physics/spacetime-curvature-geodesic';
-
-export const algorithmRegistry: Record<string, AlgorithmFactory> = {
+export const algorithmLoaders: Record<string, AlgorithmModuleLoader> = {
   // Organic
-  'organic-wave': createOrganicWave,
-  'phyllotaxis-spiral': createPhyllotaxisSpiral,
-  'superformula-bloom': createSuperformulaBloom,
-  'perlin-tendrils': createPerlinTendrils,
+  'organic-wave': () => import('./organic/organic-wave'),
+  'phyllotaxis-spiral': () => import('./organic/phyllotaxis-spiral'),
+  'superformula-bloom': () => import('./organic/superformula-bloom'),
+  'perlin-tendrils': () => import('./organic/perlin-tendrils'),
 
   // Fluid
-  'vortex-filament': createVortexFilament,
-  'curl-vector-field': createCurlVectorField,
-  'smoke-lattice': createSmokeLattice,
-  'viscous-gyre': createViscousGyre,
-  'atmospheric-tornado': createAtmosphericTornado,
-  'water-splash': createWaterSplash,
-  'rain-effect': createRainEffect,
+  'vortex-filament': () => import('./fluid/vortex-filament'),
+  'curl-vector-field': () => import('./fluid/curl-vector-field'),
+  'smoke-lattice': () => import('./fluid/smoke-lattice'),
+  'viscous-gyre': () => import('./fluid/viscous-gyre'),
+  'atmospheric-tornado': () => import('./fluid/atmospheric-tornado'),
+  'water-splash': () => import('./fluid/water-splash'),
+  'rain-effect': () => import('./fluid/rain-effect'),
 
   // Particles
-  'gravitational-swarm': createGravitationalSwarm,
-  'lissajous-web': createLissajousWeb,
-  'brownian-constellation': createBrownianConstellation,
-  'boids-flocking': createBoidsFlocking,
+  'gravitational-swarm': () => import('./particles/gravitational-swarm'),
+  'lissajous-web': () => import('./particles/lissajous-web'),
+  'brownian-constellation': () => import('./particles/brownian-constellation'),
+  'boids-flocking': () => import('./particles/boids-flocking'),
 
   // Geometry
-  'hyperbolic-tessellation': createHyperbolicTessellation,
-  'sacred-mandala': createSacredMandala,
-  'moire-interference': createMoireInterference,
-  'penrose-subdivision': createPenroseSubdivision,
-  'microscopic-ice-crystal': createMicroscopicIceCrystal,
-  'baroque-filigrane': createBaroqueFiligrane,
-  'guilloche-filigrane': createGuillocheFiligrane,
-  'damascene-filigrane': createDamasceneFiligrane,
+  'hyperbolic-tessellation': () => import('./geometry/hyperbolic-tessellation'),
+  'sacred-mandala': () => import('./geometry/sacred-mandala'),
+  'moire-interference': () => import('./geometry/moire-interference'),
+  'penrose-subdivision': () => import('./geometry/penrose-subdivision'),
+  'microscopic-ice-crystal': () => import('./geometry/microscopic-ice-crystal'),
+  'baroque-filigrane': () => import('./geometry/baroque-filigrane'),
+  'guilloche-filigrane': () => import('./geometry/guilloche-filigrane'),
+  'damascene-filigrane': () => import('./geometry/damascene-filigrane'),
 
   // Waves
-  'fourier-harmonics': createFourierHarmonics,
-  'standing-wave-grid': createStandingWaveGrid,
-  'soliton-pulse': createSolitonPulse,
-  'circular-ripples': createCircularRipples,
+  'fourier-harmonics': () => import('./waves/fourier-harmonics'),
+  'standing-wave-grid': () => import('./waves/standing-wave-grid'),
+  'soliton-pulse': () => import('./waves/soliton-pulse'),
+  'circular-ripples': () => import('./waves/circular-ripples'),
 
   // Space
-  'black-hole-lensing': createBlackHoleLensing,
-  'kepler-orbits': createKeplerOrbits,
-  'galaxy-spiral-density': createGalaxySpiralDensity,
+  'black-hole-lensing': () => import('./space/black-hole-lensing'),
+  'kepler-orbits': () => import('./space/kepler-orbits'),
+  'galaxy-spiral-density': () => import('./space/galaxy-spiral-density'),
 
   // Experimental
-  'continuous-cellular-automata': createContinuousCellularAutomata,
-  'julia-morph': createJuliaMorph,
+  'continuous-cellular-automata': () => import('./experimental/continuous-cellular-automata'),
+  'julia-morph': () => import('./experimental/julia-morph'),
 
   // Sea & Deep Sea Creatures
-  'bioluminescent-jellyfish': createBioluminescentJellyfish,
-  'mathematical-crab': createMathematicalCrab,
-  'deep-sea-prawn': createDeepSeaPrawn,
-  'manta-ray-glide': createMantaRayGlide,
-  'nautilus-spiral': createNautilusSpiral,
-  'deep-sea-anglerfish': createDeepSeaAnglerfish,
-  'giant-siphonophore': createGiantSiphonophore,
-  'comb-jelly-ctenophore': createCombJellyCtenophore,
-  'vampire-squid': createVampireSquid,
-  'dumbo-octopus': createDumboOctopus,
-  'gulper-eel': createGulperEel,
-  'barreleye-fish': createBarreleyeFish,
-  'sea-angel-pteropod': createSeaAngelPteropod,
-  'abyssal-tripod-fish': createAbyssalTripodFish,
-  'giant-spider-crab': createGiantSpiderCrab,
-  'leafy-sea-dragon': createLeafySeaDragon,
-  'hammerhead-shark': createHammerheadShark,
-  'siamese-betta': createSiameseBetta,
-  'japanese-koi': createJapaneseKoi,
-  'symphysodon-discus': createSymphysodonDiscus,
-  'electric-lionfish': createElectricLionfish,
+  'bioluminescent-jellyfish': () => import('./creatures/bioluminescent-jellyfish'),
+  'mathematical-crab': () => import('./creatures/mathematical-crab'),
+  'deep-sea-prawn': () => import('./creatures/deep-sea-prawn'),
+  'manta-ray-glide': () => import('./creatures/manta-ray-glide'),
+  'nautilus-spiral': () => import('./creatures/nautilus-spiral'),
+  'deep-sea-anglerfish': () => import('./creatures/deep-sea-anglerfish'),
+  'giant-siphonophore': () => import('./creatures/giant-siphonophore'),
+  'comb-jelly-ctenophore': () => import('./creatures/comb-jelly-ctenophore'),
+  'vampire-squid': () => import('./creatures/vampire-squid'),
+  'dumbo-octopus': () => import('./creatures/dumbo-octopus'),
+  'gulper-eel': () => import('./creatures/gulper-eel'),
+  'barreleye-fish': () => import('./creatures/barreleye-fish'),
+  'sea-angel-pteropod': () => import('./creatures/sea-angel-pteropod'),
+  'abyssal-tripod-fish': () => import('./creatures/abyssal-tripod-fish'),
+  'giant-spider-crab': () => import('./creatures/giant-spider-crab'),
+  'leafy-sea-dragon': () => import('./creatures/leafy-sea-dragon'),
+  'hammerhead-shark': () => import('./creatures/hammerhead-shark'),
+  'siamese-betta': () => import('./creatures/siamese-betta'),
+  'japanese-koi': () => import('./creatures/japanese-koi'),
+  'symphysodon-discus': () => import('./creatures/symphysodon-discus'),
+  'electric-lionfish': () => import('./creatures/electric-lionfish'),
 
   // Insects
-  'mathematical-butterfly': createMathematicalButterfly,
-  'scarab-beetle': createScarabBeetle,
-  'golden-honeybee': createGoldenHoneybee,
-  'bioluminescent-dragonfly': createBioluminescentDragonfly,
+  'mathematical-butterfly': () => import('./insects/mathematical-butterfly'),
+  'scarab-beetle': () => import('./insects/scarab-beetle'),
+  'golden-honeybee': () => import('./insects/golden-honeybee'),
+  'bioluminescent-dragonfly': () => import('./insects/bioluminescent-dragonfly'),
 
   // Nature & Botany
-  'fractal-tree': createFractalTree,
-  'barnsley-fern': createBarnsleyFern,
-  'gerstner-ocean-waves': createGerstnerOceanWaves,
-  'coral-polyp-growth': createCoralPolypGrowth,
-  'snow-fall': createSnowFall,
-  'botanical-filigrane': createBotanicalFiligrane,
-  'rhodonea-rose': createRhodoneaRose,
-  'sacred-lotus': createSacredLotus,
-  'chrysanthemum-bloom': createChrysanthemumBloom,
-  'bioluminescent-orchid': createBioluminescentOrchid,
-  'fibonacci-sunflower': createFibonacciSunflower,
+  'fractal-tree': () => import('./botany/fractal-tree'),
+  'barnsley-fern': () => import('./botany/barnsley-fern'),
+  'gerstner-ocean-waves': () => import('./botany/gerstner-ocean-waves'),
+  'coral-polyp-growth': () => import('./botany/coral-polyp-growth'),
+  'snow-fall': () => import('./botany/snow-fall'),
+  'botanical-filigrane': () => import('./botany/botanical-filigrane'),
+  'rhodonea-rose': () => import('./botany/rhodonea-rose'),
+  'sacred-lotus': () => import('./botany/sacred-lotus'),
+  'chrysanthemum-bloom': () => import('./botany/chrysanthemum-bloom'),
+  'bioluminescent-orchid': () => import('./botany/bioluminescent-orchid'),
+  'fibonacci-sunflower': () => import('./botany/fibonacci-sunflower'),
 
   // Human Anatomy & Biology
-  'cardiac-pulse': createCardiacPulse,
-  'neural-synapse': createNeuralSynapse,
-  'dna-double-helix': createDNADoubleHelix,
-  'retinal-iris': createRetinalIris,
+  'cardiac-pulse': () => import('./anatomy/cardiac-pulse'),
+  'neural-synapse': () => import('./anatomy/neural-synapse'),
+  'dna-double-helix': () => import('./anatomy/dna-double-helix'),
+  'retinal-iris': () => import('./anatomy/retinal-iris'),
 
   // Physics & Mathematics Study
-  'quantum-hydrogen-orbital': createQuantumHydrogenOrbital,
-  'lorenz-attractor-chaos': createLorenzAttractor,
-  'double-pendulum-chaos': createDoublePendulum,
-  'fourier-epicycles-transform': createFourierEpicycles,
-  'maxwell-em-wave': createMaxwellEMWave,
-  'spacetime-curvature-geodesic': createSpacetimeCurvature,
+  'quantum-hydrogen-orbital': () => import('./physics/quantum-hydrogen-orbital'),
+  'lorenz-attractor-chaos': () => import('./physics/lorenz-attractor-chaos'),
+  'double-pendulum-chaos': () => import('./physics/double-pendulum-chaos'),
+  'fourier-epicycles-transform': () => import('./physics/fourier-epicycles-transform'),
+  'maxwell-em-wave': () => import('./physics/maxwell-em-wave'),
+  'spacetime-curvature-geodesic': () => import('./physics/spacetime-curvature-geodesic'),
 };
 
-export function getAlgorithmRenderer(key: string): ArtRenderer {
-  const factory = algorithmRegistry[key];
-  if (!factory) {
-    console.warn(`Algorithm key "${key}" not found in registry, falling back to organic-wave`);
-    return createOrganicWave();
+const factoryCache = new Map<string, AlgorithmFactory>();
+
+export async function getAlgorithmRenderer(key: string): Promise<ArtRenderer> {
+  if (factoryCache.has(key)) {
+    const cachedFactory = factoryCache.get(key)!;
+    return cachedFactory();
   }
-  return factory();
+
+  const loader = algorithmLoaders[key];
+  if (!loader) {
+    console.warn(`Algorithm key "${key}" not found in registry, falling back to organic-wave`);
+    const fallbackMod = await algorithmLoaders['organic-wave']();
+    const fallbackFactory = Object.values(fallbackMod).find((fn) => typeof fn === 'function') as AlgorithmFactory;
+    return fallbackFactory();
+  }
+
+  try {
+    const mod = await loader();
+    const factory = Object.values(mod).find((fn) => typeof fn === 'function') as AlgorithmFactory | undefined;
+    if (!factory) {
+      throw new Error(`No factory function exported in module for ${key}`);
+    }
+    factoryCache.set(key, factory);
+    return factory();
+  } catch (err) {
+    console.error(`Error loading algorithm "${key}":`, err);
+    const fallbackMod = await algorithmLoaders['organic-wave']();
+    const fallbackFactory = Object.values(fallbackMod).find((fn) => typeof fn === 'function') as AlgorithmFactory;
+    return fallbackFactory();
+  }
 }

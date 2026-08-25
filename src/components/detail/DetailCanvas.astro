@@ -77,7 +77,7 @@ const { artwork } = Astro.props;
   let currentEngine: CanvasEngine | null = null;
   let isPaused = false;
 
-  function initDetailCanvas() {
+  async function initDetailCanvas() {
     if (currentEngine) {
       currentEngine.destroy();
       currentEngine = null;
@@ -96,7 +96,8 @@ const { artwork } = Astro.props;
     }
 
     const fpsDisplay = document.getElementById('fps-display');
-    const renderer = getAlgorithmRenderer(algorithmKey);
+    const renderer = await getAlgorithmRenderer(algorithmKey);
+    if (!canvas.isConnected) return;
 
     currentEngine = new CanvasEngine({
       canvas,

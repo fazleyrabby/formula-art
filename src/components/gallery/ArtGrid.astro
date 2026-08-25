@@ -13,83 +13,129 @@ const { artworks } = Astro.props;
   id="art-grid"
   class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 sm:gap-6"
 >
-  {artworks.map((artwork) => (
-    <ArtCard artwork={artwork} />
+  {artworks.map((artwork, idx) => (
+    <ArtCard artwork={artwork} index={idx} />
   ))}
 </div>
 
 <script>
   import { CanvasEngine } from '../../engine/CanvasEngine';
-  import { VisibilityManager } from '../../engine/VisibilityManager';
   import { getAlgorithmRenderer } from '../../algorithms/registry';
 
-  let activeEngines: CanvasEngine[] = [];
+  let observer: IntersectionObserver | null = null;
+  const engineMap = new WeakMap<Element, CanvasEngine>();
+  const activeEngines: CanvasEngine[] = [];
+  let isTabVisible = true;
+  let prefersReducedMotion = false;
 
-  function shuffleGridItems() {
-    const grid = document.getElementById('art-grid');
-    if (!grid) return;
-    const cards = Array.from(grid.children);
-    if (cards.length <= 1) return;
-
-    // Fisher-Yates shuffle
-    for (let i = cards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = cards[i];
-      cards[i] = cards[j];
-      cards[j] = temp;
-    }
-
-    // Re-append in randomized order
-    cards.forEach((card) => grid.appendChild(card));
-  }
-
-  function initGridCanvases() {
-    // Cleanup any existing engines
-    cleanupGridCanvases();
-
-    // Randomize card order on every refresh
-    shuffleGridItems();
-
-    const visibilityManager = VisibilityManager.getInstance();
-    const cards = document.querySelectorAll<HTMLElement>('.art-card-container');
-
-    cards.forEach((card) => {
-      const canvas = card.querySelector<HTMLCanvasElement>('canvas[data-card-canvas]');
-      if (!canvas) return;
-
-      const algorithmKey = canvas.getAttribute('data-algorithm') || 'organic-wave';
-      const paramsJson = canvas.getAttribute('data-params') || '{}';
-      
-      let params = {};
-      try {
-        params = JSON.parse(paramsJson);
-      } catch (e) {
-        console.error('Failed to parse card params', e);
-      }
-
-      try {
-        const renderer = getAlgorithmRenderer(algorithmKey);
-        const engine = new CanvasEngine({
-          canvas,
-          renderer,
-          initialParams: params,
-        });
-
-        activeEngines.push(engine);
-        visibilityManager.register(card, engine);
-      } catch (err) {
-        console.error(`Failed to initialize engine for ${algorithmKey}:`, err);
+  function handleVisibilityChange() {
+    isTabVisible = !document.hidden;
+    activeEngines.forEach((engine) => {
+      if (!isTabVisible || prefersReducedMotion) {
+        engine.stop();
+        if (prefersReducedMotion) engine.renderSingleFrame(1.0);
+      } else {
+        engine.start();
       }
     });
   }
 
+  function initGridObserver() {
+    cleanupGridCanvases();
+
+    isTabVisible = !document.hidden;
+    prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    const cards = document.querySelectorAll<HTMLElement>('.art-card-container');
+    if (cards.length === 0) return;
+
+    if (!('IntersectionObserver' in window)) {
+      // Fallback for browsers without IntersectionObserver: lazy load on scroll/idle
+      return;
+    }
+
+    observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(async (entry) => {
+          const card = entry.target as HTMLElement;
+          const canvas = card.querySelector<HTMLCanvasElement>('canvas[data-card-canvas]');
+          if (!canvas) return;
+
+          if (entry.isIntersecting) {
+            let engine = engineMap.get(card);
+
+            if (!engine) {
+              const algorithmKey = canvas.getAttribute('data-algorithm') || 'organic-wave';
+              const paramsJson = canvas.getAttribute('data-params') || '{}';
+              let params = {};
+              try {
+                params = JSON.parse(paramsJson);
+              } catch (e) {
+                // Ignore fallback
+              }
+
+              try {
+                const renderer = await getAlgorithmRenderer(algorithmKey);
+                // Check if card is still attached and intersecting
+                if (!card.isConnected) return;
+
+                engine = new CanvasEngine({
+                  canvas,
+                  renderer,
+                  initialParams: params,
+                });
+
+                engineMap.set(card, engine);
+                activeEngines.push(engine);
+
+                if (prefersReducedMotion) {
+                  engine.renderSingleFrame(1.0);
+                } else if (isTabVisible) {
+                  engine.start();
+                }
+              } catch (err) {
+                console.error(`Failed to initialize engine for ${algorithmKey}:`, err);
+              }
+            } else {
+              if (prefersReducedMotion) {
+                engine.renderSingleFrame(1.0);
+              } else if (isTabVisible) {
+                engine.start();
+              }
+            }
+          } else {
+            // Out of viewport: pause rAF loop to free CPU & GPU
+            const engine = engineMap.get(card);
+            if (engine) {
+              engine.stop();
+            }
+          }
+        });
+      },
+      {
+        rootMargin: '200px 0px',
+        threshold: 0.01,
+      }
+    );
+
+    cards.forEach((card) => observer!.observe(card));
+  }
+
   function cleanupGridCanvases() {
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
     activeEngines.forEach((engine) => engine.destroy());
-    activeEngines = [];
+    activeEngines.length = 0;
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
   }
 
   // Setup on initial mount and Astro view transitions
-  initGridCanvases();
-  document.addEventListener('astro:page-load', initGridCanvases);
+  initGridObserver();
+  document.addEventListener('astro:page-load', initGridObserver);
   document.addEventListener('astro:before-swap', cleanupGridCanvases);
 </script>
