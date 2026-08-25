@@ -1,0 +1,63 @@
+{
+  "id": "065",
+  "slug": "botanical-filigrane",
+  "title": "Victorian Botanical Vine Filigree",
+  "subtitle": "Acanthus Leaf Scrolls & Coiling Golden Buds",
+  "category": "botany",
+  "description": "Victorian silversmith and fine jewelry scrollwork featuring blossoming acanthus leaves, delicate gold wire feather venation, and curving vine stems that coil into Fibonacci spiral bud flourishes.",
+  "mathNotation": "\\mathbf{p}_{\\text{stem}}(u) = \\mathbf{p}_0 + r(u) \\begin{bmatrix} \\cos(k u) \\\\ \\sin(k u) \\end{bmatrix} + \\mathbf{w}_{\\text{lateral}}(u), \\quad r_{\\text{bud}}(\\theta) = r_0 (1 - \\theta/\\theta_{\\max})^{1.4}",
+  "formulaCompact": "stem = [cos(0.6ku)*r + warp, sin(0.6ku)*r],  bud = tip + [cos(-θ)*r_bud, sin(-θ)*r_bud]",
+  "formulaFull": "const arcAngle = u * Math.PI * 1.25;\nconst r = coreR + (maxR - coreR) * Math.pow(u, 0.9);\nconst lateralWarp = Math.sin(u * Math.PI * 2 + t) * (maxR * 0.12 * (1 - u));\nconst vx = Math.cos(arcAngle * 0.6) * r + lateralWarp;\nconst vy = Math.sin(arcAngle * 0.6) * r;",
+  "algorithmKey": "botanical-filigrane",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "leafTendrils",
+      "label": "Tendril Arms",
+      "type": "range",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "defaultValue": 6,
+      "description": "Number of radial vine stems"
+    },
+    {
+      "key": "spiralBuds",
+      "label": "Bud Coil Revolutions",
+      "type": "range",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "defaultValue": 4,
+      "description": "Fibonacci spiral revolutions per terminus"
+    },
+    {
+      "key": "growthSpeed",
+      "label": "Growth Rate",
+      "type": "range",
+      "min": 0.2,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 0.5,
+      "description": "Organic breathing and swaying rate"
+    },
+    {
+      "key": "wireGlow",
+      "label": "Gold Wire Sheen",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.4,
+      "step": 0.1,
+      "defaultValue": 0.9,
+      "description": "Luster intensity of gold filaments"
+    }
+  ],
+  "tags": ["botanical", "filigrane", "filigree", "victorian", "acanthus", "leaf", "gold", "vine", "botany", "jewelry"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

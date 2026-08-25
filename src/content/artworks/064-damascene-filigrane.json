@@ -1,0 +1,63 @@
+{
+  "id": "064",
+  "slug": "damascene-filigrane",
+  "title": "Damascene Star Tracery Filigree",
+  "subtitle": "Moorish Girih Inlaid Gold & Emerald Strapwork",
+  "category": "geometry",
+  "description": "Andalusian and Syrian Damascene metalwork featuring interwoven gold ribbon lattices, Islamic star polygon strapwork, and delicate micro-filigree arches with embedded emerald and lapis jewels.",
+  "mathNotation": "\\mathbf{r}_{\\text{star}}(\\theta) = \\frac{R \\cos(\\pi/N)}{\\cos(\\theta \\pmod{2\\pi/N} - \\pi/N)}, \\quad \\mathbf{B}(t) = (1-t)^2 \\mathbf{P}_1 + 2(1-t)t \\mathbf{P}_c + t^2 \\mathbf{P}_2",
+  "formulaCompact": "ctrl = (p1 + p2)*0.5 + norm(a2 ± π/2)*offset,  curve = quadraticBezier(p1, ctrl, p2)",
+  "formulaFull": "const p1x = Math.cos(a1) * rInner;\nconst p1y = Math.sin(a1) * rInner;\nconst p2x = Math.cos(a2) * rOuter;\nconst p2y = Math.sin(a2) * rOuter;\nconst ctrlX = (p1x + p2x) * 0.5 + Math.cos(a2 + Math.PI / 2) * offset;\nconst ctrlY = (p1y + p2y) * 0.5 + Math.sin(a2 + Math.PI / 2) * offset;",
+  "algorithmKey": "damascene-filigrane",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "symmetry",
+      "label": "Star Symmetry",
+      "type": "range",
+      "min": 4,
+      "max": 16,
+      "step": 2,
+      "defaultValue": 8,
+      "description": "Star polygon radial symmetry order"
+    },
+    {
+      "key": "weaveDepth",
+      "label": "Weave Interlace Depth",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.4,
+      "step": 0.1,
+      "defaultValue": 0.8,
+      "description": "Radial strapwork nesting overlap"
+    },
+    {
+      "key": "laceRings",
+      "label": "Concentric Rings",
+      "type": "range",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "defaultValue": 4,
+      "description": "Number of concentric filigree strapwork layers"
+    },
+    {
+      "key": "speed",
+      "label": "Bloom Speed",
+      "type": "range",
+      "min": 0.1,
+      "max": 1.5,
+      "step": 0.1,
+      "defaultValue": 0.5,
+      "description": "Harmonic pulsation and rotation cadence"
+    }
+  ],
+  "tags": ["damascene", "filigrane", "filigree", "girih", "islamic", "gold", "emerald", "strapwork", "geometry"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

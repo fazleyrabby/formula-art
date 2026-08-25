@@ -2633,7 +2633,184 @@ for (let r = 1; r <= 16; r++) {
 ctx.fillStyle = '#f59e0b';
 ctx.beginPath();
 ctx.arc(cx, cy + 85, 14, 0, Math.PI * 2);
-ctx.fill();`
+ctx.fill();`,
+
+  // 62. Baroque Golden Arabesque Filigree
+  'baroque-filigrane': `// 062 - Baroque Golden Arabesque Filigree
+ctx.fillStyle = '#050608';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.44;
+const folds = 8;
+const t = time * 0.6;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+// Rosette Core
+for (let r = 1; r <= 3; r++) {
+  ctx.beginPath();
+  const rad = (r / 3) * (maxR * 0.16);
+  for (let i = 0; i <= folds * 2; i++) {
+    const a = (i / (folds * 2)) * Math.PI * 2 + t * 0.2;
+    const px = Math.cos(a) * rad * (1 + 0.15 * Math.sin(a * folds));
+    const py = Math.sin(a) * rad * (1 + 0.15 * Math.sin(a * folds));
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = 'hsla(45, 90%, 75%, 0.8)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+}
+
+// S-Scroll Volute Arms
+for (let f = 0; f < folds; f++) {
+  ctx.save();
+  ctx.rotate((f / folds) * Math.PI * 2 + t * 0.05);
+
+  ctx.beginPath();
+  const steps = 50;
+  for (let i = 0; i <= steps; i++) {
+    const u = i / steps;
+    const theta = u * Math.PI * 2.2;
+    const r = (maxR * 0.16) + (maxR * 0.84) * Math.pow(u, 0.9);
+    const curl = Math.sin(theta) * (maxR * 0.14 * (1 - u));
+    const px = Math.cos(theta * 0.45) * r + curl;
+    const py = Math.sin(theta * 0.45) * r;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.strokeStyle = 'hsla(' + ((42 + Math.sin(t * 3 + f) * 8) % 360) + ', 92%, 70%, 0.85)';
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+
+  ctx.restore();
+}
+ctx.restore();`,
+
+  // 63. Guilloché Horology Lace Filigree
+  'guilloche-filigrane': `// 063 - Guilloché Horology & Banknote Lace Filigree
+ctx.fillStyle = '#04060c';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const baseR = Math.min(width, height) * 0.42;
+const gearRatio = 7;
+const t = time * 0.4;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+for (let layer = 0; layer < 4; layer++) {
+  const layerFrac = (layer + 1) / 4;
+  const R = baseR * (0.35 + 0.65 * layerFrac);
+  const r = R / gearRatio;
+  const d = r * 0.75;
+  const phase = t * (layer % 2 === 0 ? 0.35 : -0.28) + (layer * Math.PI) / 4;
+
+  ctx.beginPath();
+  const steps = 360;
+  for (let i = 0; i <= steps; i++) {
+    const theta = (i / steps) * Math.PI * 2 * gearRatio;
+    const diff = R - r;
+    const k = diff / r;
+    const wave = Math.sin(theta * 1.7 + phase) * (baseR * 0.04);
+    const x = diff * Math.cos(theta) + (d + wave) * Math.cos(k * theta + phase);
+    const y = diff * Math.sin(theta) - (d + wave) * Math.sin(k * theta + phase);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = 'hsla(' + ((205 + layer * 25 + time * 15) % 360) + ', 95%, 75%, 0.65)';
+  ctx.lineWidth = 1.1;
+  ctx.stroke();
+}
+ctx.restore();`,
+
+  // 64. Damascene Star Tracery Filigree
+  'damascene-filigrane': `// 064 - Damascene Islamic Star Tracery Filigree
+ctx.fillStyle = '#030806';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.43;
+const sym = 8;
+const t = time * 0.5;
+
+ctx.save();
+ctx.translate(cx, cy);
+ctx.rotate(t * 0.05);
+
+for (let ring = 1; ring <= 3; ring++) {
+  const rOuter = maxR * (ring / 3);
+  const rInner = maxR * ((ring - 0.7) / 3);
+  const isGold = ring % 2 === 1;
+
+  for (let s = 0; s < sym; s++) {
+    const a1 = (s / sym) * Math.PI * 2 + ring * 0.3;
+    const a2 = ((s + 0.5) / sym) * Math.PI * 2 + ring * 0.3;
+    const a3 = ((s + 1) / sym) * Math.PI * 2 + ring * 0.3;
+
+    const p1x = Math.cos(a1) * rInner;
+    const p1y = Math.sin(a1) * rInner;
+    const p2x = Math.cos(a2) * rOuter;
+    const p2y = Math.sin(a2) * rOuter;
+    const p3x = Math.cos(a3) * rInner;
+    const p3y = Math.sin(a3) * rInner;
+
+    ctx.beginPath();
+    ctx.moveTo(p1x, p1y);
+    ctx.quadraticCurveTo((p1x + p2x) * 0.5, (p1y + p2y) * 0.5, p2x, p2y);
+    ctx.quadraticCurveTo((p2x + p3x) * 0.5, (p2y + p3y) * 0.5, p3x, p3y);
+
+    ctx.strokeStyle = isGold ? 'hsla(44, 95%, 72%, 0.8)' : 'hsla(158, 90%, 68%, 0.8)';
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+  }
+}
+ctx.restore();`,
+
+  // 65. Victorian Botanical Vine Filigree
+  'botanical-filigrane': `// 065 - Victorian Botanical Vine & Acanthus Filigree
+ctx.fillStyle = '#060706';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.44;
+const tendrils = 6;
+const t = time * 0.5;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+for (let tr = 0; tr < tendrils; tr++) {
+  ctx.save();
+  ctx.rotate((tr / tendrils) * Math.PI * 2 + t * 0.06);
+
+  ctx.beginPath();
+  const steps = 40;
+  for (let i = 0; i <= steps; i++) {
+    const u = i / steps;
+    const r = (maxR * 0.12) + (maxR * 0.88) * Math.pow(u, 0.9);
+    const arc = u * Math.PI * 1.2;
+    const vx = Math.cos(arc * 0.6) * r;
+    const vy = Math.sin(arc * 0.6) * r;
+    if (i === 0) ctx.moveTo(vx, vy);
+    else ctx.lineTo(vx, vy);
+  }
+  ctx.strokeStyle = 'hsla(46, 92%, 70%, 0.9)';
+  ctx.lineWidth = 2.0;
+  ctx.stroke();
+
+  ctx.restore();
+}
+ctx.restore();`
 };
 
 export function getPresetCode(slug: string, title: string, category: string): string {

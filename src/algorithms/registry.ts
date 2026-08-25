@@ -27,6 +27,9 @@ import { createSacredMandala } from './geometry/sacred-mandala';
 import { createMoireInterference } from './geometry/moire-interference';
 import { createPenroseSubdivision } from './geometry/penrose-subdivision';
 import { createMicroscopicIceCrystal } from './geometry/microscopic-ice-crystal';
+import { createBaroqueFiligrane } from './geometry/baroque-filigrane';
+import { createGuillocheFiligrane } from './geometry/guilloche-filigrane';
+import { createDamasceneFiligrane } from './geometry/damascene-filigrane';
 
 // Waves
 import { createFourierHarmonics } from './waves/fourier-harmonics';
@@ -68,6 +71,7 @@ import { createBarnsleyFern } from './botany/barnsley-fern';
 import { createGerstnerOceanWaves } from './botany/gerstner-ocean-waves';
 import { createCoralPolypGrowth } from './botany/coral-polyp-growth';
 import { createSnowFall } from './botany/snow-fall';
+import { createBotanicalFiligrane } from './botany/botanical-filigrane';
 
 // Human Anatomy & Biology
 import { createCardiacPulse } from './anatomy/cardiac-pulse';
@@ -111,6 +115,9 @@ export const algorithmRegistry: Record<string, AlgorithmFactory> = {
   'moire-interference': createMoireInterference,
   'penrose-subdivision': createPenroseSubdivision,
   'microscopic-ice-crystal': createMicroscopicIceCrystal,
+  'baroque-filigrane': createBaroqueFiligrane,
+  'guilloche-filigrane': createGuillocheFiligrane,
+  'damascene-filigrane': createDamasceneFiligrane,
 
   // Waves
   'fourier-harmonics': createFourierHarmonics,
@@ -152,6 +159,7 @@ export const algorithmRegistry: Record<string, AlgorithmFactory> = {
   'gerstner-ocean-waves': createGerstnerOceanWaves,
   'coral-polyp-growth': createCoralPolypGrowth,
   'snow-fall': createSnowFall,
+  'botanical-filigrane': createBotanicalFiligrane,
 
   // Human Anatomy & Biology
   'cardiac-pulse': createCardiacPulse,

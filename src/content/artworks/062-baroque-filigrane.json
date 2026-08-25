@@ -1,0 +1,63 @@
+{
+  "id": "062",
+  "slug": "baroque-filigrane",
+  "title": "Baroque Golden Arabesque Filigree",
+  "subtitle": "Logarithmic Spiral Volutes & Granulated Lace",
+  "category": "geometry",
+  "description": "Royal Baroque gold wire tracery with multi-fold rotational symmetry. Interlocking logarithmic S-scrolls, counter-curling C-volutes, delicate parabolic wire webbing, and gleaming granulated pearl nodes.",
+  "mathNotation": "r(\\theta) = r_0 e^{k \\theta}, \\quad \\mathbf{B}(u) = (1-u)^2 \\mathbf{P}_0 + 2(1-u)u \\mathbf{P}_1 + u^2 \\mathbf{P}_2, \\quad \\theta_m = \\frac{2\\pi m}{N}",
+  "formulaCompact": "r = r_0 + (R-r_0)*u^0.88,  volute = [cos(0.45θ)*r + sin(θ)*offset, sin(0.45θ)*r]",
+  "formulaFull": "const theta = u * Math.PI * 1.8 * tightness;\nconst r = coreR + (maxR - coreR) * Math.pow(u, 0.88);\nconst curlOffset = Math.sin(theta) * (maxR * 0.14 * (1 - u) * tightness);\nconst px = Math.cos(theta * 0.45) * r + curlOffset;\nconst py = Math.sin(theta * 0.45) * r;",
+  "algorithmKey": "baroque-filigrane",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "folds",
+      "label": "Symmetry Folds",
+      "type": "range",
+      "min": 4,
+      "max": 16,
+      "step": 1,
+      "defaultValue": 8,
+      "description": "Radial rotational symmetry order"
+    },
+    {
+      "key": "curlTightness",
+      "label": "Volute Tightness",
+      "type": "range",
+      "min": 0.6,
+      "max": 2.2,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Logarithmic spiral coiling factor"
+    },
+    {
+      "key": "webDensity",
+      "label": "Lace Web Density",
+      "type": "range",
+      "min": 3,
+      "max": 14,
+      "step": 1,
+      "defaultValue": 8,
+      "description": "Filigree wire infill bridging count"
+    },
+    {
+      "key": "shimmerSpeed",
+      "label": "Shimmer Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 0.6,
+      "description": "24K metallic luster cycling rate"
+    }
+  ],
+  "tags": ["filigree", "filigrane", "gold", "baroque", "arabesque", "lace", "jewelry", "ornament", "geometry"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

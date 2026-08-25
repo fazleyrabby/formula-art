@@ -1,0 +1,63 @@
+{
+  "id": "063",
+  "slug": "guilloche-filigrane",
+  "title": "Guilloché Horology Lace Filigree",
+  "subtitle": "Rose Engine Cycloid Banknote Tracery",
+  "category": "geometry",
+  "description": "High-precision geometric guilloché engine-turned filigree inspired by luxury Swiss watch dials and banknote security tracery. Multi-layer hypotrochoid rosettes create shimmering moiré interference lace.",
+  "mathNotation": "x(\\theta) = (R-r)\\cos\\theta + d\\cos\\left(\\frac{R-r}{r}\\theta + \\phi\\right), \\quad y(\\theta) = (R-r)\\sin\\theta - d\\sin\\left(\\frac{R-r}{r}\\theta + \\phi\\right)",
+  "formulaCompact": "x = (R-r)*cos(θ) + d*cos(k*θ + φ),  y = (R-r)*sin(θ) - d*sin(k*θ + φ)",
+  "formulaFull": "const diff = R - r;\nconst k = diff / r;\nconst modHarmonic = Math.sin(theta * (waveMod / gearRatio) + layerPhase) * (baseR * 0.04 * layerFrac);\nconst x = (diff * Math.cos(theta) + (d + modHarmonic) * Math.cos(k * theta + layerPhase));\nconst y = (diff * Math.sin(theta) - (d + modHarmonic) * Math.sin(k * theta + layerPhase));",
+  "algorithmKey": "guilloche-filigrane",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "gearRatio",
+      "label": "Rosette Ratio",
+      "type": "range",
+      "min": 3,
+      "max": 15,
+      "step": 1,
+      "defaultValue": 7,
+      "description": "Hypotrochoid petal count ratio"
+    },
+    {
+      "key": "eccentricity",
+      "label": "Lace Eccentricity",
+      "type": "range",
+      "min": 0.2,
+      "max": 1.4,
+      "step": 0.05,
+      "defaultValue": 0.75,
+      "description": "Cycloid loop extension depth"
+    },
+    {
+      "key": "waveModulation",
+      "label": "Moiré Wave",
+      "type": "range",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "defaultValue": 12,
+      "description": "Harmonic interference frequency"
+    },
+    {
+      "key": "speed",
+      "label": "Precession Rate",
+      "type": "range",
+      "min": 0.1,
+      "max": 1.5,
+      "step": 0.05,
+      "defaultValue": 0.4,
+      "description": "Continuous phase rotation speed"
+    }
+  ],
+  "tags": ["guilloche", "filigrane", "filigree", "horology", "banknote", "cycloid", "moire", "geometry", "hypotrochoid"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}
