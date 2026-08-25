@@ -1,0 +1,53 @@
+{
+  "id": "069",
+  "slug": "bioluminescent-orchid",
+  "title": "Bioluminescent Orchid Epiphyte",
+  "subtitle": "Zygomorphic Bilateral Floral Symmetry & Neon Spurs",
+  "category": "botany",
+  "description": "Exotic tropical orchid displaying zygomorphic bilateral floral symmetry, glowing violet dorsal sepals, flared lateral petals, a neon cyan labellum lip, and floating luminous pollen spores.",
+  "mathNotation": "\\mathbf{B}_{\\text{sepal}}(u) = \\sum_{i=0}^3 \\binom{3}{i} (1-u)^{3-i} u^i \\mathbf{P}_i, \\quad \\mathbf{p}_{\\text{left}}(x, y) = \\begin{bmatrix} -x \\\\ y \\end{bmatrix}_{\\text{right}}",
+  "formulaCompact": "dorsal = bezier(base, ctrl, tip),  lip = bezier(base, cyan_ctrl, nectar_spur)",
+  "formulaFull": "ctx.bezierCurveTo(-lipWidth * 0.8, lipLen * 0.3, -lipWidth, lipLen * 0.8, 0, lipLen);\nctx.bezierCurveTo(lipWidth, lipLen * 0.8, lipWidth * 0.8, lipLen * 0.3, 0, 0);",
+  "algorithmKey": "bioluminescent-orchid",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "luminescence",
+      "label": "Glow Intensity",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Bioluminescent emission strength"
+    },
+    {
+      "key": "veinDensity",
+      "label": "Vein Strands",
+      "type": "range",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "defaultValue": 5,
+      "description": "Number of radiant petal vein filaments"
+    },
+    {
+      "key": "pulseSpeed",
+      "label": "Pulse Cadence",
+      "type": "range",
+      "min": 0.2,
+      "max": 1.5,
+      "step": 0.1,
+      "defaultValue": 0.5,
+      "description": "Luminous breathing rate"
+    }
+  ],
+  "tags": ["orchid", "bioluminescent", "flower", "botany", "neon", "cyan", "violet", "symmetry", "exotic"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

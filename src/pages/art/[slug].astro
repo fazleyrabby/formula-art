@@ -18,11 +18,32 @@ export async function getStaticPaths() {
 }
 
 const { artwork } = Astro.props;
+
+const artworkSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'VisualArtwork',
+  name: artwork.title,
+  alternateName: artwork.subtitle,
+  description: artwork.description,
+  artMedium: 'HTML5 Canvas 2D Generative Algorithm',
+  artform: 'Digital Generative Art',
+  genre: artwork.category,
+  creator: {
+    '@type': 'Person',
+    name: artwork.author?.name || 'Fazley Rabbi',
+    url: 'https://art.fazleyrabbi.xyz'
+  },
+  url: `https://art.fazleyrabbi.xyz/art/${artwork.slug}`,
+  keywords: artwork.tags.join(', ')
+};
 ---
 
 <Layout
   title={`${artwork.title} — Math Art Generative Animation`}
-  description={artwork.description}
+  description={`${artwork.title}: ${artwork.description}`}
+  keywords={[...artwork.tags, 'math art', 'generative algorithm', 'html canvas animation', artwork.category]}
+  type="article"
+  schema={artworkSchema}
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col gap-8">
     <!-- Breadcrumb & Back Navigation -->

@@ -1,0 +1,53 @@
+{
+  "id": "074",
+  "slug": "bioluminescent-dragonfly",
+  "title": "Bioluminescent Odonata Dragonfly",
+  "subtitle": "Counter-Phase 4-Wing Flight & Slender Abdomen",
+  "category": "insects",
+  "description": "High-agility Odonata flight simulation featuring four independently counter-phase flapping wings (90° lag), slender 10-segmented glowing abdomen, pterostigma leading-edge markers, and ambient water ripples.",
+  "mathNotation": "z_{\\text{fore}}(t) = A_1 \\sin(\\omega t), \\quad z_{\\text{hind}}(t) = A_2 \\sin\\left(\\omega t - \\frac{\\pi}{2}\\right), \\quad S_k = S_0 + k \\cdot \\Delta y",
+  "formulaCompact": "forewing = sin(8t),  hindwing = sin(8t - π/2),  abdomen = 10_segments",
+  "formulaFull": "const forePhase = Math.sin(t * 8);\nconst hindPhase = Math.sin(t * 8 - Math.PI * 0.5);\nctx.rotate(wSide * (-Math.PI * 0.42 + forePhase * 0.15));",
+  "algorithmKey": "bioluminescent-dragonfly",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "flapSpeed",
+      "label": "Flight Frequency",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.5,
+      "description": "Wing stroke cadence"
+    },
+    {
+      "key": "bioluminescence",
+      "label": "Cyan Glow Intensity",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Bioluminescent emission strength"
+    },
+    {
+      "key": "wingCells",
+      "label": "Wing Cell Tracery",
+      "type": "range",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "defaultValue": 5,
+      "description": "Number of delicate venation cross-cells"
+    }
+  ],
+  "tags": ["dragonfly", "insect", "odonata", "creatures", "bioluminescent", "cyan", "wings", "flight"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

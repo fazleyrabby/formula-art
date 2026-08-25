@@ -1,0 +1,63 @@
+{
+  "id": "067",
+  "slug": "sacred-lotus",
+  "title": "Sacred Water Lotus Bloom",
+  "subtitle": "Translucent Multi-Tier Petal Foliation & Golden Pod",
+  "category": "botany",
+  "description": "Multi-tier water lotus blossom featuring translucent gradient petals, mathematical gothic ogee arches, glowing golden seed pods (receptacle), and serene ambient ripples.",
+  "mathNotation": "\\mathbf{B}_{\\text{petal}}(u) = (1-u)^3 \\mathbf{P}_0 + 3(1-u)^2 u \\mathbf{P}_1 + 3(1-u) u^2 \\mathbf{P}_2 + u^3 \\mathbf{P}_3, \\quad \\phi_w = \\frac{w \\pi}{N}",
+  "formulaCompact": "petal = cubicBezier(base, ctrl1, tip, ctrl2),  whorl_offset = w*π/N",
+  "formulaFull": "const c1x = -petalWidth * (0.8 + 0.1 * Math.sin(t * 2 + p));\nconst c1y = petalLen * 0.45;\nconst tipX = 0;\nconst tipY = petalLen;\nctx.bezierCurveTo(c1x, c1y, -petalWidth * 0.3, petalLen * 0.85, tipX, tipY);",
+  "algorithmKey": "sacred-lotus",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "petalsPerWhorl",
+      "label": "Petals Per Whorl",
+      "type": "range",
+      "min": 6,
+      "max": 18,
+      "step": 2,
+      "defaultValue": 12,
+      "description": "Number of petals in each concentric layer"
+    },
+    {
+      "key": "whorlLayers",
+      "label": "Layer Count",
+      "type": "range",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "defaultValue": 4,
+      "description": "Number of overlapping petal whorls"
+    },
+    {
+      "key": "bloomOpenness",
+      "label": "Bloom Flare",
+      "type": "range",
+      "min": 0.6,
+      "max": 1.4,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Radial flare opening factor"
+    },
+    {
+      "key": "breathSpeed",
+      "label": "Breathing Rate",
+      "type": "range",
+      "min": 0.2,
+      "max": 1.5,
+      "step": 0.1,
+      "defaultValue": 0.4,
+      "description": "Organic expansion and ripple pulsation rate"
+    }
+  ],
+  "tags": ["lotus", "flower", "water", "sacred", "botany", "petals", "translucent", "pond"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

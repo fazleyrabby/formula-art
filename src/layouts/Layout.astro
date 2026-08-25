@@ -12,17 +12,54 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  keywords?: string[];
+  type?: 'website' | 'article';
+  schema?: Record<string, any>;
 }
 
 const {
-  title = 'Math Art — Generative Mathematical Animations & Formulas',
-  description = 'A lightweight gallery and playground for beautiful mathematical generative animations. Inspect formulas, remix in real-time, and copy code.',
+  title = 'Math Art — 78+ Generative Mathematical Animations & Formulas',
+  description = 'A gallery and live playground for mathematical generative animations rendered on HTML5 Canvas. Inspect pure formulas, remix in real-time, and copy clean code.',
   image = '/og-image.png',
+  keywords = [
+    'math art',
+    'generative art',
+    'mathematical animations',
+    'creative coding',
+    'html5 canvas',
+    'parametric equations',
+    'generative algorithms',
+    'fractals',
+    'interactive canvas',
+    'javascript generative art'
+  ],
+  type = 'website',
+  schema,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://art.fazleyrabbi.xyz');
 const allArtworks = await getCollection('artworks');
 const artworksData = allArtworks.map(a => a.data);
+
+const defaultSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Math Art',
+  url: 'https://art.fazleyrabbi.xyz',
+  description: description,
+  author: {
+    '@type': 'Person',
+    name: 'Fazley Rabbi',
+    url: 'https://fazleyrabbi.xyz'
+  },
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://art.fazleyrabbi.xyz/?q={search_term_string}',
+    'query-input': 'required name=search_term_string'
+  }
+};
+
+const finalSchema = schema || defaultSchema;
 ---
 
 <!doctype html>
@@ -32,19 +69,26 @@ const artworksData = allArtworks.map(a => a.data);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
 
     <!-- Primary Meta Tags -->
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
+    <meta name="keywords" content={keywords.join(', ')} />
+    <meta name="author" content="Fazley Rabbi" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="theme-color" content="#08090d" />
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content="Math Art" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(image, canonicalURL)} />
+    <meta property="og:image:alt" content={title} />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
@@ -52,6 +96,11 @@ const artworksData = allArtworks.map(a => a.data);
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={new URL(image, canonicalURL)} />
+    <meta property="twitter:image:alt" content={title} />
+    <meta name="twitter:creator" content="@fazley_rabby" />
+
+    <!-- JSON-LD Structured Data Schema -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(finalSchema)} />
 
     <!-- Google Fonts Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

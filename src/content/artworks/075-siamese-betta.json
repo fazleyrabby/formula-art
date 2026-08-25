@@ -1,0 +1,53 @@
+{
+  "id": "075",
+  "slug": "siamese-betta",
+  "title": "Royal Siamese Betta Splendens",
+  "subtitle": "Volumetric Veil Fins & Hydrodynamic Undulation",
+  "category": "creatures",
+  "description": "Hydrodynamic fish simulation of Betta splendens featuring multi-layered volumetric flowing veil fins, iridescent cobalt/magenta chromatic gradients, carangiform spinal wave propagation, and delicate ray ribbing.",
+  "mathNotation": "y_{\\text{spine}}(s, t) = s^{1.5} \\cdot A \\sin(ks - \\omega t), \\quad \\mathbf{p}_{\\text{ray}}(u) = \\mathbf{p}_{\\text{tail}} + L \\begin{bmatrix} \\cos\\theta_r \\\\ \\sin\\theta_r \\end{bmatrix} + \\mathbf{w}_{\\text{veil}}(t)",
+  "formulaCompact": "spine = (s/N)^1.5 * amp * sin(ks - ωt),  fin_veil = cubicBezier(p0, cp1, cp2, p3)",
+  "formulaFull": "const amp = Math.pow(frac, 1.5) * (maxR * 0.16);\nconst wave = Math.sin(t * 3.2 - frac * Math.PI * 2.2);\nconst sx = -bodyLen * 0.45 + frac * bodyLen * 0.8;\nconst sy = wave * amp;",
+  "algorithmKey": "siamese-betta",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "swimCadence",
+      "label": "Swimming Cadence",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.8,
+      "step": 0.05,
+      "defaultValue": 0.85,
+      "description": "Carangiform body undulation speed"
+    },
+    {
+      "key": "veilSpread",
+      "label": "Veil Fin Volume",
+      "type": "range",
+      "min": 0.6,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Flowing caudal and dorsal fin veil amplitude"
+    },
+    {
+      "key": "iridescenceSheen",
+      "label": "Scales Iridescence",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Structural color reflection intensity"
+    }
+  ],
+  "tags": ["betta", "fish", "siamese-fighting-fish", "creatures", "fins", "iridescent", "aquatic", "marine"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

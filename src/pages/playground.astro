@@ -16,12 +16,37 @@ const presets = allArtworks.map((a) => ({
   code: getPresetCode(a.data.slug, a.data.title, a.data.category)
 }));
 
-const defaultCode = presets[0].code;
+const defaultCode = presets[0]?.code || '';
+
+const playgroundSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Math Art Formula Generator Studio',
+  url: 'https://art.fazleyrabbi.xyz/playground',
+  description: 'Live interactive studio for mathematical generative art. Modulate rotary knobs, edit algorithms live, and export animations.',
+  applicationCategory: 'MultimediaApplication',
+  operatingSystem: 'Any',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD'
+  }
+};
 ---
 
 <Layout
-  title="Playground — Math Art Visual Generator & Live Studio"
-  description="Generate and live modulate generative mathematical art using interactive rotary knobs, sliders, toggle switches, or direct code inspection."
+  title="Formula Generator Studio & Playground — Math Art"
+  description="Generate and live modulate 78+ generative mathematical art formulas using interactive rotary knobs, sliders, and real-time live code editing."
+  keywords={[
+    'math art playground',
+    'generative art studio',
+    'live code canvas',
+    'interactive rotary knobs',
+    'creative coding editor',
+    'javascript math animations',
+    'canvas 2d studio'
+  ]}
+  schema={playgroundSchema}
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
     <!-- Header & Mode Switcher -->

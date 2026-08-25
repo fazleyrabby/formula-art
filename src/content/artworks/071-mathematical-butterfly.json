@@ -1,0 +1,53 @@
+{
+  "id": "071",
+  "slug": "mathematical-butterfly",
+  "title": "Temple Fay Mathematical Butterfly",
+  "subtitle": "Transcendental Polar Curve & Iridescent Wing Venation",
+  "category": "insects",
+  "description": "Mathematical Lepidopteran flight combining Temple H. Fay's transcendental polar butterfly curve with iridescent Morpho blue wing scales, 3D flapping perspective kinematics, and feathery clubbed antennae.",
+  "mathNotation": "r(\\theta) = e^{\\sin\\theta} - 2\\cos(4\\theta) + \\sin^5\\left(\\frac{2\\theta - \\pi}{24}\\right), \\quad x_\\text{flap}(t) = x \\cdot \\left(0.35 + 0.65\\cos(\\omega t)\\right)",
+  "formulaCompact": "r = exp(sin θ) - 2*cos(4θ) + sin^5((2θ - π)/24),  x = sin(θ)*r*flap_x",
+  "formulaFull": "const theta = u * Math.PI * 0.75 - Math.PI * 0.15;\nconst r = maxR * (0.3 + 0.68 * Math.pow(Math.sin(u * Math.PI), 0.7));\nconst fx = Math.sin(theta) * r * 1.2 * flapScaleX;\nconst fy = -Math.cos(theta) * r * 0.95;",
+  "algorithmKey": "mathematical-butterfly",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "flapSpeed",
+      "label": "Flapping Rate",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.2,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Wing flap oscillation cadence"
+    },
+    {
+      "key": "iridescence",
+      "label": "Wing Iridescence",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Structural color reflection intensity"
+    },
+    {
+      "key": "venationDensity",
+      "label": "Venation Cells",
+      "type": "range",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "defaultValue": 5,
+      "description": "Fractal wing vein branching density"
+    }
+  ],
+  "tags": ["butterfly", "insect", "lepidoptera", "temple-fay", "creatures", "wings", "iridescent", "morpho"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

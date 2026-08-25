@@ -1,0 +1,53 @@
+{
+  "id": "077",
+  "slug": "symphysodon-discus",
+  "title": "Royal Symphysodon Discus",
+  "subtitle": "Disciform Geometry & Neon Striations",
+  "category": "creatures",
+  "description": "Amazonian disciform fish simulation featuring a circular laterally compressed body profile, vertical melanin Heckel stress bars, labyrinthine electric turquoise striations, and ruby-red eyes.",
+  "mathNotation": "\\left(\\frac{x}{a}\\right)^2 + \\left(\\frac{y}{b}\\right)^2 \\le 1, \\quad y_{\\text{striation}}(x, w) = y_0 + A \\sin(k x + \\omega t + w)",
+  "formulaCompact": "disc_body = ellipse(r_x=0.52, r_y=0.54),  heckel_bars = vertical(b)",
+  "formulaFull": "const rAngle = -Math.PI * 0.6 + rFrac * Math.PI * 1.2;\nconst rBaseX = Math.sin(rAngle) * (maxR * 0.52);\nconst rBaseY = fSide * (Math.cos(rAngle) * (maxR * 0.52));\nconst finHeight = maxR * 0.22 * Math.sin(rFrac * Math.PI);",
+  "algorithmKey": "symphysodon-discus",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "hoverRate",
+      "label": "Hovering Dynamics",
+      "type": "range",
+      "min": 0.3,
+      "max": 1.6,
+      "step": 0.05,
+      "defaultValue": 0.8,
+      "description": "Slow buoyant hovering cycle speed"
+    },
+    {
+      "key": "striationLuster",
+      "label": "Neon Cyan Striations",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Electric turquoise striation brightness"
+    },
+    {
+      "key": "stressBars",
+      "label": "Vertical Heckel Bars",
+      "type": "range",
+      "min": 5,
+      "max": 11,
+      "step": 2,
+      "defaultValue": 7,
+      "description": "Number of dark vertical melanin stress bars"
+    }
+  ],
+  "tags": ["discus", "symphysodon", "fish", "cichlid", "creatures", "disciform", "tropical", "amazon"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

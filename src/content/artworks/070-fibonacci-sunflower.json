@@ -1,0 +1,63 @@
+{
+  "id": "070",
+  "slug": "fibonacci-sunflower",
+  "title": "Fibonacci Sunflower Florets",
+  "subtitle": "Vogel Model Seed Packing & Golden Ray Petals",
+  "category": "botany",
+  "description": "Botanical sunflower capitulum exhibiting Helmut Vogel's golden angle seed packing model (137.508°), showing interlocking clockwise and counter-clockwise parastichy spirals framed by radiant waving golden ray petals.",
+  "mathNotation": "\\theta_n = n \\times 137.507764^\\circ, \\quad r_n = c \\sqrt{n}, \\quad \\mathbf{B}_{\\text{ray}}(u) = \\sum_{i=0}^3 \\binom{3}{i}(1-u)^{3-i} u^i \\mathbf{P}_i",
+  "formulaCompact": "θ = n * 137.508°,  r = c * sqrt(n),  floret = [cos(θ)*r, sin(θ)*r]",
+  "formulaFull": "const theta = n * divAngleRad + t * 0.03;\nconst r = c * Math.sqrt(n);\nconst px = Math.cos(theta) * r;\nconst py = Math.sin(theta) * r;",
+  "algorithmKey": "fibonacci-sunflower",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "floretCount",
+      "label": "Floret Seed Count",
+      "type": "range",
+      "min": 150,
+      "max": 800,
+      "step": 25,
+      "defaultValue": 450,
+      "description": "Total number of Fermat spiral seed florets"
+    },
+    {
+      "key": "goldenAngleOffset",
+      "label": "Divergence Angle (°)",
+      "type": "range",
+      "min": 137.0,
+      "max": 138.0,
+      "step": 0.02,
+      "defaultValue": 137.508,
+      "description": "Phyllotaxis angular divergence (137.508° is optimal)"
+    },
+    {
+      "key": "rayPetals",
+      "label": "Ray Petal Count",
+      "type": "range",
+      "min": 13,
+      "max": 55,
+      "step": 1,
+      "defaultValue": 21,
+      "description": "Fibonacci number of outer golden ray petals"
+    },
+    {
+      "key": "swaySpeed",
+      "label": "Sunburst Sway Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 0.5,
+      "description": "Gentle meadow breeze swaying cadence"
+    }
+  ],
+  "tags": ["sunflower", "fibonacci", "vogel", "golden-angle", "botany", "flower", "phyllotaxis", "spirals"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

@@ -1,0 +1,53 @@
+{
+  "id": "073",
+  "slug": "golden-honeybee",
+  "title": "Golden Mathematical Honeybee",
+  "subtitle": "Apis Mellifera Kinematics & Hexagonal Honeycomb Matrix",
+  "category": "insects",
+  "description": "Biomimetic simulation of Apis mellifera displaying 230 Hz figure-8 aerodynamic wing strokes, banded golden velvet abdominal segments, and a surrounding hexagonal honeycomb geometric matrix.",
+  "mathNotation": "\\phi(t) = A \\cos(\\omega t), \\quad \\psi(t) = B \\sin(2\\omega t), \\quad \\mathbf{H}_k = \\mathbf{c} + R \\begin{bmatrix} \\cos(k\\pi/3 + \\pi/6) \\\\ \\sin(k\\pi/3 + \\pi/6) \\end{bmatrix}",
+  "formulaCompact": "wing_stroke = rotate(-π/2 + sin(18t)*0.35),  honeycomb = regularHexagon(r)",
+  "formulaFull": "const baseWingAngle = -Math.PI * 0.48 * wSide + strokePhase * 0.35 * wSide;\nctx.rotate(baseWingAngle);\nctx.scale(1, 0.4 + 0.6 * Math.abs(strokePhase));",
+  "algorithmKey": "golden-honeybee",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "wingBeatSpeed",
+      "label": "Wingbeat Speed",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.4,
+      "description": "High-frequency stroke oscillation rate"
+    },
+    {
+      "key": "combRadius",
+      "label": "Honeycomb Scale",
+      "type": "range",
+      "min": 0.6,
+      "max": 1.4,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Scale of surrounding hexagonal honeycomb tessellation"
+    },
+    {
+      "key": "pollenCount",
+      "label": "Pollen Motes",
+      "type": "range",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "defaultValue": 20,
+      "description": "Number of floating glowing pollen dust motes"
+    }
+  ],
+  "tags": ["honeybee", "bee", "insect", "hymenoptera", "creatures", "honeycomb", "gold", "hexagonal"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

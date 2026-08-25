@@ -1,0 +1,53 @@
+{
+  "id": "078",
+  "slug": "electric-lionfish",
+  "title": "Electric Radiant Lionfish",
+  "subtitle": "Pterois Radiata Spines & Fan Pectoral Kinematics",
+  "category": "creatures",
+  "description": "Marine reef simulation of Pterois radiata featuring thirteen elongated venomous dorsal spines with undulating luminous tips, fan-like zebra-banded pectoral ray wings, feathered supraocular horns, and slow predatory buoyancy.",
+  "mathNotation": "\\mathbf{p}_{\\text{spine}}(s) = \\mathbf{p}_{\\text{dorsal}} + L_s \\begin{bmatrix} \\cos\\theta_s \\\\ \\sin\\theta_s \\end{bmatrix} + \\mathbf{w}_{\\text{drift}}(t), \\quad \\mathbf{p}_{\\text{wing}}(r) = \\text{fanRay}(r, t)",
+  "formulaCompact": "spine = line(root, angle, len) + wave(t),  pectoral_fan = 10_rays(angle, t)",
+  "formulaFull": "const sAngle = -Math.PI * 0.65 + sFrac * Math.PI * 0.55;\nconst sLen = maxR * (0.8 + 0.35 * Math.sin(sFrac * Math.PI)) * spineSpread;\nconst sWave = Math.sin(t * 2.8 - s * 0.4) * (maxR * 0.08);\nconst sTipX = sRootX + Math.cos(sAngle) * sLen + sWave;\nconst sTipY = sRootY + Math.sin(sAngle) * sLen;",
+  "algorithmKey": "electric-lionfish",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "spineLength",
+      "label": "Dorsal Spines Spread",
+      "type": "range",
+      "min": 0.6,
+      "max": 1.5,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Elongated venomous spine length and arc"
+    },
+    {
+      "key": "pectoralWave",
+      "label": "Pectoral Fan Motion",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.8,
+      "step": 0.05,
+      "defaultValue": 0.85,
+      "description": "Pectoral fin ray oscillation cadence"
+    },
+    {
+      "key": "bioluminescence",
+      "label": "Needle Tip Glow",
+      "type": "range",
+      "min": 0.3,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Cyan glow luminescence at spine tips"
+    }
+  ],
+  "tags": ["lionfish", "fish", "pterois", "creatures", "spines", "reef", "venomous", "marine"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

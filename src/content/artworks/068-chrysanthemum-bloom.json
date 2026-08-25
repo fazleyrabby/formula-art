@@ -1,0 +1,63 @@
+{
+  "id": "068",
+  "slug": "chrysanthemum-bloom",
+  "title": "Chrysanthemum Polar Blossom",
+  "subtitle": "Paul Bourke High-Harmonic Foliation Curve",
+  "category": "botany",
+  "description": "High-density harmonic polar flower foliation based on Paul Bourke's Chrysanthemum curve, displaying hundreds of golden amber curved petal curls unfolding around a Fibonacci disk core.",
+  "mathNotation": "r(\\theta) = 5\\left(1 + \\sin\\frac{11\\theta}{5}\\right) - 4\\sin^4\\frac{17\\theta}{3}\\sin^8\\left(9\\theta - \\frac{\\pi}{2}\\right), \\quad 0 \\le \\theta \\le 16\\pi",
+  "formulaCompact": "r = 5*(1 + sin(11θ/5)) - 4*sin^4(17θ/3)*sin^8(9θ - π/2)",
+  "formulaFull": "const p1 = 5 * (1 + Math.sin((pMod * theta) / 5 + layerPhase));\nconst p2 = curlIntensity * Math.pow(Math.sin((17 * theta) / 3 - t * 0.8), 4);\nconst p3 = Math.pow(Math.sin(9 * theta - Math.PI * 0.5 + layerPhase * 0.5), 8);\nconst r = Math.max(0.1, (p1 - p2 * p3)) * scale;",
+  "algorithmKey": "chrysanthemum-bloom",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "petalDensity",
+      "label": "Harmonic Petal Pitch",
+      "type": "range",
+      "min": 7,
+      "max": 19,
+      "step": 2,
+      "defaultValue": 11,
+      "description": "Harmonic frequency of primary petal oscillations"
+    },
+    {
+      "key": "curlIntensity",
+      "label": "Petal Curl Depth",
+      "type": "range",
+      "min": 2,
+      "max": 6,
+      "step": 0.5,
+      "defaultValue": 4,
+      "description": "High-order sine power curl amplitude"
+    },
+    {
+      "key": "spiralLayers",
+      "label": "Nested Layers",
+      "type": "range",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "defaultValue": 3,
+      "description": "Number of concentric foliation passes"
+    },
+    {
+      "key": "bloomRate",
+      "label": "Unfurling Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 1.5,
+      "step": 0.1,
+      "defaultValue": 0.5,
+      "description": "Angular rotation and dynamic curl rate"
+    }
+  ],
+  "tags": ["chrysanthemum", "flower", "bourke", "polar", "botany", "harmonics", "petals", "gold"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

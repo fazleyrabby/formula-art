@@ -2810,6 +2810,656 @@ for (let tr = 0; tr < tendrils; tr++) {
 
   ctx.restore();
 }
+ctx.restore();`,
+
+  // 66. Maurer Rhodonea Rose
+  'rhodonea-rose': `// 066 - Maurer Rhodonea Rose
+ctx.fillStyle = '#060305';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.43;
+const k = 6;
+const d = 71;
+const t = time * 0.4;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+// Maurer Chords
+for (let layer = 1; layer <= 3; layer++) {
+  const layerR = maxR * (0.3 + 0.7 * (layer / 3)) * (1 + 0.05 * Math.sin(t * 0.8 + layer));
+  ctx.save();
+  ctx.rotate(t * 0.08 * (layer % 2 === 0 ? 1 : -0.7) + (layer * Math.PI) / 3);
+
+  ctx.beginPath();
+  for (let i = 0; i <= 360; i++) {
+    const theta = ((i * d) * Math.PI) / 180;
+    const r = layerR * Math.sin(k * theta);
+    const px = Math.cos(theta) * r;
+    const py = Math.sin(theta) * r;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.strokeStyle = 'hsla(' + ((345 + layer * 15) % 360) + ', 85%, 72%, 0.35)';
+  ctx.lineWidth = 0.9;
+  ctx.stroke();
+  ctx.restore();
+}
+
+// Center Stamens
+for (let s = 0; s < 24; s++) {
+  const sa = (s / 24) * Math.PI * 2 + t * 0.2;
+  const sx = Math.cos(sa) * 18;
+  const sy = Math.sin(sa) * 18;
+  ctx.fillStyle = '#fbbf24';
+  ctx.beginPath();
+  ctx.arc(sx, sy, 1.8, 0, Math.PI * 2);
+  ctx.fill();
+}
+ctx.restore();`,
+
+  // 67. Sacred Water Lotus
+  'sacred-lotus': `// 067 - Sacred Water Lotus Bloom
+ctx.fillStyle = '#03060a';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.44;
+const petals = 12;
+const t = time * 0.4;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+for (let w = 3; w >= 1; w--) {
+  const pLen = maxR * (0.4 + 0.6 * (w / 3));
+  const pWidth = pLen * 0.38;
+  const whorlOff = (w * Math.PI) / petals + t * 0.1;
+
+  for (let p = 0; p < petals; p++) {
+    ctx.save();
+    ctx.rotate((p / petals) * Math.PI * 2 + whorlOff);
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(-pWidth, pLen * 0.45, -pWidth * 0.3, pLen * 0.85, 0, pLen);
+    ctx.bezierCurveTo(pWidth * 0.3, pLen * 0.85, pWidth, pLen * 0.45, 0, 0);
+
+    ctx.fillStyle = 'hsla(' + (330 - (3 - w) * 15) + ', 85%, 68%, 0.25)';
+    ctx.fill();
+    ctx.strokeStyle = 'hsla(345, 90%, 80%, 0.7)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    ctx.restore();
+  }
+}
+
+// Golden Receptacle Pod
+ctx.beginPath();
+ctx.arc(0, 0, maxR * 0.12, 0, Math.PI * 2);
+ctx.fillStyle = '#eab308';
+ctx.fill();
+ctx.restore();`,
+
+  // 68. Chrysanthemum Polar Blossom
+  'chrysanthemum-bloom': `// 068 - Chrysanthemum Polar Blossom
+ctx.fillStyle = '#060504';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const scale = Math.min(width, height) * 0.038;
+const t = time * 0.5;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+for (let layer = 1; layer <= 3; layer++) {
+  const lScale = scale * (0.5 + 0.5 * (layer / 3));
+  ctx.beginPath();
+  const steps = 900;
+  for (let i = 0; i <= steps; i++) {
+    const theta = (i / steps) * 16 * Math.PI;
+    const p1 = 5 * (1 + Math.sin((11 * theta) / 5 + t * 0.3));
+    const p2 = 4 * Math.pow(Math.sin((17 * theta) / 3 - t * 0.5), 4);
+    const p3 = Math.pow(Math.sin(9 * theta - Math.PI * 0.5), 8);
+    const r = Math.max(0.1, p1 - p2 * p3) * lScale;
+
+    const px = Math.cos(theta) * r;
+    const py = Math.sin(theta) * r;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.strokeStyle = 'hsla(' + ((38 + layer * 15) % 360) + ', 92%, 70%, 0.55)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+}
+ctx.restore();`,
+
+  // 69. Bioluminescent Orchid
+  'bioluminescent-orchid': `// 069 - Bioluminescent Orchid Epiphyte
+ctx.fillStyle = '#040308';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.52;
+const maxR = Math.min(width, height) * 0.42;
+const t = time * 0.5;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+// Dorsal Sepal
+ctx.beginPath();
+ctx.moveTo(0, 0);
+ctx.bezierCurveTo(-maxR * 0.28, -maxR * 0.35, 0, -maxR * 0.7, 0, -maxR * 0.75);
+ctx.bezierCurveTo(0, -maxR * 0.7, maxR * 0.28, -maxR * 0.35, 0, 0);
+ctx.fillStyle = 'hsla(285, 90%, 60%, 0.35)';
+ctx.fill();
+ctx.strokeStyle = '#c084fc';
+ctx.lineWidth = 1.4;
+ctx.stroke();
+
+// Flared Wings
+for (const side of [-1, 1]) {
+  ctx.save();
+  ctx.rotate(side * Math.PI * 0.58);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(-maxR * 0.2, -maxR * 0.3, 0, -maxR * 0.8, 0, -maxR * 0.85);
+  ctx.bezierCurveTo(0, -maxR * 0.8, maxR * 0.2, -maxR * 0.3, 0, 0);
+  ctx.fillStyle = 'hsla(270, 90%, 65%, 0.3)';
+  ctx.fill();
+  ctx.strokeStyle = '#a855f7';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  ctx.restore();
+}
+
+// Cyan Labellum Lip
+ctx.beginPath();
+ctx.moveTo(0, 0);
+ctx.bezierCurveTo(-maxR * 0.35, maxR * 0.2, -maxR * 0.4, maxR * 0.45, 0, maxR * 0.55);
+ctx.bezierCurveTo(maxR * 0.4, maxR * 0.45, maxR * 0.35, maxR * 0.2, 0, 0);
+ctx.fillStyle = 'hsla(185, 95%, 55%, 0.45)';
+ctx.fill();
+ctx.strokeStyle = '#38bdf8';
+ctx.lineWidth = 1.8;
+ctx.stroke();
+
+// Glowing Core
+ctx.fillStyle = '#fef08a';
+ctx.beginPath();
+ctx.arc(0, 0, 4, 0, Math.PI * 2);
+ctx.fill();
+ctx.restore();`,
+
+  // 70. Fibonacci Sunflower Florets
+  'fibonacci-sunflower': `// 070 - Fibonacci Sunflower Florets
+ctx.fillStyle = '#060503';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.44;
+const florets = 400;
+const divAngle = (137.507764 * Math.PI) / 180;
+const t = time * 0.5;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+const diskR = maxR * 0.55;
+
+// Ray Petals
+const rayPetals = 21;
+for (let p = 0; p < rayPetals; p++) {
+  const ang = (p / rayPetals) * Math.PI * 2 + Math.sin(t * 1.5 + p * 0.4) * 0.04;
+  ctx.save();
+  ctx.rotate(ang);
+
+  ctx.beginPath();
+  ctx.moveTo(0, diskR * 0.85);
+  ctx.bezierCurveTo(-22, diskR + 25, -6, maxR * 0.95, 0, maxR);
+  ctx.bezierCurveTo(6, maxR * 0.95, 22, diskR + 25, 0, diskR * 0.85);
+
+  ctx.fillStyle = '#facc15';
+  ctx.fill();
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// Vogel Seed Disk
+const c = diskR / Math.sqrt(florets);
+for (let n = 1; n <= florets; n++) {
+  const theta = n * divAngle + t * 0.03;
+  const r = c * Math.sqrt(n);
+  const px = Math.cos(theta) * r;
+  const py = Math.sin(theta) * r;
+
+  const nNorm = n / florets;
+  ctx.fillStyle = 'hsla(' + (26 + nNorm * 22) + ', 90%, ' + (24 + nNorm * 48) + '%, 0.95)';
+  ctx.beginPath();
+  ctx.arc(px, py, 1.2 + nNorm * 2.2, 0, Math.PI * 2);
+  ctx.fill();
+}
+ctx.restore();`,
+
+  // 71. Temple Fay Mathematical Butterfly
+  'mathematical-butterfly': `// 071 - Temple Fay Mathematical Butterfly
+ctx.fillStyle = '#040308';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.44;
+const flapX = 0.35 + 0.65 * Math.cos(time * 4.2);
+
+ctx.save();
+ctx.translate(cx, cy + Math.sin(time * 2.5) * 8);
+
+for (const side of [-1, 1]) {
+  ctx.save();
+  ctx.scale(side * flapX, 1);
+
+  // Forewing
+  ctx.beginPath();
+  const fSteps = 50;
+  for (let i = 0; i <= fSteps; i++) {
+    const u = i / fSteps;
+    const theta = u * Math.PI * 0.75 - Math.PI * 0.15;
+    const r = maxR * (0.3 + 0.68 * Math.pow(Math.sin(u * Math.PI), 0.7));
+    const fx = Math.sin(theta) * r * 1.2;
+    const fy = -Math.cos(theta) * r * 0.95;
+    if (i === 0) ctx.moveTo(fx, fy);
+    else ctx.lineTo(fx, fy);
+  }
+  ctx.fillStyle = 'hsla(195, 90%, 52%, 0.5)';
+  ctx.fill();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+
+  // Hindwing
+  ctx.beginPath();
+  const hSteps = 40;
+  for (let j = 0; j <= hSteps; j++) {
+    const v = j / hSteps;
+    const phi = v * Math.PI * 0.8 + Math.PI * 0.4;
+    const hr = maxR * (0.25 + 0.48 * Math.sin(v * Math.PI));
+    const hx = Math.sin(phi) * hr * 0.9;
+    const hy = -Math.cos(phi) * hr * 0.9;
+    if (j === 0) ctx.moveTo(hx, hy);
+    else ctx.lineTo(hx, hy);
+  }
+  ctx.fillStyle = 'hsla(180, 90%, 45%, 0.45)';
+  ctx.fill();
+  ctx.strokeStyle = '#22d3ee';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// Abdomen & Antennae
+ctx.beginPath();
+ctx.ellipse(0, 0, 5, 25, 0, 0, Math.PI * 2);
+ctx.fillStyle = '#0f172a';
+ctx.fill();
+ctx.strokeStyle = '#38bdf8';
+ctx.stroke();
+ctx.restore();`,
+
+  // 72. Iridescent Jewel Scarab Beetle
+  'scarab-beetle': `// 072 - Iridescent Jewel Scarab Beetle
+ctx.fillStyle = '#030504';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.42;
+const t = time * 0.8;
+
+ctx.save();
+ctx.translate(cx, cy + Math.sin(t * 2) * 4);
+
+const baseHue = (145 + Math.sin(t * 0.8) * 35) % 360;
+
+// Elytra Shells
+for (const eSide of [-1, 1]) {
+  ctx.save();
+  ctx.rotate(eSide * 0.15);
+
+  ctx.beginPath();
+  ctx.moveTo(0, -maxR * 0.02);
+  ctx.bezierCurveTo(eSide * maxR * 0.35, -maxR * 0.02, eSide * maxR * 0.35, maxR * 0.5, eSide * 2, maxR * 0.58);
+  ctx.lineTo(0, -maxR * 0.02);
+  ctx.fillStyle = 'hsla(' + baseHue + ', 88%, 42%, 0.95)';
+  ctx.fill();
+  ctx.strokeStyle = 'hsla(' + (baseHue + 40) + ', 95%, 80%, 0.95)';
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// Pronotum Shield
+ctx.beginPath();
+ctx.ellipse(0, -maxR * 0.12, maxR * 0.22, maxR * 0.1, 0, 0, Math.PI * 2);
+ctx.fillStyle = 'hsla(' + (baseHue + 20) + ', 85%, 36%, 0.95)';
+ctx.fill();
+ctx.strokeStyle = '#fbbf24';
+ctx.lineWidth = 1.5;
+ctx.stroke();
+
+// Head & Horns
+ctx.beginPath();
+ctx.arc(0, -maxR * 0.24, maxR * 0.1, 0, Math.PI * 2);
+ctx.fillStyle = '#06130b';
+ctx.fill();
+ctx.restore();`,
+
+  // 73. Golden Mathematical Honeybee
+  'golden-honeybee': `// 073 - Golden Mathematical Honeybee
+ctx.fillStyle = '#060402';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.52;
+const maxR = Math.min(width, height) * 0.42;
+const strokePhase = Math.sin(time * 25);
+
+ctx.save();
+ctx.translate(cx, cy);
+
+// Rapid Wings
+for (const wSide of [-1, 1]) {
+  ctx.save();
+  ctx.rotate(-Math.PI * 0.48 * wSide + strokePhase * 0.35 * wSide);
+  ctx.scale(1, 0.4 + 0.6 * Math.abs(strokePhase));
+
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(wSide * 35, -30, wSide * 40, -80, 0, -maxR * 0.8);
+  ctx.bezierCurveTo(-wSide * 15, -70, -wSide * 10, -20, 0, 0);
+  ctx.fillStyle = 'rgba(254, 240, 138, 0.25)';
+  ctx.fill();
+  ctx.strokeStyle = '#fef08a';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// Striped Abdomen
+for (let s = 0; s < 6; s++) {
+  const sy = s * 14 + 10;
+  ctx.beginPath();
+  ctx.ellipse(0, sy, (6 - s * 0.8) * 4, 8, 0, 0, Math.PI * 2);
+  ctx.fillStyle = s % 2 === 0 ? '#f59e0b' : '#0a0806';
+  ctx.fill();
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 1.0;
+  ctx.stroke();
+}
+
+// Thorax & Head
+ctx.beginPath();
+ctx.arc(0, -10, 18, 0, Math.PI * 2);
+ctx.fillStyle = '#1c1308';
+ctx.fill();
+ctx.strokeStyle = '#f59e0b';
+ctx.lineWidth = 1.6;
+ctx.stroke();
+
+ctx.beginPath();
+ctx.arc(0, -30, 12, 0, Math.PI * 2);
+ctx.fillStyle = '#0f0a04';
+ctx.fill();
+ctx.restore();`,
+
+  // 74. Bioluminescent Odonata Dragonfly
+  'bioluminescent-dragonfly': `// 074 - Bioluminescent Odonata Dragonfly
+ctx.fillStyle = '#020508';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.48;
+const maxR = Math.min(width, height) * 0.44;
+const t = time * 1.5;
+
+ctx.save();
+ctx.translate(cx, cy + Math.sin(t * 2.5) * 8);
+
+// 4 Counter-Phase Wings
+for (const wSide of [-1, 1]) {
+  // Forewing
+  ctx.save();
+  ctx.translate(wSide * 6, -10);
+  ctx.rotate(wSide * (-Math.PI * 0.42 + Math.sin(t * 8) * 0.15));
+  ctx.scale(1, 0.35 + 0.65 * Math.cos(t * 8));
+
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(wSide * 20, -30, wSide * 25, -70, 0, -maxR * 0.95);
+  ctx.bezierCurveTo(-wSide * 15, -70, -wSide * 10, -30, 0, 0);
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+  ctx.fill();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+  ctx.restore();
+
+  // Hindwing
+  ctx.save();
+  ctx.translate(wSide * 6, 8);
+  ctx.rotate(wSide * (-Math.PI * 0.55 + Math.sin(t * 8 - Math.PI * 0.5) * 0.15));
+  ctx.scale(1, 0.35 + 0.65 * Math.cos(t * 8 - Math.PI * 0.5));
+
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(wSide * 22, -25, wSide * 26, -60, 0, -maxR * 0.88);
+  ctx.bezierCurveTo(-wSide * 16, -60, -wSide * 10, -25, 0, 0);
+  ctx.fillStyle = 'rgba(34, 211, 238, 0.18)';
+  ctx.fill();
+  ctx.strokeStyle = '#22d3ee';
+  ctx.lineWidth = 1.1;
+  ctx.stroke();
+  ctx.restore();
+}
+
+// Slender Abdomen
+for (let s = 1; s <= 10; s++) {
+  ctx.beginPath();
+  ctx.ellipse(0, s * 14 + 10, 3.5, 6, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#062024';
+  ctx.fill();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.stroke();
+}
+
+// Head & Glowing Eyes
+ctx.beginPath();
+ctx.arc(0, -18, 12, 0, Math.PI * 2);
+ctx.fillStyle = '#062024';
+ctx.fill();
+ctx.strokeStyle = '#22d3ee';
+ctx.stroke();
+ctx.restore();`,
+
+  // 75. Royal Siamese Betta Splendens
+  'siamese-betta': `// 075 - Royal Siamese Betta Splendens
+ctx.fillStyle = '#02060d';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.48;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.44;
+const t = time * 0.85;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+// Volumetric Veil Fin Rays
+const rays = 24;
+for (let r = 0; r < rays; r++) {
+  const u = r / (rays - 1);
+  const ang = (u - 0.5) * Math.PI * 0.85;
+  const wave = Math.sin(t * 3.5 - u * 2.5) * (maxR * 0.12);
+  const len = maxR * 0.85 * (0.7 + 0.3 * Math.sin(u * Math.PI));
+
+  ctx.beginPath();
+  ctx.moveTo(maxR * 0.1, 0);
+  ctx.quadraticCurveTo(maxR * 0.4 + wave, Math.sin(ang) * (len * 0.5), Math.cos(ang) * len + wave * 1.5, Math.sin(ang) * len);
+  ctx.strokeStyle = 'hsla(' + (215 + u * 80) + ', 95%, 62%, 0.4)';
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+}
+
+// Torpedo Body & Head
+ctx.beginPath();
+ctx.moveTo(-maxR * 0.35, 0);
+ctx.bezierCurveTo(-maxR * 0.2, -maxR * 0.14, maxR * 0.05, -maxR * 0.12, maxR * 0.12, 0);
+ctx.bezierCurveTo(maxR * 0.05, maxR * 0.12, -maxR * 0.2, maxR * 0.14, -maxR * 0.35, 0);
+ctx.fillStyle = '#0c1a38';
+ctx.fill();
+ctx.strokeStyle = '#38bdf8';
+ctx.lineWidth = 1.4;
+ctx.stroke();
+
+// Golden Eye
+ctx.beginPath();
+ctx.arc(-maxR * 0.26, -3, 3.5, 0, Math.PI * 2);
+ctx.fillStyle = '#f59e0b';
+ctx.fill();
+ctx.restore();`,
+
+  // 76. Imperial Japanese Nishikigoi
+  'japanese-koi': `// 076 - Imperial Japanese Nishikigoi
+ctx.fillStyle = '#03080d';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.44;
+const t = time * 0.75;
+
+ctx.save();
+ctx.translate(cx, cy);
+
+// S-Curve Torpedo Body
+ctx.beginPath();
+ctx.moveTo(-maxR * 0.45, 0);
+ctx.bezierCurveTo(-maxR * 0.2, -maxR * 0.16, maxR * 0.1, -maxR * 0.12, maxR * 0.4, 0);
+ctx.bezierCurveTo(maxR * 0.1, maxR * 0.12, -maxR * 0.2, maxR * 0.16, -maxR * 0.45, 0);
+ctx.fillStyle = '#fffbeb';
+ctx.fill();
+ctx.strokeStyle = '#f59e0b';
+ctx.lineWidth = 1.5;
+ctx.stroke();
+
+// Kohaku Cinnabar Red Pattern
+ctx.beginPath();
+ctx.ellipse(-maxR * 0.28, 0, 16, 12, 0, 0, Math.PI * 2);
+ctx.fillStyle = '#dc2626';
+ctx.fill();
+
+ctx.beginPath();
+ctx.ellipse(-maxR * 0.05, -2, 22, 14, 0, 0, Math.PI * 2);
+ctx.fillStyle = '#ea580c';
+ctx.fill();
+
+// Barbels
+ctx.beginPath();
+ctx.moveTo(-maxR * 0.44, 4);
+ctx.quadraticCurveTo(-maxR * 0.5, 12, -maxR * 0.54, 16);
+ctx.strokeStyle = '#fef08a';
+ctx.lineWidth = 1.2;
+ctx.stroke();
+ctx.restore();`,
+
+  // 77. Royal Symphysodon Discus
+  'symphysodon-discus': `// 077 - Royal Symphysodon Discus
+ctx.fillStyle = '#050403';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.5;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.44;
+
+ctx.save();
+ctx.translate(cx, cy + Math.sin(time * 2) * 5);
+
+// Disc Torso
+ctx.beginPath();
+ctx.ellipse(0, 0, maxR * 0.52, maxR * 0.54, 0, 0, Math.PI * 2);
+ctx.fillStyle = '#451a03';
+ctx.fill();
+ctx.strokeStyle = '#22d3ee';
+ctx.lineWidth = 1.8;
+ctx.stroke();
+
+// Heckel Melanin Bars
+for (let b = -2; b <= 2; b++) {
+  const bx = b * 22;
+  ctx.beginPath();
+  ctx.moveTo(bx, -maxR * 0.48);
+  ctx.lineTo(bx, maxR * 0.48);
+  ctx.strokeStyle = 'rgba(15, 10, 6, 0.45)';
+  ctx.lineWidth = b === 0 ? 3.5 : 2.0;
+  ctx.stroke();
+}
+
+// Ruby Red Eye
+ctx.beginPath();
+ctx.arc(-maxR * 0.32, -maxR * 0.12, 5, 0, Math.PI * 2);
+ctx.fillStyle = '#dc2626';
+ctx.fill();
+ctx.restore();`,
+
+  // 78. Electric Radiant Lionfish
+  'electric-lionfish': `// 078 - Electric Radiant Lionfish
+ctx.fillStyle = '#020509';
+ctx.fillRect(0, 0, width, height);
+
+const cx = width * 0.46;
+const cy = height * 0.5;
+const maxR = Math.min(width, height) * 0.44;
+const t = time * 0.85;
+
+ctx.save();
+ctx.translate(cx, cy + Math.sin(t * 1.8) * 6);
+
+// 13 Venomous Spines
+for (let s = 0; s < 13; s++) {
+  const u = s / 12;
+  const ang = -Math.PI * 0.65 + u * Math.PI * 0.55;
+  const len = maxR * (0.8 + 0.35 * Math.sin(u * Math.PI));
+  const sWave = Math.sin(t * 2.8 - s * 0.4) * (maxR * 0.08);
+
+  ctx.beginPath();
+  ctx.moveTo(-maxR * 0.2 + u * maxR * 0.45, -maxR * 0.12);
+  ctx.lineTo(-maxR * 0.2 + u * maxR * 0.45 + Math.cos(ang) * len + sWave, -maxR * 0.12 + Math.sin(ang) * len);
+  ctx.strokeStyle = '#ea580c';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+// Zebra Body
+ctx.beginPath();
+ctx.ellipse(0, 0, maxR * 0.32, maxR * 0.18, 0, 0, Math.PI * 2);
+ctx.fillStyle = '#7c2d12';
+ctx.fill();
+ctx.strokeStyle = '#fb923c';
+ctx.lineWidth = 1.6;
+ctx.stroke();
 ctx.restore();`
 };
 

@@ -11,7 +11,7 @@ const { artworks } = Astro.props;
 
 <div
   id="art-grid"
-  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+  class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 sm:gap-6"
 >
   {artworks.map((artwork) => (
     <ArtCard artwork={artwork} />
@@ -25,9 +25,30 @@ const { artworks } = Astro.props;
 
   let activeEngines: CanvasEngine[] = [];
 
+  function shuffleGridItems() {
+    const grid = document.getElementById('art-grid');
+    if (!grid) return;
+    const cards = Array.from(grid.children);
+    if (cards.length <= 1) return;
+
+    // Fisher-Yates shuffle
+    for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = cards[i];
+      cards[i] = cards[j];
+      cards[j] = temp;
+    }
+
+    // Re-append in randomized order
+    cards.forEach((card) => grid.appendChild(card));
+  }
+
   function initGridCanvases() {
     // Cleanup any existing engines
     cleanupGridCanvases();
+
+    // Randomize card order on every refresh
+    shuffleGridItems();
 
     const visibilityManager = VisibilityManager.getInstance();
     const cards = document.querySelectorAll<HTMLElement>('.art-card-container');

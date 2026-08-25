@@ -14,6 +14,7 @@ export const artworkSchema = z.object({
     'waves',
     'space',
     'creatures',
+    'insects',
     'botany',
     'anatomy',
     'physics',

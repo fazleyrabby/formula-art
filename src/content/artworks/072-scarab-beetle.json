@@ -1,0 +1,53 @@
+{
+  "id": "072",
+  "slug": "scarab-beetle",
+  "title": "Iridescent Jewel Scarab Beetle",
+  "subtitle": "Superellipse Chitinous Elytra & Articulated Legs",
+  "category": "insects",
+  "description": "Coleopteran anatomical simulation featuring superelliptic chitinous split elytra, metallic optical thin-film interference gradients, serrated clypeus horns, and 6-legged articulated crawling kinematics.",
+  "mathNotation": "\\left|\\frac{x}{a}\\right|^p + \\left|\\frac{y}{b}\\right|^q = 1, \\quad \\mathbf{p}_{\\text{tibia}}(t) = \\mathbf{p}_{\\text{femur}} + L \\begin{bmatrix} \\cos(\\alpha_t + \\Delta\\phi) \\\\ \\sin(\\alpha_t + \\Delta\\phi) \\end{bmatrix}",
+  "formulaCompact": "elytra = superellipse(w, h, p=2.4),  leg = coxa -> femur(t) -> tibia(t)",
+  "formulaFull": "ctx.moveTo(0, -maxR * 0.02);\nctx.bezierCurveTo(eSide * elytraWidth * 1.3, -maxR * 0.02, eSide * elytraWidth * 1.3, elytraLen * 0.85, eSide * 2, elytraLen);",
+  "algorithmKey": "scarab-beetle",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "gaitSpeed",
+      "label": "Gait Cycle Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 0.8,
+      "description": "Hexapod leg crawling oscillation cadence"
+    },
+    {
+      "key": "iridescentLuster",
+      "label": "Chitin Luster",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Metallic emerald/gold thin-film interference sheen"
+    },
+    {
+      "key": "elytraFlare",
+      "label": "Elytra Shell Opening",
+      "type": "range",
+      "min": 0.0,
+      "max": 0.6,
+      "step": 0.05,
+      "defaultValue": 0.25,
+      "description": "Wing case split opening revealing flight wings"
+    }
+  ],
+  "tags": ["beetle", "scarab", "insect", "coleoptera", "creatures", "chitin", "iridescent", "jewel"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

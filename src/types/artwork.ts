@@ -6,6 +6,7 @@ export type ArtworkCategory =
   | 'waves'
   | 'space'
   | 'creatures'
+  | 'insects'
   | 'botany'
   | 'anatomy'
   | 'physics'

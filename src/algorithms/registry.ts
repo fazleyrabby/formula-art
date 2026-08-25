@@ -64,6 +64,16 @@ import { createAbyssalTripodFish } from './creatures/abyssal-tripod-fish';
 import { createGiantSpiderCrab } from './creatures/giant-spider-crab';
 import { createLeafySeaDragon } from './creatures/leafy-sea-dragon';
 import { createHammerheadShark } from './creatures/hammerhead-shark';
+import { createSiameseBetta } from './creatures/siamese-betta';
+import { createJapaneseKoi } from './creatures/japanese-koi';
+import { createSymphysodonDiscus } from './creatures/symphysodon-discus';
+import { createElectricLionfish } from './creatures/electric-lionfish';
+
+// Insects
+import { createMathematicalButterfly } from './insects/mathematical-butterfly';
+import { createScarabBeetle } from './insects/scarab-beetle';
+import { createGoldenHoneybee } from './insects/golden-honeybee';
+import { createBioluminescentDragonfly } from './insects/bioluminescent-dragonfly';
 
 // Nature & Botany
 import { createFractalTree } from './botany/fractal-tree';
@@ -72,6 +82,11 @@ import { createGerstnerOceanWaves } from './botany/gerstner-ocean-waves';
 import { createCoralPolypGrowth } from './botany/coral-polyp-growth';
 import { createSnowFall } from './botany/snow-fall';
 import { createBotanicalFiligrane } from './botany/botanical-filigrane';
+import { createRhodoneaRose } from './botany/rhodonea-rose';
+import { createSacredLotus } from './botany/sacred-lotus';
+import { createChrysanthemumBloom } from './botany/chrysanthemum-bloom';
+import { createBioluminescentOrchid } from './botany/bioluminescent-orchid';
+import { createFibonacciSunflower } from './botany/fibonacci-sunflower';
 
 // Human Anatomy & Biology
 import { createCardiacPulse } from './anatomy/cardiac-pulse';
@@ -152,6 +167,16 @@ export const algorithmRegistry: Record<string, AlgorithmFactory> = {
   'giant-spider-crab': createGiantSpiderCrab,
   'leafy-sea-dragon': createLeafySeaDragon,
   'hammerhead-shark': createHammerheadShark,
+  'siamese-betta': createSiameseBetta,
+  'japanese-koi': createJapaneseKoi,
+  'symphysodon-discus': createSymphysodonDiscus,
+  'electric-lionfish': createElectricLionfish,
+
+  // Insects
+  'mathematical-butterfly': createMathematicalButterfly,
+  'scarab-beetle': createScarabBeetle,
+  'golden-honeybee': createGoldenHoneybee,
+  'bioluminescent-dragonfly': createBioluminescentDragonfly,
 
   // Nature & Botany
   'fractal-tree': createFractalTree,
@@ -160,6 +185,11 @@ export const algorithmRegistry: Record<string, AlgorithmFactory> = {
   'coral-polyp-growth': createCoralPolypGrowth,
   'snow-fall': createSnowFall,
   'botanical-filigrane': createBotanicalFiligrane,
+  'rhodonea-rose': createRhodoneaRose,
+  'sacred-lotus': createSacredLotus,
+  'chrysanthemum-bloom': createChrysanthemumBloom,
+  'bioluminescent-orchid': createBioluminescentOrchid,
+  'fibonacci-sunflower': createFibonacciSunflower,
 
   // Human Anatomy & Biology
   'cardiac-pulse': createCardiacPulse,

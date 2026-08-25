@@ -1,0 +1,63 @@
+{
+  "id": "066",
+  "slug": "rhodonea-rose",
+  "title": "Maurer Rhodonea Rose",
+  "subtitle": "Harmonic Polar Rose Curves & Crystalline Chords",
+  "category": "botany",
+  "description": "Harmonic rose foliation combining Luigi Grandi's Rhodonea mathematical petals with Peter Maurer's crystalline star polygon chords, surrounded by golden anther stamens.",
+  "mathNotation": "r(\\theta) = R \\sin(k \\theta), \\quad \\theta_i = i \\cdot d^\\circ, \\quad \\mathbf{p}_i = \\begin{bmatrix} r(\\theta_i)\\cos\\theta_i \\\\ r(\\theta_i)\\sin\\theta_i \\end{bmatrix}",
+  "formulaCompact": "r = R*sin(k*θ + φ),  chord_point = [r*cos(i*d°), r*sin(i*d°)]",
+  "formulaFull": "const theta = ((i * stepAngle) * Math.PI) / 180;\nconst r = layerR * Math.sin(k * theta + layerPhase);\nconst px = Math.cos(theta) * r;\nconst py = Math.sin(theta) * r;",
+  "algorithmKey": "rhodonea-rose",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "petals",
+      "label": "Petal Count (k)",
+      "type": "range",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "defaultValue": 6,
+      "description": "Grandi rose harmonic frequency"
+    },
+    {
+      "key": "maurerStep",
+      "label": "Maurer Angular Step (d)",
+      "type": "range",
+      "min": 29,
+      "max": 97,
+      "step": 2,
+      "defaultValue": 71,
+      "description": "Chord progression angle in degrees"
+    },
+    {
+      "key": "petalLayers",
+      "label": "Concentric Whorls",
+      "type": "range",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "defaultValue": 4,
+      "description": "Number of nested crystalline petal layers"
+    },
+    {
+      "key": "bloomSpeed",
+      "label": "Bloom Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 0.5,
+      "description": "Harmonic unfolding and rotation cadence"
+    }
+  ],
+  "tags": ["rose", "rhodonea", "maurer", "flower", "botany", "grandi", "polar", "crystals", "geometry"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

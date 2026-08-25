@@ -1,0 +1,53 @@
+{
+  "id": "076",
+  "slug": "japanese-koi",
+  "title": "Imperial Japanese Nishikigoi",
+  "subtitle": "Carangiform Serpentine Kinematics & Kohaku Patterns",
+  "category": "creatures",
+  "description": "Traditional Nishikigoi carp simulation displaying realistic S-curve carangiform swimming mechanics, Kohaku cinnabar red and Sumi-e black markings on pearlescent ivory scales, sensory barbels, and tranquil pond water ripples.",
+  "mathNotation": "\\mathbf{r}_{\\text{koi}}(s, t) = \\begin{bmatrix} x_s \\\\ A(s) \\sin(k s - \\omega t) \\end{bmatrix}, \\quad \\mathbf{p}_{\\text{pectoral}}(\\theta) = \\mathbf{p}_{\\text{girdle}} + L \\begin{bmatrix} \\cos\\theta_p \\\\ \\sin\\theta_p \\end{bmatrix}",
+  "formulaCompact": "spine = sin(3t - s*2.4)*amp(s),  skin = ivory + kohaku_patches(s)",
+  "formulaFull": "const amp = Math.pow(frac, 1.4) * (maxR * 0.18);\nconst wave = Math.sin(t * 3.0 - frac * Math.PI * 2.4);\nconst sx = -bodyLen * 0.48 + frac * bodyLen * 0.9;\nconst sy = wave * amp;",
+  "algorithmKey": "japanese-koi",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "swimSpeed",
+      "label": "Carp Swimming Rate",
+      "type": "range",
+      "min": 0.3,
+      "max": 1.6,
+      "step": 0.05,
+      "defaultValue": 0.75,
+      "description": "S-curve spinal propulsion frequency"
+    },
+    {
+      "key": "pondRipples",
+      "label": "Pond Water Caustics",
+      "type": "range",
+      "min": 0.0,
+      "max": 1.6,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Concentric water surface wave intensity"
+    },
+    {
+      "key": "kohakuHue",
+      "label": "Kohaku Vermilion Hue",
+      "type": "range",
+      "min": 0,
+      "max": 45,
+      "step": 2,
+      "defaultValue": 12,
+      "description": "Hue of traditional cinnabar red carp patches"
+    }
+  ],
+  "tags": ["koi", "fish", "nishikigoi", "japanese", "kohaku", "creatures", "pond", "water"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}
