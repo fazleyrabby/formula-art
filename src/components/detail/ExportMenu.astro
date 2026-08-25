@@ -1,6 +1,7 @@
 ---
 import type { ArtworkData } from '../../types/artwork';
 import CopyButton from '../common/CopyButton.astro';
+import { getPresetCode } from '../../algorithms/playground-presets';
 
 interface Props {
   artwork: ArtworkData;
@@ -9,6 +10,7 @@ interface Props {
 const { artwork } = Astro.props;
 const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://art.fazleyrabbi.xyz';
 const embedIframe = `<iframe src="${siteUrl}/embed/${artwork.slug}" width="500" height="500" frameborder="0" loading="lazy"></iframe>`;
+const fullCode = getPresetCode(artwork.slug, artwork.title, artwork.category);
 ---
 
 <dialog
@@ -68,7 +70,27 @@ const embedIframe = `<iframe src="${siteUrl}/embed/${artwork.slug}" width="500" 
         </button>
       </div>
 
-      <!-- 3. Embed Code -->
+      <!-- 3. Standalone Source Code (.js) -->
+      <div class="p-4 rounded-xl bg-[#08090d] border border-white/[0.06] flex items-center justify-between gap-4">
+        <div>
+          <h4 class="text-xs font-mono font-bold text-slate-200">Standalone JS Script</h4>
+          <p class="text-[11px] text-slate-400 font-sans mt-0.5">Complete executable Canvas 2D algorithm</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <CopyButton textToCopy={fullCode} label="Copy JS" variant="secondary" />
+          <button
+            type="button"
+            id="download-js-btn"
+            data-code={fullCode}
+            data-slug={artwork.slug}
+            class="px-3 py-1.5 rounded-lg bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer"
+          >
+            Download .js
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. Embed Code -->
       <div class="p-4 rounded-xl bg-[#08090d] border border-white/[0.06] flex flex-col gap-2">
         <div class="flex items-center justify-between">
           <h4 class="text-xs font-mono font-bold text-slate-200">HTML Iframe Embed</h4>
@@ -151,6 +173,22 @@ const embedIframe = `<iframe src="${siteUrl}/embed/${artwork.slug}" width="500" 
         webmBtn.removeAttribute('disabled');
         webmBtn.textContent = 'Record WebM';
       }
+    });
+
+    // Download Standalone JS Script
+    const downloadJsBtn = document.getElementById('download-js-btn');
+    downloadJsBtn?.addEventListener('click', () => {
+      const code = downloadJsBtn.getAttribute('data-code') || '';
+      const slug = downloadJsBtn.getAttribute('data-slug') || 'math-art';
+      const blob = new Blob([code], { type: 'text/javascript;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${slug}-algorithm.js`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     });
   }
 

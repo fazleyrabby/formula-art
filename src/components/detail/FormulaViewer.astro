@@ -1,12 +1,14 @@
 ---
 import type { ArtworkData } from '../../types/artwork';
 import CopyButton from '../common/CopyButton.astro';
+import { getPresetCode } from '../../algorithms/playground-presets';
 
 interface Props {
   artwork: ArtworkData;
 }
 
 const { artwork } = Astro.props;
+const fullExecutableCode = getPresetCode(artwork.slug, artwork.title, artwork.category);
 ---
 
 <div class="flex flex-col gap-5 p-6 rounded-2xl border border-white/10 bg-[#0c0e17] shadow-xl">
@@ -17,14 +19,14 @@ const { artwork } = Astro.props;
         ƒ
       </div>
       <h2 class="text-base font-sans font-semibold text-slate-100">
-        Mathematical Formulation
+        Mathematical Formulation & Source Code
       </h2>
     </div>
 
     <!-- Complexity & Length Badges -->
     <div class="flex items-center gap-2 font-mono text-[11px]">
       <span class="px-2 py-0.5 rounded bg-black/40 border border-white/10 text-slate-400">
-        {artwork.formulaCompact.length} chars
+        {fullExecutableCode.length} chars
       </span>
       <span class="px-2 py-0.5 rounded bg-black/40 border border-white/10 text-accent-cyan capitalize">
         {artwork.complexity}
@@ -51,14 +53,14 @@ const { artwork } = Astro.props;
     </div>
   </div>
 
-  <!-- Implementation Code Block -->
+  <!-- Full Executable Implementation Code Block -->
   <div class="flex flex-col gap-1.5">
     <div class="flex items-center justify-between">
-      <span class="text-xs font-mono text-slate-400">Renderer Logic</span>
-      <CopyButton textToCopy={artwork.formulaFull} label="Copy Code" variant="ghost" />
+      <span class="text-xs font-mono text-slate-400">Full Executable Algorithm Code</span>
+      <CopyButton textToCopy={fullExecutableCode} label="Copy Code" variant="ghost" />
     </div>
-    <div class="p-3.5 rounded-lg bg-[#08090d] border border-white/[0.06] overflow-x-auto font-mono text-xs text-slate-300 scrollbar-thin">
-      <pre><code>{artwork.formulaFull}</code></pre>
+    <div class="p-3.5 rounded-lg bg-[#08090d] border border-white/[0.06] overflow-x-auto font-mono text-xs text-slate-300 scrollbar-thin max-h-80">
+      <pre><code>{fullExecutableCode}</code></pre>
     </div>
   </div>
 
