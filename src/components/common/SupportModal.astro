@@ -1,0 +1,129 @@
+---
+import CopyButton from './CopyButton.astro';
+
+interface Props {
+  payoneerId?: string;
+  payoneerEmail?: string;
+}
+
+const {
+  payoneerId = '24076084',
+  payoneerEmail = ''
+} = Astro.props;
+---
+
+<dialog
+  id="support-dialog"
+  class="fixed inset-0 z-50 m-auto w-full max-w-md bg-transparent p-4 backdrop:bg-black/80 backdrop:backdrop-blur-md"
+  aria-label="Support creator modal"
+>
+  <div class="glass-panel rounded-2xl border border-white/10 bg-[#0c0e17]/95 p-6 shadow-2xl flex flex-col gap-5 text-slate-200">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">
+          ☕
+        </div>
+        <div>
+          <h3 class="text-base font-semibold font-sans text-white">
+            Support the Project
+          </h3>
+          <p class="text-[11px] text-slate-400 font-sans">
+            Buy a $1 coffee for generative math art
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        id="close-support-btn"
+        class="text-slate-400 hover:text-white text-xs font-mono px-2 py-1 rounded hover:bg-white/5 cursor-pointer"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- Payoneer Donation Box -->
+    <div class="flex flex-col gap-3.5">
+      <div class="p-4 rounded-xl bg-[#08090d] border border-amber-500/20 flex flex-col gap-3 relative overflow-hidden">
+        <!-- Glow accent -->
+        <div class="absolute -right-8 -top-8 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#ff4800]/15 text-[#ff6a00] border border-[#ff4800]/30 uppercase tracking-wider">
+              Payoneer
+            </span>
+            <span class="text-xs font-sans text-slate-300 font-medium">Direct Transfer ($0 Fee)</span>
+          </div>
+        </div>
+
+        <!-- Customer ID Field -->
+        <div class="flex flex-col gap-1.5">
+          <span class="text-[11px] font-mono text-slate-400">Payoneer Customer ID:</span>
+          <div class="flex items-center justify-between p-2.5 rounded-lg bg-black/60 border border-white/10 font-mono text-xs text-amber-300">
+            <span class="font-bold tracking-wider select-all">{payoneerId}</span>
+            <CopyButton textToCopy={payoneerId} label="Copy ID" variant="primary" />
+          </div>
+        </div>
+
+        {payoneerEmail && (
+          <div class="flex flex-col gap-1.5">
+            <span class="text-[11px] font-mono text-slate-400">Payoneer Email:</span>
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-black/60 border border-white/10 font-mono text-xs text-slate-200">
+              <span class="select-all truncate max-w-[200px]">{payoneerEmail}</span>
+              <CopyButton textToCopy={payoneerEmail} label="Copy Email" variant="secondary" />
+            </div>
+          </div>
+        )}
+
+        <!-- Instructions -->
+        <div class="text-[11px] text-slate-400 font-sans leading-relaxed pt-1 border-t border-white/5 flex flex-col gap-1">
+          <p>
+            💡 <strong class="text-slate-300">How to send $1:</strong>
+          </p>
+          <ol class="list-decimal list-inside text-slate-400 space-y-0.5 pl-1">
+            <li>Log into your Payoneer account</li>
+            <li>Go to <strong class="text-slate-300">Pay &rarr; Pay to a recipient's Payoneer account</strong></li>
+            <li>Enter Customer ID <code class="text-amber-300">{payoneerId}</code> and amount ($1 or any amount)</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Note -->
+    <div class="pt-2 border-t border-white/[0.06] text-center">
+      <p class="text-[11px] text-slate-400 font-sans">
+        Thank you for keeping this open-source mathematical art project alive! ✨
+      </p>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  function setupSupportModal() {
+    const dialog = document.getElementById('support-dialog') as HTMLDialogElement;
+    const closeBtn = document.getElementById('close-support-btn');
+    const openBtns = document.querySelectorAll('.open-support-btn');
+
+    openBtns.forEach((btn) => {
+      btn.addEventListener('click', () => dialog?.showModal());
+    });
+
+    closeBtn?.addEventListener('click', () => dialog?.close());
+
+    // Close on backdrop click
+    dialog?.addEventListener('click', (e) => {
+      const rect = dialog.getBoundingClientRect();
+      const isInDialog = (
+        rect.top <= e.clientY &&
+        e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX &&
+        e.clientX <= rect.left + rect.width
+      );
+      if (!isInDialog) dialog.close();
+    });
+  }
+
+  setupSupportModal();
+  document.addEventListener('astro:page-load', setupSupportModal);
+</script>

@@ -3,7 +3,8 @@ import { ClientRouter } from 'astro:transitions';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import SearchModal from '../components/gallery/SearchModal.astro';
-import LemonSqueezyButton from '../components/common/LemonSqueezyButton.astro';
+import SupportModal from '../components/common/SupportModal.astro';
+import SupportButton from '../components/common/SupportButton.astro';
 import { getCollection } from 'astro:content';
 import '../styles/global.css';
 import '../styles/canvas.css';
@@ -116,6 +117,7 @@ const finalSchema = schema || defaultSchema;
     </main>
     <Footer />
     <SearchModal artworks={artworksData} />
-    <LemonSqueezyButton />
+    <SupportButton variant="floating" />
+    <SupportModal payoneerId="24076084" />
   </body>
 </html>
