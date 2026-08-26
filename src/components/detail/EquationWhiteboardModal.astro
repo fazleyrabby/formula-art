@@ -1,0 +1,522 @@
+---
+import type { ArtworkData } from '../../types/artwork';
+import CopyButton from '../common/CopyButton.astro';
+import { getFullMathematicalSystem } from '../../utils/full-formula';
+import katex from 'katex';
+
+interface Props {
+  artwork: ArtworkData;
+}
+
+const { artwork } = Astro.props;
+
+const fullSystemLatex = getFullMathematicalSystem(artwork);
+
+let renderedFullMath = '';
+let renderedCoreMath = '';
+
+try {
+  renderedFullMath = katex.renderToString(fullSystemLatex, {
+    displayMode: true,
+    throwOnError: false,
+    output: 'htmlAndMathml',
+  });
+} catch (err) {
+  renderedFullMath = `<code>${fullSystemLatex}</code>`;
+}
+
+try {
+  renderedCoreMath = katex.renderToString(artwork.mathNotation || '', {
+    displayMode: true,
+    throwOnError: false,
+    output: 'htmlAndMathml',
+  });
+} catch (err) {
+  renderedCoreMath = `<code>${artwork.mathNotation}</code>`;
+}
+---
+
+<!-- Fullscreen Whiteboard / Blackboard Modal -->
+<div
+  id="equation-whiteboard-modal"
+  class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 md:p-8 bg-black/85 backdrop-blur-md transition-opacity duration-200 select-none"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="whiteboard-title"
+>
+  <!-- Main Board Container -->
+  <div
+    id="whiteboard-board"
+    class="relative w-full max-w-5xl h-[92vh] max-h-[850px] flex flex-col rounded-2xl shadow-2xl border transition-all duration-300 overflow-hidden theme-chalkboard"
+  >
+    <!-- Top Toolbar Header -->
+    <header class="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 border-b backdrop-blur-md z-10 select-none toolbar-header">
+      <!-- Title & Category -->
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-sm shadow-sm board-icon-badge">
+          ∑
+        </div>
+        <div>
+          <h3 id="whiteboard-title" class="text-sm sm:text-base font-bold font-sans tracking-tight title-text">
+            {artwork.title}
+          </h3>
+          <p class="text-[11px] font-mono opacity-70 subtitle-text">
+            Full Mathematical System • <span class="capitalize">{artwork.category}</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Controls: Board Themes, Mode Switch, Zoom, and Actions -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- View Mode: Full System vs Core Equation -->
+        <div class="inline-flex rounded-lg p-0.5 border theme-switch-group">
+          <button
+            type="button"
+            data-view-mode="full"
+            class="px-2.5 py-1 text-xs font-mono rounded-md font-medium transition-all mode-btn active"
+            title="Complete System of Equations (Geometry + Progression + Domain)"
+          >
+            📑 Full System
+          </button>
+          <button
+            type="button"
+            data-view-mode="core"
+            class="px-2.5 py-1 text-xs font-mono rounded-md font-medium transition-all mode-btn"
+            title="Core Governing Analytical Equation"
+          >
+            ⚛️ Core Law
+          </button>
+        </div>
+
+        <!-- Board Theme Switcher -->
+        <div class="inline-flex rounded-lg p-0.5 border theme-switch-group">
+          <button
+            type="button"
+            data-theme="chalkboard"
+            class="px-2.5 py-1 text-xs font-mono rounded-md font-medium transition-all theme-btn active"
+            title="Chalkboard Classroom Dark Mode"
+          >
+            🎓 Chalkboard
+          </button>
+          <button
+            type="button"
+            data-theme="graph"
+            class="px-2.5 py-1 text-xs font-mono rounded-md font-medium transition-all theme-btn"
+            title="Math Graph Paper Grid"
+          >
+            📐 Graph Grid
+          </button>
+          <button
+            type="button"
+            data-theme="whiteboard"
+            class="px-2.5 py-1 text-xs font-mono rounded-md font-medium transition-all theme-btn"
+            title="Clean Whiteboard Mode"
+          >
+            🖊️ Whiteboard
+          </button>
+        </div>
+
+        <!-- Zoom Controls -->
+        <div class="hidden sm:inline-flex items-center rounded-lg border zoom-group">
+          <button
+            type="button"
+            id="wb-zoom-out"
+            class="px-2 py-1 text-xs font-mono opacity-80 hover:opacity-100 hover:bg-white/10 transition-colors"
+            title="Zoom Out"
+          >
+            −
+          </button>
+          <span id="wb-zoom-label" class="px-2 py-1 text-[11px] font-mono opacity-60 min-w-[3rem] text-center">
+            100%
+          </span>
+          <button
+            type="button"
+            id="wb-zoom-in"
+            class="px-2 py-1 text-xs font-mono opacity-80 hover:opacity-100 hover:bg-white/10 transition-colors"
+            title="Zoom In"
+          >
+            +
+          </button>
+        </div>
+
+        <!-- Copy Full LaTeX System -->
+        <CopyButton textToCopy={fullSystemLatex} label="Copy LaTeX" variant="secondary" />
+
+        <!-- Close Button -->
+        <button
+          type="button"
+          id="wb-close-btn"
+          class="p-1.5 rounded-lg border transition-all active:scale-95 close-btn"
+          aria-label="Close Whiteboard"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Equation Whiteboard Canvas View -->
+    <div class="relative flex-1 overflow-y-auto overflow-x-hidden p-6 sm:p-10 flex flex-col justify-between board-body scrollbar-thin">
+      <!-- Background Grid/Pattern Decorators (Active per theme) -->
+      <div class="absolute inset-0 pointer-events-none board-grid-layer"></div>
+
+      <!-- Centerpiece: Giant Full Mathematical System Display -->
+      <div class="relative z-10 my-auto flex flex-col items-center justify-center text-center py-6">
+        <div id="wb-badge-label" class="inline-flex items-center gap-2 px-3.5 py-1 mb-4 rounded-full text-[11px] font-mono font-medium tracking-wider uppercase badge-pill">
+          <span>Complete System of Equations</span>
+        </div>
+
+        <div
+          id="wb-equation-wrapper"
+          class="w-full max-w-4xl overflow-x-auto py-4 px-4 transition-transform duration-200 flex items-center justify-center equation-render-container"
+        >
+          <!-- Full System View Container -->
+          <div id="wb-view-full" class="text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed select-text text-left" set:html={renderedFullMath} />
+          <!-- Core Law View Container (Hidden initially) -->
+          <div id="wb-view-core" class="hidden text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-relaxed select-text text-center" set:html={renderedCoreMath} />
+        </div>
+
+        <!-- Equivalent Compact JavaScript / Algorithmic Form -->
+        <div class="mt-6 w-full max-w-3xl px-4 py-3 rounded-xl border flex flex-col gap-1 code-box text-left">
+          <span class="text-[11px] font-mono uppercase tracking-wider opacity-60">
+            Computational Implementation (JavaScript Engine Equivalent)
+          </span>
+          <code class="font-mono text-xs sm:text-sm break-all select-text font-semibold">
+            {artwork.formulaCompact}
+          </code>
+        </div>
+      </div>
+
+      <!-- Bottom Parameter & Variable Decomposition Footer -->
+      <footer class="relative z-10 mt-auto pt-6 border-t flex flex-wrap items-center justify-between gap-4 select-text board-footer">
+        <div class="flex items-center gap-2 text-xs font-mono opacity-80">
+          <span class="font-bold">Slug:</span>
+          <span>{artwork.slug}</span>
+          <span class="opacity-40">•</span>
+          <span class="font-bold">Complexity:</span>
+          <span class="capitalize">{artwork.complexity}</span>
+        </div>
+
+        <div class="flex items-center gap-4 text-xs font-mono opacity-70">
+          <span>Press <kbd class="px-1.5 py-0.5 rounded border border-current text-[10px]">Esc</kbd> to exit</span>
+          <span>•</span>
+          <span>Rendered with KaTeX MathML</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ----------------------------------------------------
+     THEME 1: CHALKBOARD (Dark Classroom Slate)
+  ---------------------------------------------------- */
+  .theme-chalkboard {
+    background-color: #10151c;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), inset 0 0 100px rgba(0, 0, 0, 0.5);
+  }
+  .theme-chalkboard .toolbar-header {
+    background: rgba(14, 18, 26, 0.85);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .theme-chalkboard .title-text {
+    color: #f8fafc;
+  }
+  .theme-chalkboard .subtitle-text {
+    color: #94a3b8;
+  }
+  .theme-chalkboard .board-icon-badge {
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #38bdf8;
+  }
+  .theme-chalkboard .theme-switch-group,
+  .theme-chalkboard .zoom-group {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+  }
+  .theme-chalkboard .theme-btn.active {
+    background: rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+  .theme-chalkboard .close-btn {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .theme-chalkboard .close-btn:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .theme-chalkboard .board-grid-layer {
+    background-image: 
+      radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 24px 24px, 48px 48px, 48px 48px;
+  }
+  .theme-chalkboard .badge-pill {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    color: #7dd3fc;
+  }
+  .theme-chalkboard .equation-render-container {
+    color: #f0fdf4;
+    text-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+  }
+  .theme-chalkboard .code-box {
+    background: rgba(5, 7, 12, 0.6);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #38bdf8;
+  }
+  .theme-chalkboard .board-footer {
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+  }
+
+  /* ----------------------------------------------------
+     THEME 2: GRAPH PAPER (Classic Engineering Blue Grid)
+  ---------------------------------------------------- */
+  .theme-graph {
+    background-color: #f6f9fc;
+    border-color: #cbd5e1;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6);
+  }
+  .theme-graph .toolbar-header {
+    background: rgba(241, 245, 249, 0.95);
+    border-color: #cbd5e1;
+  }
+  .theme-graph .title-text {
+    color: #0f172a;
+  }
+  .theme-graph .subtitle-text {
+    color: #475569;
+  }
+  .theme-graph .board-icon-badge {
+    background: #0284c7;
+    color: #ffffff;
+  }
+  .theme-graph .theme-switch-group,
+  .theme-graph .zoom-group {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #334155;
+  }
+  .theme-graph .theme-btn.active {
+    background: #0284c7;
+    color: #ffffff;
+  }
+  .theme-graph .close-btn {
+    border-color: #cbd5e1;
+    color: #475569;
+    background: #ffffff;
+  }
+  .theme-graph .close-btn:hover {
+    color: #0f172a;
+    background: #e2e8f0;
+  }
+  .theme-graph .board-grid-layer {
+    background-image: 
+      linear-gradient(to right, rgba(2, 132, 199, 0.15) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(2, 132, 199, 0.15) 1px, transparent 1px),
+      linear-gradient(to right, rgba(2, 132, 199, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(2, 132, 199, 0.06) 1px, transparent 1px);
+    background-size: 40px 40px, 40px 40px, 10px 10px, 10px 10px;
+  }
+  .theme-graph .badge-pill {
+    background: rgba(2, 132, 199, 0.1);
+    border: 1px solid rgba(2, 132, 199, 0.3);
+    color: #0369a1;
+  }
+  .theme-graph .equation-render-container {
+    color: #0f172a;
+  }
+  .theme-graph .code-box {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #0369a1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  .theme-graph .board-footer {
+    border-color: #e2e8f0;
+    color: #475569;
+  }
+
+  /* ----------------------------------------------------
+     THEME 3: WHITEBOARD (Clean Dry-Erase Marker Board)
+  ---------------------------------------------------- */
+  .theme-whiteboard {
+    background-color: #ffffff;
+    border-color: #94a3b8;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(0, 0, 0, 0.02);
+  }
+  .theme-whiteboard .toolbar-header {
+    background: rgba(248, 250, 252, 0.95);
+    border-color: #e2e8f0;
+  }
+  .theme-whiteboard .title-text {
+    color: #09090b;
+  }
+  .theme-whiteboard .subtitle-text {
+    color: #71717a;
+  }
+  .theme-whiteboard .board-icon-badge {
+    background: #18181b;
+    color: #fafafa;
+  }
+  .theme-whiteboard .theme-switch-group,
+  .theme-whiteboard .zoom-group {
+    background: #f4f4f5;
+    border-color: #e4e4e7;
+    color: #27272a;
+  }
+  .theme-whiteboard .theme-btn.active {
+    background: #18181b;
+    color: #ffffff;
+  }
+  .theme-whiteboard .close-btn {
+    border-color: #e4e4e7;
+    color: #52525b;
+    background: #ffffff;
+  }
+  .theme-whiteboard .close-btn:hover {
+    color: #09090b;
+    background: #f4f4f5;
+  }
+  .theme-whiteboard .board-grid-layer {
+    background-image: radial-gradient(#d4d4d8 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .theme-whiteboard .badge-pill {
+    background: #f4f4f5;
+    border: 1px solid #e4e4e7;
+    color: #18181b;
+  }
+  .theme-whiteboard .equation-render-container {
+    color: #18181b;
+  }
+  .theme-whiteboard .code-box {
+    background: #fafafa;
+    border-color: #e4e4e7;
+    color: #0284c7;
+  }
+  .theme-whiteboard .board-footer {
+    border-color: #f4f4f5;
+    color: #71717a;
+  }
+</style>
+
+<script>
+  function setupWhiteboardModal() {
+    const modal = document.getElementById('equation-whiteboard-modal');
+    const board = document.getElementById('whiteboard-board');
+    const closeBtn = document.getElementById('wb-close-btn');
+    const openBtns = document.querySelectorAll('[data-open-whiteboard]');
+    const themeBtns = document.querySelectorAll('.theme-btn');
+    const zoomInBtn = document.getElementById('wb-zoom-in');
+    const zoomOutBtn = document.getElementById('wb-zoom-out');
+    const zoomLabel = document.getElementById('wb-zoom-label');
+    const eqWrapper = document.getElementById('wb-equation-wrapper');
+
+    if (!modal || !board) return;
+
+    let currentZoom = 1.0;
+
+    function updateZoom(newZoom: number) {
+      currentZoom = Math.min(2.0, Math.max(0.6, newZoom));
+      if (eqWrapper) {
+        eqWrapper.style.transform = `scale(${currentZoom})`;
+      }
+      if (zoomLabel) {
+        zoomLabel.textContent = `${Math.round(currentZoom * 100)}%`;
+      }
+    }
+
+    function openModal() {
+      modal?.classList.remove('hidden');
+      modal?.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal?.classList.add('hidden');
+      modal?.classList.remove('flex');
+      document.body.style.overflow = '';
+      updateZoom(1.0);
+    }
+
+    openBtns.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal();
+      });
+    });
+
+    closeBtn?.addEventListener('click', closeModal);
+
+    // Backdrop click close
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Keyboard shortcuts: Esc to close
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal?.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+
+    // Theme switching
+    themeBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const theme = btn.getAttribute('data-theme');
+        if (!theme || !board) return;
+
+        board.classList.remove('theme-chalkboard', 'theme-graph', 'theme-whiteboard');
+        board.classList.add(`theme-${theme}`);
+
+        themeBtns.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // View mode switching (Full System vs Core Law)
+    const modeBtns = document.querySelectorAll('.mode-btn');
+    const viewFull = document.getElementById('wb-view-full');
+    const viewCore = document.getElementById('wb-view-core');
+    const badgeLabel = document.getElementById('wb-badge-label');
+
+    modeBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-view-mode');
+        if (!mode || !viewFull || !viewCore) return;
+
+        if (mode === 'full') {
+          viewFull.classList.remove('hidden');
+          viewCore.classList.add('hidden');
+          if (badgeLabel) badgeLabel.textContent = 'Complete System of Equations';
+        } else {
+          viewFull.classList.add('hidden');
+          viewCore.classList.remove('hidden');
+          if (badgeLabel) badgeLabel.textContent = 'Core Governing Analytical Law';
+        }
+
+        modeBtns.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // Zoom buttons
+    zoomInBtn?.addEventListener('click', () => updateZoom(currentZoom + 0.15));
+    zoomOutBtn?.addEventListener('click', () => updateZoom(currentZoom - 0.15));
+  }
+
+  setupWhiteboardModal();
+  document.addEventListener('astro:page-load', setupWhiteboardModal);
+</script>
