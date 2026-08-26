@@ -28,28 +28,52 @@ export function getFullMathematicalSystem(artwork: ArtworkData): string {
   const { mathNotation, formulaCompact, parameters = [] } = artwork;
 
   // Format compact formula into clean LaTeX representation
-  let cleanCompact = formulaCompact.replace(/Math\./g, '');
+  let cleanCompact = (formulaCompact || '').replace(/Math\./g, '');
   cleanCompact = formatSqrt(cleanCompact);
   cleanCompact = cleanCompact
     .replace(/\*/g, ' \\cdot ')
+    .replace(/·/g, ' \\cdot ')
+    .replace(/²/g, '^2')
+    .replace(/³/g, '^3')
+    .replace(/Σ/g, '\\sum ')
+    .replace(/Δ/g, '\\Delta ')
+    .replace(/Ω/g, '\\Omega ')
+    .replace(/Γ/g, '\\Gamma ')
+    .replace(/π/g, '\\pi ')
+    .replace(/√/g, '\\sqrt ')
     .replace(/sin\(/g, '\\sin(')
     .replace(/cos\(/g, '\\cos(')
     .replace(/exp\(/g, '\\exp(')
     .replace(/atan2\(([^,]+),([^)]+)\)/g, '\\operatorname{atan2}($1, $2)')
-    .replace(/PI/g, '\\pi')
-    .replace(/σ/g, '\\sigma')
-    .replace(/ρ/g, '\\rho')
-    .replace(/ω/g, '\\omega')
+    .replace(/PI/g, '\\pi ')
+    .replace(/_θ/g, '_{\\theta}')
+    .replace(/_σ/g, '_{\\sigma}')
+    .replace(/_ρ/g, '_{\\rho}')
+    .replace(/_ω/g, '_{\\omega}')
+    .replace(/_theta/g, '_{\\theta}')
+    .replace(/_rho/g, '_{\\rho}')
+    .replace(/_phi/g, '_{\\phi}')
+    .replace(/_psi/g, '_{\\psi}')
+    .replace(/_funnel/g, '_{\\text{funnel}}')
+    .replace(/_core/g, '_{\\text{core}}')
+    .replace(/_arm_dendrite/g, '_{\\text{arm, dendrite}}')
+    .replace(/σ/g, '\\sigma ')
+    .replace(/ρ/g, '\\rho ')
+    .replace(/ω/g, '\\omega ')
+    .replace(/θ/g, '\\theta ')
     .replace(/₀/g, '_0')
-    .replace(/theta/gi, '\\theta')
-    .replace(/rho/gi, '\\rho')
-    .replace(/kappa/gi, '\\kappa')
+    .replace(/₁/g, '_1')
+    .replace(/₂/g, '_2')
+    .replace(/\btheta\b/gi, '\\theta ')
+    .replace(/\brho\b/gi, '\\rho ')
+    .replace(/\bkappa\b/gi, '\\kappa ')
     .replace(/dist\(/g, '\\operatorname{dist}(');
 
   // Parameter system definitions in LaTeX
   const paramEquations = parameters.slice(0, 4).map((p) => {
     const keySymbol = p.key.length === 1 ? p.key : `\\lambda_{${p.key}}`;
-    return `${keySymbol} = ${p.defaultValue} \\quad \\text{(${p.label})}`;
+    const cleanLabel = (p.label || '').replace(/&/g, '\\&');
+    return `${keySymbol} = ${p.defaultValue} \\quad \\text{(${cleanLabel})}`;
   });
 
   const paramBlock = paramEquations.length > 0
