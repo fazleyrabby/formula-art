@@ -2,14 +2,18 @@
 import CopyButton from './CopyButton.astro';
 
 interface Props {
+  bmcUsername?: string;
   payoneerId?: string;
   payoneerEmail?: string;
 }
 
 const {
+  bmcUsername = 'fazleyrabbi',
   payoneerId = '24076084',
   payoneerEmail = ''
 } = Astro.props;
+
+const bmcUrl = `https://buymeacoffee.com/${bmcUsername}`;
 ---
 
 <dialog
@@ -29,7 +33,7 @@ const {
             Support the Project
           </h3>
           <p class="text-[11px] text-slate-400 font-sans">
-            Buy a $1 coffee for generative math art
+            Keep mathematical creative coding alive & open source
           </p>
         </div>
       </div>
@@ -43,58 +47,81 @@ const {
       </button>
     </div>
 
-    <!-- Payoneer Donation Box -->
-    <div class="flex flex-col gap-3.5">
-      <div class="p-4 rounded-xl bg-[#08090d] border border-amber-500/20 flex flex-col gap-3 relative overflow-hidden">
-        <!-- Glow accent -->
-        <div class="absolute -right-8 -top-8 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#ff4800]/15 text-[#ff6a00] border border-[#ff4800]/30 uppercase tracking-wider">
-              Payoneer
+    <!-- 1. Primary: Buy Me a Coffee (Cards, Apple Pay, Google Pay) -->
+    <a
+      href={bmcUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="p-4 rounded-xl bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 border border-amber-500/30 hover:border-amber-400/60 transition-all flex items-center justify-between group hover:shadow-[0_0_24px_rgba(251,191,36,0.15)] active:scale-[0.99] cursor-pointer"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 font-bold text-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+          ☕
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm font-semibold text-white group-hover:text-amber-300 transition-colors flex items-center gap-1.5">
+            Buy Me a Coffee
+            <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+              FAST
             </span>
-            <span class="text-xs font-sans text-slate-300 font-medium">Direct Transfer ($0 Fee)</span>
-          </div>
+          </span>
+          <span class="text-[11px] text-slate-400">
+            Card, Apple Pay, Google Pay
+          </span>
         </div>
+      </div>
 
-        <!-- Customer ID Field -->
+      <span class="px-3.5 py-1.5 rounded-lg bg-amber-400 text-slate-950 font-mono text-xs font-bold flex items-center gap-1.5 shadow group-hover:bg-amber-300 transition-all">
+        <span>Donate $1</span>
+        <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </span>
+    </a>
+
+    <!-- Divider -->
+    <div class="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-slate-500">
+      <div class="h-px flex-1 bg-white/[0.08]"></div>
+      <span>Or via Direct Payoneer ($0 Fee)</span>
+      <div class="h-px flex-1 bg-white/[0.08]"></div>
+    </div>
+
+    <!-- 2. Payoneer Direct Transfer Box -->
+    <div class="p-4 rounded-xl bg-[#08090d] border border-white/[0.08] flex flex-col gap-3 relative overflow-hidden">
+      <!-- Customer ID Field -->
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between text-[11px] font-mono">
+          <span class="text-slate-400">Payoneer Customer ID:</span>
+          <span class="text-[10px] text-accent-emerald font-bold">$0 Fee Direct</span>
+        </div>
+        <div class="flex items-center justify-between p-2.5 rounded-lg bg-black/60 border border-white/10 font-mono text-xs text-amber-300">
+          <span class="font-bold tracking-wider select-all">{payoneerId}</span>
+          <CopyButton textToCopy={payoneerId} label="Copy ID" variant="primary" />
+        </div>
+      </div>
+
+      {payoneerEmail && (
         <div class="flex flex-col gap-1.5">
-          <span class="text-[11px] font-mono text-slate-400">Payoneer Customer ID:</span>
-          <div class="flex items-center justify-between p-2.5 rounded-lg bg-black/60 border border-white/10 font-mono text-xs text-amber-300">
-            <span class="font-bold tracking-wider select-all">{payoneerId}</span>
-            <CopyButton textToCopy={payoneerId} label="Copy ID" variant="primary" />
+          <span class="text-[11px] font-mono text-slate-400">Payoneer Email:</span>
+          <div class="flex items-center justify-between p-2.5 rounded-lg bg-black/60 border border-white/10 font-mono text-xs text-slate-200">
+            <span class="select-all truncate max-w-[200px]">{payoneerEmail}</span>
+            <CopyButton textToCopy={payoneerEmail} label="Copy Email" variant="secondary" />
           </div>
         </div>
+      )}
 
-        {payoneerEmail && (
-          <div class="flex flex-col gap-1.5">
-            <span class="text-[11px] font-mono text-slate-400">Payoneer Email:</span>
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-black/60 border border-white/10 font-mono text-xs text-slate-200">
-              <span class="select-all truncate max-w-[200px]">{payoneerEmail}</span>
-              <CopyButton textToCopy={payoneerEmail} label="Copy Email" variant="secondary" />
-            </div>
-          </div>
-        )}
-
-        <!-- Instructions -->
-        <div class="text-[11px] text-slate-400 font-sans leading-relaxed pt-1 border-t border-white/5 flex flex-col gap-1">
-          <p>
-            💡 <strong class="text-slate-300">How to send $1:</strong>
-          </p>
-          <ol class="list-decimal list-inside text-slate-400 space-y-0.5 pl-1">
-            <li>Log into your Payoneer account</li>
-            <li>Go to <strong class="text-slate-300">Pay &rarr; Pay to a recipient's Payoneer account</strong></li>
-            <li>Enter Customer ID <code class="text-amber-300">{payoneerId}</code> and amount ($1 or any amount)</li>
-          </ol>
-        </div>
+      <!-- Instructions -->
+      <div class="text-[11px] text-slate-400 font-sans leading-relaxed pt-1 border-t border-white/5 flex flex-col gap-1">
+        <p>
+          💡 <strong class="text-slate-300">Payoneer app:</strong> Go to <strong class="text-slate-300">Pay &rarr; Pay to recipient</strong> &rarr; Enter ID <code class="text-amber-300">{payoneerId}</code>.
+        </p>
       </div>
     </div>
 
     <!-- Footer Note -->
     <div class="pt-2 border-t border-white/[0.06] text-center">
       <p class="text-[11px] text-slate-400 font-sans">
-        Thank you for keeping this open-source mathematical art project alive! ✨
+        Thank you for supporting generative mathematical animations! ✨
       </p>
     </div>
   </div>
