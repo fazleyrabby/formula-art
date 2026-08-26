@@ -1,0 +1,73 @@
+{
+  "id": "079",
+  "slug": "crepuscular-sunset-rays",
+  "title": "Crepuscular Sunset Rays",
+  "subtitle": "Mie Volumetric Scattering & Ocean Wave Glitter Path",
+  "category": "physics",
+  "description": "Simulation of atmospheric crepuscular sunbeams (God rays) piercing cloud gaps over a dusk ocean. Implements forward Mie photon scattering, radial occlusion shadow volumes, and a shimmering Gerstner wave specular glitter path on the water horizon.",
+  "mathNotation": "I(r, \\theta) = I_0 e^{-\\sigma r} P(\\theta) \\cdot \\mathcal{O}(\\theta, t), \\quad S(x, y) = e^{-\\frac{(x - x_{\\text{sun}})^2}{2\\sigma_x^2}} \\cdot \\max(0, \\nabla \\eta \\cdot \\mathbf{L})^m",
+  "formulaCompact": "I(r,θ) = I_0 exp(-σr) P(θ) · [Σ A_k cos(f_k θ + ω_k t)]^p,  glitter = exp(-Δx²/2w²) · (N · L)^m",
+  "formulaFull": "const beamAlpha = 0.35 * centralFactor * beamPulse * rayIntensity;\nconst glitterPhase = Math.sin(t * 4.0 + g * 1.8 + normW * 6);\nconst spread = (width * 0.08 + normW * width * 0.32) * glitterSpread;",
+  "algorithmKey": "crepuscular-sunset-rays",
+  "complexity": "high",
+  "particleCount": 85,
+  "parameters": [
+    {
+      "key": "rayIntensity",
+      "label": "Ray Radiance",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.2,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Photon intensity of volumetric sunbeam shafts"
+    },
+    {
+      "key": "cloudDensity",
+      "label": "Cloud Occlusion",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Density and turbulence of cloud silhouette gaps"
+    },
+    {
+      "key": "glitterSpread",
+      "label": "Ocean Glitter",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Horizontal spread of the specular sunlight path on wave crests"
+    },
+    {
+      "key": "sunHeight",
+      "label": "Sun Elevation",
+      "type": "range",
+      "min": 0.2,
+      "max": 0.55,
+      "step": 0.02,
+      "defaultValue": 0.38,
+      "description": "Vertical position of the solar source relative to horizon"
+    }
+  ],
+  "tags": [
+    "optics",
+    "sunrays",
+    "god-rays",
+    "crepuscular-rays",
+    "mie-scattering",
+    "ocean-shimmer",
+    "sunset",
+    "atmospheric-optics"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Atmospheric Optics Laboratory"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

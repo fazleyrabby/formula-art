@@ -1,0 +1,72 @@
+{
+  "id": "082",
+  "slug": "solar-corona-flare",
+  "title": "Solar Corona & Flare Prominence",
+  "subtitle": "Magnetohydrodynamic Plasma Loops & Coronal Mass Ejection",
+  "category": "physics",
+  "description": "Astrophysical simulation of the Sun's dynamic outer atmosphere. Models magnetic dipole coronal loops, convective thermonuclear core granulation, high-energy plasma prominences, and radial solar wind streamer rays.",
+  "mathNotation": "\\nabla \\times \\mathbf{B} = \\mu_0 \\mathbf{J}, \\quad \\rho \\left( \\frac{\\partial \\mathbf{v}}{\\partial t} + \\mathbf{v} \\cdot \\nabla \\mathbf{v} \\right) = -\\nabla p + \\mathbf{J} \\times \\mathbf{B} + \\rho \\mathbf{g}",
+  "formulaCompact": "B_dipole = μ_0 m / (4π r³) · (2 cos θ r_hat + sin θ θ_hat),  I_corona(r) ∝ r^(-2.5) · pulse(t)",
+  "formulaFull": "const mhdWave = Math.sin(theta * 6.0 + t * 1.5) * 0.08;\nconst loopHeightDynamic = loop.height * (0.75 + 0.25 * Math.sin(t * loop.speed)) * solarActivity;\nctx.quadraticCurveTo(cpx, cpy, p2x, p2y);",
+  "algorithmKey": "solar-corona-flare",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "solarActivity",
+      "label": "Solar Flare Cycle",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.2,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Intensity and frequency of thermonuclear plasma flare eruptions"
+    },
+    {
+      "key": "loopDensity",
+      "label": "Coronal Loops",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Number of magnetic field plasma prominence arches"
+    },
+    {
+      "key": "coronaRadius",
+      "label": "Photosphere Scale",
+      "type": "range",
+      "min": 0.6,
+      "max": 1.4,
+      "step": 0.05,
+      "defaultValue": 1.0,
+      "description": "Radius of the core solar sphere"
+    },
+    {
+      "key": "flareIntensity",
+      "label": "Corona Streamers",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.2,
+      "step": 0.1,
+      "defaultValue": 1.3,
+      "description": "Luminosity and radial length of outer coronal streamer beams"
+    }
+  ],
+  "tags": [
+    "astrophysics",
+    "solar-flare",
+    "corona",
+    "plasma",
+    "sunrays",
+    "magnetic-loops",
+    "space-physics",
+    "solar-physics"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Solar Astrophysical Observatory"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

@@ -1,0 +1,73 @@
+{
+  "id": "080",
+  "slug": "underwater-oceanic-sunbeams",
+  "title": "Underwater Oceanic Sunbeams",
+  "subtitle": "Snell's Law Refraction, Surface Caustics & Marine Cathedral Light",
+  "category": "physics",
+  "description": "Underwater light simulation illustrating sunlight penetrating deep oceanic waters. Computes Snell's law refraction through dynamic surface waves, creating volumetric cathedral light shafts, surface caustics, and illuminated schooling fish silhouettes.",
+  "mathNotation": "n_1 \\sin \\theta_1 = n_2 \\sin \\theta_2, \\quad I(z) = I_0 e^{-c z}, \\quad \\mathcal{C}(x, y, t) = \\left| \\det \\left( \\mathbf{J}_{\\text{refract}}(x, y, t) \\right) \\right|^{-1}",
+  "formulaCompact": "n_air sin(θ_i) = n_water sin(θ_t),  I(d) = I_0 exp(-αd) · wave_caustics(x, t)",
+  "formulaFull": "const alpha = 0.32 * beamIntensity * pulse * shaftIntensity;\nconst causticWave = Math.sin(nx * 18 + t * causticSpeed * 2.0) * 7;\nconst inBeam = Math.max(0, 1 - Math.abs(px - lightX) / (width * 0.4));",
+  "algorithmKey": "underwater-oceanic-sunbeams",
+  "complexity": "high",
+  "particleCount": 122,
+  "parameters": [
+    {
+      "key": "shaftIntensity",
+      "label": "Shaft Radiance",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.2,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Intensity of the underwater volumetric sun shafts"
+    },
+    {
+      "key": "waterClarity",
+      "label": "Water Clarity",
+      "type": "range",
+      "min": 0.4,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Penetration depth and clarity of surface wave caustics"
+    },
+    {
+      "key": "causticSpeed",
+      "label": "Caustic Motion",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.3,
+      "description": "Speed of surface wave ripple refraction"
+    },
+    {
+      "key": "kelpHeight",
+      "label": "Kelp Canopy",
+      "type": "range",
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Vertical height and density of flanking marine kelp forest"
+    }
+  ],
+  "tags": [
+    "underwater",
+    "sunbeams",
+    "caustics",
+    "snells-law",
+    "ocean",
+    "refraction",
+    "god-rays",
+    "marine-optics"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Marine Hydrodynamics Lab"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}
