@@ -1,0 +1,73 @@
+{
+  "id": "083",
+  "slug": "moonlit-ocean-rays",
+  "title": "Moonlit Ocean & Lunar Rays",
+  "subtitle": "Volumetric Moonbeams, Silver Water Wake & Bioluminescent Waves",
+  "category": "physics",
+  "description": "Nocturnal atmospheric optical simulation of a silver full moon casting volumetric moonbeams through cirrus cloud breaks onto an undulating ocean. Computes lunar atmospheric scattering, a specular silver glitter wake, background star scintillation, and glowing cyan bioluminescent phytoplankton.",
+  "mathNotation": "I_{\\text{moon}}(\\theta) = I_0 \\cdot e^{-\\sigma r} \\cdot P_{\\text{Mie}}(\\theta) \\cdot \\mathcal{O}(\\theta, t), \\quad W(x, y) = e^{-\\frac{(x - x_{\\text{moon}})^2}{2\\sigma_{\\text{wake}}^2}} \\cdot \\left[\\nabla \\eta \\cdot \\mathbf{L}\\right]^m",
+  "formulaCompact": "I_lunar(r, θ) = I_0 exp(-σr) P(θ) · [Σ A_k cos(k θ + ωt)],  wake = exp(-Δx²/2w²) · (N · L)^m",
+  "formulaFull": "const beamAlpha = 0.26 * centralFactor * pulse * beamIntensity;\nconst shimmerPhase = Math.sin(t * 3.5 + g * 1.9 + normW * 5.5);\nconst bioAlpha = glowPhase * 0.65 * bioluminescence;",
+  "algorithmKey": "moonlit-ocean-rays",
+  "complexity": "high",
+  "particleCount": 155,
+  "parameters": [
+    {
+      "key": "beamIntensity",
+      "label": "Moonbeam Radiance",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.2,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Photon radiance of silver volumetric nocturnal moonbeams"
+    },
+    {
+      "key": "moonGlow",
+      "label": "Lunar Corona",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.3,
+      "description": "Atmospheric optical halo and corona surrounding the moon"
+    },
+    {
+      "key": "oceanGlitter",
+      "label": "Silver Moon Wake",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Width and specular diamond shimmer of the moon reflection track on water"
+    },
+    {
+      "key": "bioluminescence",
+      "label": "Bioluminescent Tide",
+      "type": "range",
+      "min": 0.0,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Cyan/emerald glow intensity of noctiluca marine phytoplankton in wave crests"
+    }
+  ],
+  "tags": [
+    "moonlight",
+    "night-sky",
+    "moonbeams",
+    "ocean-night",
+    "lunar-rays",
+    "bioluminescence",
+    "stars",
+    "optics"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Nocturnal Atmospheric Observatory"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "renderMode": "canvas-2d"
+}

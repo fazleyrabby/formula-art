@@ -11383,7 +11383,101 @@ ctx.fillStyle = coreGrad;
 ctx.beginPath();
 ctx.arc(cx, cy, baseR * 1.3, 0, Math.PI * 2);
 ctx.fill();
-ctx.restore();`
+ctx.restore();`,
+
+  // 083. Moonlit Ocean & Lunar Rays
+  'moonlit-ocean-rays': `// 083 - Moonlit Ocean & Lunar Rays (physics)
+// 1:1 Original algorithm engine source
+const moonX = width * 0.5;
+const moonY = height * 0.28;
+const moonR = Math.min(width, height) * 0.065;
+const horizonY = height * 0.63;
+
+// 1. Midnight Sky Gradient
+const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+skyGrad.addColorStop(0, '#010309');
+skyGrad.addColorStop(0.4, '#030815');
+skyGrad.addColorStop(0.75, '#061328');
+skyGrad.addColorStop(1.0, '#0a1a36');
+ctx.fillStyle = skyGrad;
+ctx.fillRect(0, 0, width, horizonY);
+
+// 2. Volumetric Lunar Silver Beams
+ctx.save();
+ctx.globalCompositeOperation = 'screen';
+const RAY_COUNT = 38;
+const maxRayDist = Math.hypot(width, height) * 0.95;
+
+for (let i = 0; i < RAY_COUNT; i++) {
+  const normI = i / RAY_COUNT;
+  const baseAngle = normI * Math.PI;
+  const cloudWarp = Math.sin(baseAngle * 6.0 + time * 0.3) * 0.07;
+  const rayAngle = baseAngle + cloudWarp;
+  const distFromCenter = Math.abs(rayAngle - Math.PI * 0.5);
+  const centralFactor = Math.pow(Math.max(0, 1 - distFromCenter / (Math.PI * 0.45)), 1.5);
+  const pulse = 0.6 + 0.4 * Math.sin(i * 2.1 + time * 1.4);
+  const beamAlpha = Math.min(0.55, 0.26 * centralFactor * pulse * 1.2);
+
+  if (beamAlpha > 0.015) {
+    const spreadWidth = 0.038 + (1 - centralFactor) * 0.02;
+    const moonbeamGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.5, moonX, moonY, maxRayDist);
+    moonbeamGrad.addColorStop(0, \`rgba(240, 248, 255, \${beamAlpha * 1.3})\`);
+    moonbeamGrad.addColorStop(0.2, \`rgba(180, 225, 255, \${beamAlpha})\`);
+    moonbeamGrad.addColorStop(0.6, \`rgba(70, 145, 215, \${beamAlpha * 0.35})\`);
+    moonbeamGrad.addColorStop(1.0, 'rgba(5, 20, 50, 0)');
+
+    ctx.beginPath();
+    ctx.moveTo(moonX, moonY);
+    ctx.lineTo(moonX + Math.cos(rayAngle - spreadWidth) * maxRayDist, moonY + Math.sin(rayAngle - spreadWidth) * maxRayDist);
+    ctx.lineTo(moonX + Math.cos(rayAngle + spreadWidth) * maxRayDist, moonY + Math.sin(rayAngle + spreadWidth) * maxRayDist);
+    ctx.closePath();
+    ctx.fillStyle = moonbeamGrad;
+    ctx.fill();
+  }
+}
+ctx.restore();
+
+// 3. Lunar Atmospheric Halo & Moon Disk
+const haloGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.8, moonX, moonY, width * 0.45);
+haloGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+haloGrad.addColorStop(0.2, 'rgba(215, 240, 255, 0.5)');
+haloGrad.addColorStop(0.6, 'rgba(30, 80, 160, 0.1)');
+haloGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+ctx.fillStyle = haloGrad;
+ctx.beginPath();
+ctx.arc(moonX, moonY, width * 0.45, 0, Math.PI * 2);
+ctx.fill();
+
+const moonGrad = ctx.createRadialGradient(moonX - moonR * 0.25, moonY - moonR * 0.25, moonR * 0.1, moonX, moonY, moonR);
+moonGrad.addColorStop(0, '#ffffff');
+moonGrad.addColorStop(0.7, '#e8f2fc');
+moonGrad.addColorStop(1.0, '#9bbcd8');
+ctx.fillStyle = moonGrad;
+ctx.beginPath();
+ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
+ctx.fill();
+
+// 4. Night Ocean & Silver Wake Reflection
+const oceanH = height - horizonY;
+const oceanGrad = ctx.createLinearGradient(0, horizonY, 0, height);
+oceanGrad.addColorStop(0, '#040b18');
+oceanGrad.addColorStop(1.0, '#02050c');
+ctx.fillStyle = oceanGrad;
+ctx.fillRect(0, horizonY, width, oceanH);
+
+for (let w = 0; w < 24; w++) {
+  const normW = w / 24;
+  const lineY = horizonY + Math.pow(normW, 1.4) * oceanH;
+  for (let g = 0; g < 22; g++) {
+    const gx = moonX + (Math.sin(g * 6.5 + time * 2.8) * width * 0.14) * (1 + normW * 2);
+    const gy = lineY + Math.sin(gx * 0.04 + time * 1.8) * 2;
+    const alpha = Math.max(0, Math.sin(time * 3.5 + g * 1.9 + normW * 5.5));
+    ctx.fillStyle = \`rgba(235, 248, 255, \${alpha * (1 - normW * 0.3)})\`;
+    ctx.beginPath();
+    ctx.arc(gx, gy, 1.0 + alpha * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}`
 };
 
 export function getPresetCode(slug: string, title: string, category: string): string {

@@ -108,6 +108,7 @@ export const algorithmLoaders: Record<string, AlgorithmModuleLoader> = {
   'underwater-oceanic-sunbeams': () => import('./physics/underwater-oceanic-sunbeams'),
   'atmospheric-cloudbreak-godrays': () => import('./physics/atmospheric-cloudbreak-godrays'),
   'solar-corona-flare': () => import('./physics/solar-corona-flare'),
+  'moonlit-ocean-rays': () => import('./physics/moonlit-ocean-rays'),
 };
 
 const factoryCache = new Map<string, AlgorithmFactory>();
