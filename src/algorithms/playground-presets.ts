@@ -12700,7 +12700,7 @@ function createStripeKineticRibbon() {
     return \`rgba(\${r}, \${g}, \${b}, \${alpha})\`;
   }
 
-  const MOTE_COUNT = 30;
+  const MOTE_COUNT = 32;
   const motes = [];
 
   function initMotes() {
@@ -12709,7 +12709,7 @@ function createStripeKineticRibbon() {
       motes.push({
         x: Math.random(),
         y: Math.random(),
-        vx: 0.0003 + Math.random() * 0.0006,
+        vx: 0.0002 + Math.random() * 0.0005,
         vy: 0.0002 + Math.random() * 0.0004,
         size: 1.2 + Math.random() * 2.2,
         phase: Math.random() * Math.PI * 2,
@@ -12724,166 +12724,220 @@ function createStripeKineticRibbon() {
     render(context, timeState, params) {
       const { ctx, width, height } = context;
       const speed = Number(params.speed ?? 1.0);
-      const ribbonTwist = Number(params.ribbonTwist ?? 1.1);
-      const streamlineDensity = Number(params.streamlineDensity ?? 1.0);
+      const ribbonTwist = Number(params.ribbonTwist ?? 1.2);
+      const streamlineDensity = Number(params.streamlineDensity ?? 1.1);
       const colorShift = Number(params.colorShift ?? 1.0);
       const ribbonWidthScale = Number(params.ribbonWidth ?? 1.1);
 
-      const t = timeState.time * speed * 0.6;
+      const t = timeState.time * speed * 0.55;
       if (motes.length === 0) initMotes();
 
       // Clean Light Substrate Background
       const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-      bgGrad.addColorStop(0, '#fcfdfd');
-      bgGrad.addColorStop(0.5, '#f4f6fb');
-      bgGrad.addColorStop(1.0, '#eef2f9');
+      bgGrad.addColorStop(0, '#fdfdfe');
+      bgGrad.addColorStop(0.5, '#f6f8fc');
+      bgGrad.addColorStop(1.0, '#edf1f8');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Ambient Bloom
+      // Ambient Light Halo
       ctx.save();
       const glowGrad = ctx.createRadialGradient(
-        width * 0.65, height * 0.45, width * 0.1,
-        width * 0.65, height * 0.45, width * 0.65
+        width * 0.62, height * 0.42, width * 0.08,
+        width * 0.62, height * 0.42, width * 0.7
       );
-      glowGrad.addColorStop(0, 'rgba(236, 72, 153, 0.12)');
-      glowGrad.addColorStop(0.4, 'rgba(99, 102, 241, 0.08)');
-      glowGrad.addColorStop(0.8, 'rgba(56, 189, 248, 0.04)');
+      glowGrad.addColorStop(0, 'rgba(236, 72, 153, 0.16)');
+      glowGrad.addColorStop(0.35, 'rgba(99, 102, 241, 0.10)');
+      glowGrad.addColorStop(0.75, 'rgba(56, 189, 248, 0.05)');
       glowGrad.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
       ctx.fillStyle = glowGrad;
       ctx.fillRect(0, 0, width, height);
       ctx.restore();
 
-      const EVAL_STEPS = 65;
-      const totalStreamlines = Math.floor(450 * streamlineDensity);
+      const EVAL_STEPS = 75;
 
-      function getSpinePoint(u, timeVal, layer = 0) {
-        const startX = width * (0.08 - layer * 0.05);
-        const startY = height * (-0.12 + layer * 0.08);
-        const endX = width * (1.15 + layer * 0.06);
-        const endY = height * (1.05 + layer * 0.04);
+      // Layer 1: Background Flow Field Streamlines
+      const bgSpinePts = [];
+      const bgWidth = Math.min(width, height) * 0.65 * ribbonWidthScale;
 
-        const p0x = startX;
-        const p0y = startY;
-        const p1x = width * (0.42 + Math.sin(timeVal * 1.2 + layer * 1.5) * 0.08 * ribbonTwist);
-        const p1y = height * (0.15 + Math.cos(timeVal * 0.9 + layer * 1.2) * 0.06 * ribbonTwist);
-        const p2x = width * (0.68 + Math.cos(timeVal * 1.1 + layer * 1.8) * 0.07 * ribbonTwist);
-        const p2y = height * (0.58 + Math.sin(timeVal * 0.8 + layer * 1.4) * 0.07 * ribbonTwist);
-        const p3x = endX;
-        const p3y = endY;
-
+      for (let s = 0; s <= EVAL_STEPS; s++) {
+        const u = s / EVAL_STEPS;
         const u1 = 1 - u;
+        const p0x = width * 0.05;
+        const p0y = height * -0.15;
+        const p1x = width * (0.35 + Math.sin(t * 1.1) * 0.05 * ribbonTwist);
+        const p1y = height * (0.18 + Math.cos(t * 0.8) * 0.04 * ribbonTwist);
+        const p2x = width * (0.62 + Math.cos(t * 0.9) * 0.05 * ribbonTwist);
+        const p2y = height * (0.55 + Math.sin(t * 1.0) * 0.05 * ribbonTwist);
+        const p3x = width * 1.18;
+        const p3y = height * 1.08;
+
         const bx = u1 * u1 * u1 * p0x + 3 * u1 * u1 * u * p1x + 3 * u1 * u * u * p2x + u * u * u * p3x;
         const by = u1 * u1 * u1 * p0y + 3 * u1 * u1 * u * p1y + 3 * u1 * u * u * p2y + u * u * u * p3y;
-
-        const wave = Math.sin(u * 5.2 - timeVal * 2.0 + layer) * (24 * ribbonTwist);
-        const wave2 = Math.cos(u * 8.4 + timeVal * 1.6) * (12 * ribbonTwist);
-
+        const wave = Math.sin(u * 4.8 - t * 1.8) * (20 * ribbonTwist);
         const dx = 3 * u1 * u1 * (p1x - p0x) + 6 * u1 * u * (p2x - p1x) + 3 * u * u * (p3x - p2x);
         const dy = 3 * u1 * u1 * (p1y - p0y) + 6 * u1 * u * (p2y - p1y) + 3 * u * u * (p3y - p2y);
         const len = Math.hypot(dx, dy) || 1;
         const nx = -dy / len;
         const ny = dx / len;
 
-        return { x: bx + nx * (wave + wave2), y: by + ny * (wave + wave2), nx, ny };
+        bgSpinePts.push({ x: bx + nx * wave, y: by + ny * wave, nx, ny });
       }
 
-      const layers = [
-        { id: 0, widthCoeff: 0.38, alpha: 0.22, speedMult: 0.8, colorOffset: 0.3 },
-        { id: 1, widthCoeff: 0.52, alpha: 0.75, speedMult: 1.0, colorOffset: 0.0 },
-        { id: 2, widthCoeff: 0.28, alpha: 0.95, speedMult: 1.15, colorOffset: 0.65 },
-      ];
+      const bgLines = Math.floor(320 * streamlineDensity);
+      ctx.save();
+      for (let i = 0; i < bgLines; i++) {
+        const v = (i / (bgLines - 1) - 0.5) * 2;
+        const vNorm = (v + 1) * 0.5;
+        const flutePhase = i * 0.28;
 
-      for (const layer of layers) {
-        const baseWidth = Math.min(width, height) * layer.widthCoeff * ribbonWidthScale;
-        const layerTime = t * layer.speedMult;
-
-        const spinePts = [];
-        for (let s = 0; s <= EVAL_STEPS; s++) {
-          const u = s / EVAL_STEPS;
-          spinePts.push(getSpinePoint(u, layerTime, layer.id));
-        }
-
-        // Drop shadow
-        if (layer.id === 1) {
-          ctx.save();
-          ctx.beginPath();
-          for (let s = 0; s <= EVAL_STEPS; s++) {
-            const pt = spinePts[s];
-            const u = s / EVAL_STEPS;
-            const w = baseWidth * Math.sin(u * Math.PI) * 0.9;
-            const sx = pt.x + pt.nx * w * 0.5 + 20;
-            const sy = pt.y + pt.ny * w * 0.5 + 35;
-            if (s === 0) ctx.moveTo(sx, sy);
-            else ctx.lineTo(sx, sy);
-          }
-          for (let s = EVAL_STEPS; s >= 0; s--) {
-            const pt = spinePts[s];
-            const u = s / EVAL_STEPS;
-            const w = baseWidth * Math.sin(u * Math.PI) * 0.9;
-            const sx = pt.x - pt.nx * w * 0.5 + 20;
-            const sy = pt.y - pt.ny * w * 0.5 + 35;
-            ctx.lineTo(sx, sy);
-          }
-          ctx.closePath();
-          ctx.fillStyle = 'rgba(70, 80, 110, 0.07)';
-          ctx.filter = 'blur(16px)';
-          ctx.fill();
-          ctx.filter = 'none';
-          ctx.restore();
-        }
-
-        // Streamlines
-        const linesInLayer = Math.floor((totalStreamlines / layers.length) * (layer.id === 1 ? 1.5 : 0.8));
-        ctx.save();
-        for (let i = 0; i < linesInLayer; i++) {
-          const v = (i / (linesInLayer - 1) - 0.5) * 2;
-          const vNorm = (v + 1) * 0.5;
-          const fluteFreq = 12.0 + layer.id * 4.0;
-          const flutePhase = i * 0.35;
-
-          ctx.beginPath();
-          for (let s = 0; s <= EVAL_STEPS; s++) {
-            const u = s / EVAL_STEPS;
-            const pt = spinePts[s];
-            const profile = Math.sin(Math.pow(u, 0.75) * Math.PI);
-            const rWidth = baseWidth * profile * (0.85 + 0.15 * Math.sin(u * 6.0 + layerTime));
-            const microFlute = Math.sin(u * fluteFreq + flutePhase + layerTime * 1.5) * (3.5 * ribbonTwist);
-
-            const px = pt.x + pt.nx * (v * rWidth * 0.5 + microFlute);
-            const py = pt.y + pt.ny * (v * rWidth * 0.5 + microFlute);
-
-            if (s === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
-          }
-
-          const colorParam = (vNorm * 0.45 + layer.colorOffset + t * 0.15 * colorShift) % 1.0;
-          const streamAlpha = layer.alpha * (0.45 + 0.55 * Math.sin(vNorm * Math.PI)) * (0.7 + 0.3 * Math.sin(i * 1.2));
-
-          ctx.strokeStyle = getStripeColor(colorParam, streamAlpha);
-          ctx.lineWidth = 1.1 + (1.0 - Math.abs(v)) * 0.8;
-          ctx.stroke();
-        }
-
-        // Rim highlight
         ctx.beginPath();
         for (let s = 0; s <= EVAL_STEPS; s++) {
           const u = s / EVAL_STEPS;
-          const pt = spinePts[s];
-          const profile = Math.sin(Math.pow(u, 0.75) * Math.PI);
-          const rWidth = baseWidth * profile;
-          const rx = pt.x + pt.nx * (rWidth * 0.5);
-          const ry = pt.y + pt.ny * (rWidth * 0.5);
-          if (s === 0) ctx.moveTo(rx, ry);
-          else ctx.lineTo(rx, ry);
+          const pt = bgSpinePts[s];
+          const profile = Math.sin(Math.pow(u, 0.7) * Math.PI);
+          const rW = bgWidth * profile * (0.9 + 0.1 * Math.sin(u * 5.0 + t));
+          const microFlute = Math.sin(u * 14.0 + flutePhase + t * 1.6) * (3.0 * ribbonTwist);
+
+          const px = pt.x + pt.nx * (v * rW * 0.5 + microFlute);
+          const py = pt.y + pt.ny * (v * rW * 0.5 + microFlute);
+
+          if (s === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
         }
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
-        ctx.lineWidth = 1.6;
+
+        const colorParam = (vNorm * 0.55 + (i / bgLines) * 0.25 + t * 0.12 * colorShift) % 1.0;
+        const alpha = 0.55 * (0.35 + 0.65 * Math.sin(vNorm * Math.PI)) * (0.75 + 0.25 * Math.sin(i * 1.1));
+
+        ctx.strokeStyle = getStripeColor(colorParam, alpha);
+        ctx.lineWidth = 1.15 + (1 - Math.abs(v)) * 0.6;
         ctx.stroke();
-        ctx.restore();
+      }
+      ctx.restore();
+
+      // Layer 2: Foreground 3D Twisted Ribbon Arch (The Stripe Loop)
+      const twistSpinePts = [];
+      const fgWidth = Math.min(width, height) * 0.36 * ribbonWidthScale;
+
+      for (let s = 0; s <= EVAL_STEPS; s++) {
+        const u = s / EVAL_STEPS;
+        const u1 = 1 - u;
+        const p0x = width * (0.86 + Math.sin(t * 0.7) * 0.03);
+        const p0y = height * -0.10;
+        const p1x = width * (0.64 + Math.sin(t * 1.2) * 0.05 * ribbonTwist);
+        const p1y = height * (0.28 + Math.cos(t * 0.9) * 0.04 * ribbonTwist);
+        const p2x = width * (0.72 + Math.cos(t * 1.0) * 0.05 * ribbonTwist);
+        const p2y = height * (0.68 + Math.sin(t * 1.1) * 0.04 * ribbonTwist);
+        const p3x = width * (0.94 + Math.sin(t * 0.8) * 0.03);
+        const p3y = height * 1.15;
+
+        const bx = u1 * u1 * u1 * p0x + 3 * u1 * u1 * u * p1x + 3 * u1 * u * u * p2x + u * u * u * p3x;
+        const by = u1 * u1 * u1 * p0y + 3 * u1 * u1 * u * p1y + 3 * u1 * u * u * p2y + u * u * u * p3y;
+        const dx = 3 * u1 * u1 * (p1x - p0x) + 6 * u1 * u * (p2x - p1x) + 3 * u * u * (p3x - p2x);
+        const dy = 3 * u1 * u1 * (p1y - p0y) + 6 * u1 * u * (p2y - p1y) + 3 * u * u * (p3y - p2y);
+        const len = Math.hypot(dx, dy) || 1;
+        const nx = -dy / len;
+        const ny = dx / len;
+
+        const twistCenter = 0.48 + Math.sin(t * 0.9) * 0.06;
+        const twistSigmoid = 1.0 / (1.0 + Math.exp(-12 * (u - twistCenter)));
+        const twistAngle = twistSigmoid * Math.PI + Math.sin(u * 3.5 + t * 1.5) * 0.25;
+        const widthProfile = Math.sin(Math.pow(u, 0.8) * Math.PI) * (0.85 + 0.15 * Math.sin(u * 4.0 - t));
+
+        twistSpinePts.push({ x: bx, y: by, nx, ny, twistAngle, widthProfile });
       }
 
-      // Floating Motes
+      // Drop Shadow for Twisted Arch
+      ctx.save();
+      ctx.beginPath();
+      for (let s = 0; s <= EVAL_STEPS; s++) {
+        const pt = twistSpinePts[s];
+        const w = fgWidth * pt.widthProfile * Math.abs(Math.cos(pt.twistAngle * 0.8));
+        const sx = pt.x + pt.nx * (w * 0.5) - 25;
+        const sy = pt.y + pt.ny * (w * 0.5) + 35;
+        if (s === 0) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+      }
+      for (let s = EVAL_STEPS; s >= 0; s--) {
+        const pt = twistSpinePts[s];
+        const w = fgWidth * pt.widthProfile * Math.abs(Math.cos(pt.twistAngle * 0.8));
+        const sx = pt.x - pt.nx * (w * 0.5) - 25;
+        const sy = pt.y - pt.ny * (w * 0.5) + 35;
+        ctx.lineTo(sx, sy);
+      }
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(50, 40, 70, 0.14)';
+      ctx.filter = 'blur(20px)';
+      ctx.fill();
+      ctx.filter = 'none';
+      ctx.restore();
+
+      // Foreground Twisted Streamlines
+      const twistLines = Math.floor(360 * streamlineDensity);
+      ctx.save();
+      for (let i = 0; i < twistLines; i++) {
+        const v = (i / (twistLines - 1) - 0.5) * 2;
+        const vNorm = (v + 1) * 0.5;
+        const flutePhase = i * 0.32;
+
+        ctx.beginPath();
+        for (let s = 0; s <= EVAL_STEPS; s++) {
+          const u = s / EVAL_STEPS;
+          const pt = twistSpinePts[s];
+          const projectedScale = Math.cos(pt.twistAngle);
+          const zDepth = Math.sin(pt.twistAngle);
+          const rW = fgWidth * pt.widthProfile;
+          const microFlute = Math.sin(u * 16.0 + flutePhase + t * 2.0) * (2.8 * ribbonTwist);
+
+          const offsetDist = v * (rW * 0.5) * projectedScale + microFlute;
+          const px = pt.x + pt.nx * offsetDist + (zDepth * 8);
+          const py = pt.y + pt.ny * offsetDist - (zDepth * 6);
+
+          if (s === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+
+        const baseColorVal = 0.65 + vNorm * 0.35 + (t * 0.12 * colorShift);
+        const streamAlpha = (0.75 + 0.25 * Math.sin(vNorm * Math.PI)) * (0.8 + 0.2 * Math.sin(i * 1.3));
+
+        ctx.strokeStyle = getStripeColor(baseColorVal, streamAlpha);
+        ctx.lineWidth = 1.25 + (1 - Math.abs(v)) * 0.7;
+        ctx.stroke();
+      }
+
+      // Specular Crest Rim Highlight
+      ctx.beginPath();
+      for (let s = 0; s <= EVAL_STEPS; s++) {
+        const u = s / EVAL_STEPS;
+        const pt = twistSpinePts[s];
+        const projectedScale = Math.cos(pt.twistAngle);
+        const rW = fgWidth * pt.widthProfile;
+        const px = pt.x + pt.nx * (rW * 0.5 * projectedScale);
+        const py = pt.y + pt.ny * (rW * 0.5 * projectedScale);
+        if (s === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.lineWidth = 2.0;
+      ctx.stroke();
+
+      ctx.beginPath();
+      for (let s = 0; s <= EVAL_STEPS; s++) {
+        const u = s / EVAL_STEPS;
+        const pt = twistSpinePts[s];
+        const projectedScale = Math.cos(pt.twistAngle);
+        const rW = fgWidth * pt.widthProfile;
+        const px = pt.x - pt.nx * (rW * 0.5 * projectedScale);
+        const py = pt.y - pt.ny * (rW * 0.5 * projectedScale);
+        if (s === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = 'rgba(255, 240, 225, 0.65)';
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+      ctx.restore();
+
+      // Motes
       ctx.save();
       for (let i = 0; i < motes.length; i++) {
         const m = motes[i];
@@ -12896,8 +12950,8 @@ function createStripeKineticRibbon() {
         ctx.beginPath();
         ctx.arc(mx, my, m.size * (0.8 + sparkle * 0.5), 0, Math.PI * 2);
         ctx.fillStyle = i % 2 === 0
-          ? \`rgba(99, 102, 241, \${0.45 * sparkle})\`
-          : \`rgba(236, 72, 153, \${0.45 * sparkle})\`;
+          ? \`rgba(99, 102, 241, \${0.5 * sparkle})\`
+          : \`rgba(249, 115, 22, \${0.5 * sparkle})\`;
         ctx.fill();
       }
       ctx.restore();
@@ -12906,8 +12960,8 @@ function createStripeKineticRibbon() {
 }
 
 const defaultParams = [
-  { key: "ribbonTwist", label: "3D Manifold S-Curve Twist", type: "range", min: 0.4, max: 2.2, step: 0.1, defaultValue: 1.1 },
-  { key: "streamlineDensity", label: "Flowline Micro-Striation Density", type: "range", min: 0.4, max: 2.0, step: 0.1, defaultValue: 1.0 },
+  { key: "ribbonTwist", label: "3D Manifold S-Curve Twist", type: "range", min: 0.4, max: 2.2, step: 0.1, defaultValue: 1.2 },
+  { key: "streamlineDensity", label: "Flowline Micro-Striation Density", type: "range", min: 0.4, max: 2.0, step: 0.1, defaultValue: 1.1 },
   { key: "ribbonWidth", label: "Ribbon Swath Caliber", type: "range", min: 0.5, max: 1.8, step: 0.1, defaultValue: 1.1 },
   { key: "colorShift", label: "Spectral Wave Velocity", type: "range", min: 0.2, max: 2.5, step: 0.1, defaultValue: 1.0 },
   { key: "speed", label: "Harmonic Flow Cadence", type: "range", min: 0.2, max: 2.5, step: 0.1, defaultValue: 1.0 }
