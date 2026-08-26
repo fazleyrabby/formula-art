@@ -11119,361 +11119,925 @@ if (instance && instance.render) {
   // 079. Crepuscular Sunset Rays
   'crepuscular-sunset-rays': `// 079 - Crepuscular Sunset Rays (physics)
 // 1:1 Original algorithm engine source
-const sunX = width * 0.5;
-const sunY = height * 0.38;
-const horizonY = height * 0.64;
+function createCrepuscularSunsetRays() {
+  const DUST_COUNT = 85;
+  const dustParticles = [];
 
-// 1. Sky Background Gradient
-const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
-skyGrad.addColorStop(0, '#0a0d1a');
-skyGrad.addColorStop(0.35, '#1e1c2e');
-skyGrad.addColorStop(0.65, '#542d22');
-skyGrad.addColorStop(0.9, '#a05c1b');
-skyGrad.addColorStop(1.0, '#d98a2b');
-ctx.fillStyle = skyGrad;
-ctx.fillRect(0, 0, width, horizonY);
-
-// 2. Sun Glow & Core Corona
-const coronaGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, width * 0.45);
-coronaGrad.addColorStop(0, 'rgba(255, 255, 240, 1.0)');
-coronaGrad.addColorStop(0.08, 'rgba(255, 230, 150, 0.85)');
-coronaGrad.addColorStop(0.22, 'rgba(255, 170, 60, 0.4)');
-coronaGrad.addColorStop(0.5, 'rgba(220, 100, 30, 0.15)');
-coronaGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-ctx.fillStyle = coronaGrad;
-ctx.beginPath();
-ctx.arc(sunX, sunY, width * 0.45, 0, Math.PI * 2);
-ctx.fill();
-
-// 3. Volumetric Crepuscular Ray Beams
-ctx.save();
-ctx.globalCompositeOperation = 'screen';
-const RAY_COUNT = 44;
-const maxRayLen = Math.hypot(width, height) * 0.85;
-
-for (let i = 0; i < RAY_COUNT; i++) {
-  const baseAngle = (i / RAY_COUNT) * Math.PI;
-  const cloudWarp = Math.sin(baseAngle * 5.0 + time * 0.4) * 0.08 + Math.cos(baseAngle * 9.0 - time * 0.6) * 0.05;
-  const rayAngle = baseAngle + cloudWarp;
-  const angleDiff = Math.abs(rayAngle - Math.PI * 0.5);
-  const centralFactor = Math.pow(Math.max(0, 1 - angleDiff / (Math.PI * 0.45)), 1.6);
-  const beamPulse = 0.6 + 0.4 * Math.sin(i * 1.7 + time * 1.5);
-  const beamAlpha = Math.min(0.7, 0.35 * centralFactor * beamPulse * 1.2);
-
-  if (beamAlpha > 0.02) {
-    const spreadWidth = 0.045 + (1 - centralFactor) * 0.03;
-    const rayGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, maxRayLen);
-    rayGrad.addColorStop(0, \`rgba(255, 245, 200, \${beamAlpha * 1.2})\`);
-    rayGrad.addColorStop(0.2, \`rgba(255, 210, 120, \${beamAlpha})\`);
-    rayGrad.addColorStop(0.55, \`rgba(235, 140, 50, \${beamAlpha * 0.4})\`);
-    rayGrad.addColorStop(1.0, 'rgba(180, 70, 20, 0)');
-
-    ctx.beginPath();
-    ctx.moveTo(sunX, sunY);
-    ctx.lineTo(sunX + Math.cos(rayAngle - spreadWidth) * maxRayLen, sunY + Math.sin(rayAngle - spreadWidth) * maxRayLen);
-    ctx.lineTo(sunX + Math.cos(rayAngle + spreadWidth) * maxRayLen, sunY + Math.sin(rayAngle + spreadWidth) * maxRayLen);
-    ctx.closePath();
-    ctx.fillStyle = rayGrad;
-    ctx.fill();
+  function initDust() {
+    dustParticles.length = 0;
+    for (let i = 0; i < DUST_COUNT; i++) {
+      dustParticles.push({
+        x: Math.random(),
+        y: Math.random(),
+        vx: (Math.random() - 0.5) * 0.0004,
+        vy: -0.0002 - Math.random() * 0.0006,
+        size: 0.8 + Math.random() * 1.8,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
   }
+
+  return {
+    setup() {
+      initDust();
+    },
+    render(context, timeState, params) {
+      const { ctx, width, height } = context;
+      const speed = Number(params.speed ?? 1.0);
+      const rayIntensity = Number(params.rayIntensity ?? 1.2);
+      const cloudDensity = Number(params.cloudDensity ?? 1.0);
+      const glitterSpread = Number(params.glitterSpread ?? 1.0);
+      const sunHeightRatio = Number(params.sunHeight ?? 0.38);
+
+      const t = timeState.time * speed;
+      if (dustParticles.length === 0) initDust();
+
+      const sunX = width * 0.5;
+      const sunY = height * sunHeightRatio;
+      const horizonY = height * 0.64;
+
+      // 1. Sky Background
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+      skyGrad.addColorStop(0, '#0a0d1a');
+      skyGrad.addColorStop(0.35, '#1e1c2e');
+      skyGrad.addColorStop(0.65, '#542d22');
+      skyGrad.addColorStop(0.9, '#a05c1b');
+      skyGrad.addColorStop(1.0, '#d98a2b');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, width, horizonY);
+
+      // 2. Sun Glow & Core Corona
+      ctx.save();
+      const coronaGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, width * 0.45);
+      coronaGrad.addColorStop(0, 'rgba(255, 255, 240, 1.0)');
+      coronaGrad.addColorStop(0.08, 'rgba(255, 230, 150, 0.85)');
+      coronaGrad.addColorStop(0.22, 'rgba(255, 170, 60, 0.4)');
+      coronaGrad.addColorStop(0.5, 'rgba(220, 100, 30, 0.15)');
+      coronaGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = coronaGrad;
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, width * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // 3. Volumetric Crepuscular Ray Beams
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const RAY_COUNT = 44;
+      const maxRayLen = Math.hypot(width, height) * 0.85;
+
+      for (let i = 0; i < RAY_COUNT; i++) {
+        const baseAngle = (i / RAY_COUNT) * Math.PI;
+        const cloudWarp = Math.sin(baseAngle * 5.0 + t * 0.4) * 0.08 +
+                          Math.cos(baseAngle * 9.0 - t * 0.6) * 0.05 +
+                          Math.sin(baseAngle * 17.0 + t * 0.8) * 0.03;
+        const rayAngle = baseAngle + cloudWarp * cloudDensity;
+        const angleDiff = Math.abs(rayAngle - Math.PI * 0.5);
+        const centralFactor = Math.pow(Math.max(0, 1 - angleDiff / (Math.PI * 0.45)), 1.6);
+        const beamPulse = 0.6 + 0.4 * Math.sin(i * 1.7 + t * 1.5) * Math.cos(i * 3.1 - t * 0.9);
+        const beamAlpha = Math.min(0.7, 0.35 * centralFactor * beamPulse * rayIntensity);
+
+        if (beamAlpha > 0.02) {
+          const spreadWidth = 0.045 + (1 - centralFactor) * 0.03;
+          const leftAngle = rayAngle - spreadWidth;
+          const rightAngle = rayAngle + spreadWidth;
+          const rayGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, maxRayLen);
+          rayGrad.addColorStop(0, \`rgba(255, 245, 200, \${beamAlpha * 1.2})\`);
+          rayGrad.addColorStop(0.2, \`rgba(255, 210, 120, \${beamAlpha})\`);
+          rayGrad.addColorStop(0.55, \`rgba(235, 140, 50, \${beamAlpha * 0.4})\`);
+          rayGrad.addColorStop(1.0, 'rgba(180, 70, 20, 0)');
+
+          ctx.beginPath();
+          ctx.moveTo(sunX, sunY);
+          ctx.lineTo(sunX + Math.cos(leftAngle) * maxRayLen, sunY + Math.sin(leftAngle) * maxRayLen);
+          ctx.lineTo(sunX + Math.cos(rightAngle) * maxRayLen, sunY + Math.sin(rightAngle) * maxRayLen);
+          ctx.closePath();
+          ctx.fillStyle = rayGrad;
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+
+      // 4. Cloud Silhouettes
+      ctx.save();
+      const CLOUD_LAYERS = 3;
+      for (let c = 0; c < CLOUD_LAYERS; c++) {
+        const cloudY = sunY - 45 + c * 38;
+        ctx.fillStyle = c === 0 ? 'rgba(25, 20, 32, 0.75)' : c === 1 ? 'rgba(38, 25, 35, 0.85)' : 'rgba(18, 14, 24, 0.95)';
+        ctx.beginPath();
+        ctx.moveTo(0, cloudY + 50);
+        const steps = 60;
+        for (let s = 0; s <= steps; s++) {
+          const nx = s / steps;
+          const x = nx * width;
+          const puff1 = Math.sin(nx * 12 + t * 0.15 + c * 2) * 16;
+          const puff2 = Math.cos(nx * 24 - t * 0.25) * 9;
+          const puff3 = Math.sin(nx * 42 + c) * 5;
+          const distToSun = Math.abs(x - sunX) / (width * 0.35);
+          const gapDip = Math.max(0, 1 - distToSun * distToSun) * (c === 0 ? 32 : 18);
+          ctx.lineTo(x, cloudY + puff1 + puff2 + puff3 - gapDip);
+        }
+        ctx.lineTo(width, cloudY + 70);
+        ctx.lineTo(0, cloudY + 70);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // 5. Ocean Water & Shimmer
+      const oceanH = height - horizonY;
+      const oceanGrad = ctx.createLinearGradient(0, horizonY, 0, height);
+      oceanGrad.addColorStop(0, '#100c14');
+      oceanGrad.addColorStop(0.3, '#1c131a');
+      oceanGrad.addColorStop(0.7, '#15101c');
+      oceanGrad.addColorStop(1.0, '#0a0810');
+      ctx.fillStyle = oceanGrad;
+      ctx.fillRect(0, horizonY, width, oceanH);
+
+      const WAVE_LINES = 28;
+      for (let w = 0; w < WAVE_LINES; w++) {
+        const normW = w / WAVE_LINES;
+        const lineY = horizonY + Math.pow(normW, 1.4) * oceanH;
+        const waveAmp = (1 + normW * 4.5);
+        const waveFreq = 0.04 - normW * 0.025;
+
+        ctx.beginPath();
+        const pts = 80;
+        for (let p = 0; p <= pts; p++) {
+          const nx = p / pts;
+          const x = nx * width;
+          const waveOffset = Math.sin(x * waveFreq + t * (1.5 + normW * 2.0) + w * 1.3) * waveAmp +
+                             Math.cos(x * waveFreq * 2.2 - t * 2.5) * (waveAmp * 0.4);
+          const y = lineY + waveOffset;
+          if (p === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = \`rgba(35, 25, 45, \${0.4 + normW * 0.4})\`;
+        ctx.lineWidth = 1 + normW * 1.5;
+        ctx.stroke();
+
+        const glitterCount = Math.floor(18 + normW * 35);
+        for (let g = 0; g < glitterCount; g++) {
+          const gx = sunX + (Math.sin(g * 7.1 + t * 3 + w) * (width * 0.12) + (Math.random() - 0.5) * 15) * (1 + normW * 2.4) * glitterSpread;
+          const gy = lineY + (Math.random() - 0.5) * waveAmp * 1.5;
+          const shimmer = Math.sin(t * 4.0 + g * 1.8 + normW * 6);
+          if (shimmer > 0.2) {
+            const alpha = (shimmer - 0.2) * (1 - normW * 0.4) * 0.9;
+            ctx.fillStyle = \`rgba(255, 240, 180, \${alpha})\`;
+            ctx.beginPath();
+            ctx.arc(gx, gy, (1.0 + (1 - normW) * 1.8) * shimmer, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+    }
+  };
 }
-ctx.restore();
 
-// 4. Ocean Surface & Specular Sun Glitter
-const oceanH = height - horizonY;
-const oceanGrad = ctx.createLinearGradient(0, horizonY, 0, height);
-oceanGrad.addColorStop(0, '#100c14');
-oceanGrad.addColorStop(1.0, '#0a0810');
-ctx.fillStyle = oceanGrad;
-ctx.fillRect(0, horizonY, width, oceanH);
+const defaultParams = [
+  { key: "speed", label: "Sunset Animation Speed", type: "range", min: 0.2, max: 2.5, step: 0.1, defaultValue: 1.0 },
+  { key: "rayIntensity", label: "Crepuscular Ray Intensity", type: "range", min: 0.4, max: 2.5, step: 0.1, defaultValue: 1.2 },
+  { key: "cloudDensity", label: "Cloud Occlusion Turbulence", type: "range", min: 0.2, max: 2.0, step: 0.1, defaultValue: 1.0 },
+  { key: "glitterSpread", label: "Ocean Glitter Path Width", type: "range", min: 0.5, max: 2.0, step: 0.1, defaultValue: 1.0 },
+  { key: "sunHeight", label: "Solar Elevation Ratio", type: "range", min: 0.2, max: 0.55, step: 0.02, defaultValue: 0.38 }
+];
 
-for (let w = 0; w < 24; w++) {
-  const normW = w / 24;
-  const lineY = horizonY + Math.pow(normW, 1.4) * oceanH;
-  for (let g = 0; g < 25; g++) {
-    const gx = sunX + (Math.sin(g * 7.1 + time * 3) * width * 0.15) * (1 + normW * 2);
-    const gy = lineY + Math.sin(gx * 0.05 + time * 2) * 2;
-    const alpha = Math.max(0, Math.sin(time * 4.0 + g * 1.8 + normW * 6));
-    ctx.fillStyle = \`rgba(255, 240, 180, \${alpha * (1 - normW * 0.4)})\`;
-    ctx.beginPath();
-    ctx.arc(gx, gy, 1.2 + alpha * 1.5, 0, Math.PI * 2);
-    ctx.fill();
+if (!window.__art_instances) window.__art_instances = {};
+if (!window.__art_instances['crepuscular-sunset-rays']) {
+  const inst = typeof createCrepuscularSunsetRays === 'function' ? createCrepuscularSunsetRays() : null;
+  if (inst && inst.setup) {
+    inst.setup({ ctx, width, height, dpr: 1, aspectRatio: width / height }, defaultParams);
   }
+  window.__art_instances['crepuscular-sunset-rays'] = inst;
+}
+
+const instance = window.__art_instances['crepuscular-sunset-rays'];
+if (instance && instance.render) {
+  instance.render(
+    { ctx, width, height, dpr: 1, aspectRatio: width / height },
+    { time, deltaTime: dt, frameCount: Math.floor(time * 60), fps: 60 },
+    defaultParams
+  );
 }`,
 
   // 080. Underwater Oceanic Sunbeams
   'underwater-oceanic-sunbeams': `// 080 - Underwater Oceanic Sunbeams (physics)
 // 1:1 Original algorithm engine source
-const waterGrad = ctx.createLinearGradient(0, 0, 0, height);
-waterGrad.addColorStop(0, '#044368');
-waterGrad.addColorStop(0.3, '#022949');
-waterGrad.addColorStop(0.7, '#01162d');
-waterGrad.addColorStop(1.0, '#000814');
-ctx.fillStyle = waterGrad;
-ctx.fillRect(0, 0, width, height);
+function createUnderwaterOceanicSunbeams() {
+  const MARINE_SNOW_COUNT = 90;
+  const FISH_COUNT = 45;
+  const marineSnow = [];
+  const fishSchool = [];
 
-const lightX = width * 0.5 + Math.sin(time * 0.3) * (width * 0.04);
-const lightY = height * 0.08;
+  function initOcean() {
+    marineSnow.length = 0;
+    for (let i = 0; i < MARINE_SNOW_COUNT; i++) {
+      marineSnow.push({
+        x: Math.random(),
+        y: Math.random(),
+        vx: (Math.random() - 0.5) * 0.0006,
+        vy: 0.0003 + Math.random() * 0.0007,
+        size: 0.8 + Math.random() * 2.0,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
 
-// Volumetric Cathedral Downward Shafts
-ctx.save();
-ctx.globalCompositeOperation = 'screen';
-const SHAFT_COUNT = 36;
-const maxShaftLen = height * 1.2;
-
-for (let i = 0; i < SHAFT_COUNT; i++) {
-  const normI = i / SHAFT_COUNT;
-  const baseAngle = Math.PI * 0.18 + normI * (Math.PI * 0.64);
-  const waveWarp = Math.sin(baseAngle * 7 + time * 0.8) * 0.05;
-  const shaftAngle = baseAngle + waveWarp;
-  const distFromCenter = Math.abs(normI - 0.5) * 2;
-  const alpha = Math.min(0.65, 0.32 * Math.pow(Math.max(0, 1 - distFromCenter * 0.8), 1.8) * (0.65 + 0.35 * Math.sin(i * 2.3 + time * 1.8)));
-
-  if (alpha > 0.02) {
-    const shaftGrad = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, maxShaftLen);
-    shaftGrad.addColorStop(0, \`rgba(255, 255, 255, \${alpha * 1.4})\`);
-    shaftGrad.addColorStop(0.12, \`rgba(190, 245, 255, \${alpha})\`);
-    shaftGrad.addColorStop(0.45, \`rgba(40, 180, 230, \${alpha * 0.45})\`);
-    shaftGrad.addColorStop(1.0, 'rgba(0, 30, 80, 0)');
-
-    ctx.beginPath();
-    ctx.moveTo(lightX, lightY);
-    ctx.lineTo(lightX + Math.cos(shaftAngle - 0.035) * maxShaftLen, lightY + Math.sin(shaftAngle - 0.035) * maxShaftLen);
-    ctx.lineTo(lightX + Math.cos(shaftAngle + 0.035) * maxShaftLen, lightY + Math.sin(shaftAngle + 0.035) * maxShaftLen);
-    ctx.closePath();
-    ctx.fillStyle = shaftGrad;
-    ctx.fill();
+    fishSchool.length = 0;
+    for (let i = 0; i < FISH_COUNT; i++) {
+      const randType = Math.random();
+      let fSize;
+      let isLarge = false;
+      if (randType < 0.18) {
+        fSize = 16.0 + Math.random() * 10.0;
+        isLarge = true;
+      } else if (randType < 0.5) {
+        fSize = 8.5 + Math.random() * 6.5;
+      } else {
+        fSize = 3.8 + Math.random() * 4.2;
+      }
+      fishSchool.push({
+        x: Math.random(),
+        y: 0.32 + Math.random() * 0.54,
+        speed: (0.0006 + Math.random() * 0.0012) * (isLarge ? 0.75 : 1.1),
+        size: fSize,
+        phase: Math.random() * Math.PI * 2,
+        depth: Math.random(),
+        isLarge,
+      });
+    }
   }
+
+  return {
+    setup() {
+      initOcean();
+    },
+    render(context, timeState, params) {
+      const { ctx, width, height } = context;
+      const speed = Number(params.speed ?? 1.0);
+      const shaftIntensity = Number(params.shaftIntensity ?? 1.2);
+      const waterClarity = Number(params.waterClarity ?? 1.0);
+      const causticSpeed = Number(params.causticSpeed ?? 1.3);
+      const kelpHeight = Number(params.kelpHeight ?? 1.0);
+
+      const t = timeState.time * speed;
+      if (marineSnow.length === 0) initOcean();
+
+      // Deep Ocean Water
+      const waterGrad = ctx.createLinearGradient(0, 0, 0, height);
+      waterGrad.addColorStop(0, '#044368');
+      waterGrad.addColorStop(0.25, '#022949');
+      waterGrad.addColorStop(0.6, '#01162d');
+      waterGrad.addColorStop(1.0, '#000814');
+      ctx.fillStyle = waterGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      const lightX = width * 0.5 + Math.sin(t * 0.3) * (width * 0.04);
+      const lightY = height * 0.08;
+
+      // Caustics
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      for (let c = 0; c < 16; c++) {
+        const normC = c / 16;
+        const cy0 = normC * (height * 0.12);
+        ctx.beginPath();
+        for (let s = 0; s <= 60; s++) {
+          const nx = s / 60;
+          const x = nx * width;
+          const wave1 = Math.sin(nx * 18 + t * causticSpeed * 2.0 + c) * 7;
+          const wave2 = Math.cos(nx * 32 - t * causticSpeed * 1.5) * 4;
+          const y = cy0 + wave1 + wave2;
+          if (s === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = \`rgba(180, 240, 255, \${(1 - normC) * 0.35 * waterClarity})\`;
+        ctx.lineWidth = 1.5 + (1 - normC) * 2.0;
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Volumetric Sun Shafts
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const SHAFT_COUNT = 38;
+      const maxShaftLen = height * 1.25;
+
+      for (let i = 0; i < SHAFT_COUNT; i++) {
+        const normI = i / SHAFT_COUNT;
+        const baseAngle = Math.PI * 0.18 + normI * (Math.PI * 0.64);
+        const waveWarp = Math.sin(baseAngle * 7 + t * 0.8) * 0.05 + Math.cos(baseAngle * 13 - t * 1.1) * 0.03;
+        const shaftAngle = baseAngle + waveWarp;
+        const distFromCenter = Math.abs(normI - 0.5) * 2;
+        const beamIntensity = Math.pow(Math.max(0, 1 - distFromCenter * 0.8), 1.8);
+        const pulse = 0.65 + 0.35 * Math.sin(i * 2.3 + t * 1.8);
+        const alpha = Math.min(0.65, 0.32 * beamIntensity * pulse * shaftIntensity);
+
+        if (alpha > 0.02) {
+          const beamWidth = 0.035 + (1 - beamIntensity) * 0.02;
+          const shaftGrad = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, maxShaftLen);
+          shaftGrad.addColorStop(0, \`rgba(255, 255, 255, \${alpha * 1.4})\`);
+          shaftGrad.addColorStop(0.12, \`rgba(190, 245, 255, \${alpha})\`);
+          shaftGrad.addColorStop(0.45, \`rgba(40, 180, 230, \${alpha * 0.45})\`);
+          shaftGrad.addColorStop(0.85, \`rgba(10, 80, 150, \${alpha * 0.15})\`);
+          shaftGrad.addColorStop(1.0, 'rgba(0, 30, 80, 0)');
+
+          ctx.beginPath();
+          ctx.moveTo(lightX, lightY);
+          ctx.lineTo(lightX + Math.cos(shaftAngle - beamWidth) * maxShaftLen, lightY + Math.sin(shaftAngle - beamWidth) * maxShaftLen);
+          ctx.lineTo(lightX + Math.cos(shaftAngle + beamWidth) * maxShaftLen, lightY + Math.sin(shaftAngle + beamWidth) * maxShaftLen);
+          ctx.closePath();
+          ctx.fillStyle = shaftGrad;
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+
+      // Core Glare
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const sunCoreGrad = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, width * 0.4);
+      sunCoreGrad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+      sunCoreGrad.addColorStop(0.08, 'rgba(220, 250, 255, 0.9)');
+      sunCoreGrad.addColorStop(0.28, 'rgba(80, 210, 255, 0.45)');
+      sunCoreGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = sunCoreGrad;
+      ctx.beginPath();
+      ctx.arc(lightX, lightY, width * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Fish School
+      for (let f = 0; f < fishSchool.length; f++) {
+        const fish = fishSchool[f];
+        fish.x = (fish.x + fish.speed + 1) % 1;
+        const fx = fish.x * width;
+        const fy = fish.y * height + Math.sin(t * 2.2 + fish.phase) * (fish.isLarge ? 8 : 4);
+        const distFromLight = Math.abs(fx - lightX) / (width * 0.45);
+        const inBeamFactor = Math.max(0, 1 - distFromLight);
+        const hue = inBeamFactor > 0.35 ? 42 + (1 - inBeamFactor) * 55 : 188;
+
+        ctx.save();
+        ctx.fillStyle = \`hsla(\${hue}, 95%, \${inBeamFactor > 0.35 ? 65 : 35}%, 0.85)\`;
+        ctx.beginPath();
+        ctx.ellipse(fx, fy, fish.size, fish.size * 0.42, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const tailWag = Math.sin(t * (fish.isLarge ? 9 : 15) + fish.phase) * (fish.size * 0.35);
+        ctx.beginPath();
+        ctx.moveTo(fx - fish.size * 0.75, fy);
+        ctx.lineTo(fx - fish.size * 1.6, fy - fish.size * 0.45 + tailWag);
+        ctx.lineTo(fx - fish.size * 1.6, fy + fish.size * 0.45 + tailWag);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+  };
 }
-ctx.restore();
 
-// Surface Light Core
-const sunCore = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, width * 0.35);
-sunCore.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-sunCore.addColorStop(0.25, 'rgba(80, 210, 255, 0.45)');
-sunCore.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-ctx.fillStyle = sunCore;
-ctx.beginPath();
-ctx.arc(lightX, lightY, width * 0.35, 0, Math.PI * 2);
-ctx.fill();
+const defaultParams = [
+  { key: "speed", label: "Ocean Current Cadence", type: "range", min: 0.2, max: 2.5, step: 0.1, defaultValue: 1.0 },
+  { key: "shaftIntensity", label: "Cathedral Sunbeam Intensity", type: "range", min: 0.4, max: 2.2, step: 0.1, defaultValue: 1.2 },
+  { key: "waterClarity", label: "Water Optical Clarity", type: "range", min: 0.3, max: 2.0, step: 0.1, defaultValue: 1.0 },
+  { key: "causticSpeed", label: "Surface Caustic Refraction", type: "range", min: 0.4, max: 2.5, step: 0.1, defaultValue: 1.3 },
+  { key: "kelpHeight", label: "Kelp Canopy Elevation", type: "range", min: 0.4, max: 1.6, step: 0.1, defaultValue: 1.0 }
+];
 
-// Shimmering School of Fish (Large & Small)
-for (let f = 0; f < 30; f++) {
-  const isLarge = f < 6;
-  const fSize = isLarge ? 18.0 + (f % 3) * 4 : 4.0 + (f % 4) * 2;
-  const speed = isLarge ? 0.0007 : 0.0012;
-  const fx = (((f * 0.07 + time * speed * 60) % 1) * width);
-  const fy = height * (0.35 + (f % 8) * 0.06) + Math.sin(time * 2 + f) * 6;
-  const dist = Math.abs(fx - lightX) / (width * 0.45);
-  const inBeam = Math.max(0, 1 - dist);
-  const hue = inBeam > 0.35 ? 42 + (1 - inBeam) * 55 : 188;
+if (!window.__art_instances) window.__art_instances = {};
+if (!window.__art_instances['underwater-oceanic-sunbeams']) {
+  const inst = typeof createUnderwaterOceanicSunbeams === 'function' ? createUnderwaterOceanicSunbeams() : null;
+  if (inst && inst.setup) {
+    inst.setup({ ctx, width, height, dpr: 1, aspectRatio: width / height }, defaultParams);
+  }
+  window.__art_instances['underwater-oceanic-sunbeams'] = inst;
+}
 
-  ctx.fillStyle = 'hsla(' + hue + ', 95%, ' + (inBeam > 0.35 ? 65 : 35) + '%, 0.85)';
-  ctx.beginPath();
-  ctx.ellipse(fx, fy, fSize, fSize * 0.42, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  const tailWag = Math.sin(time * (isLarge ? 8 : 14) + f) * (fSize * 0.35);
-  ctx.beginPath();
-  ctx.moveTo(fx - fSize * 0.75, fy);
-  ctx.lineTo(fx - fSize * 1.6, fy - fSize * 0.45 + tailWag);
-  ctx.lineTo(fx - fSize * 1.6, fy + fSize * 0.45 + tailWag);
-  ctx.closePath();
-  ctx.fill();
+const instance = window.__art_instances['underwater-oceanic-sunbeams'];
+if (instance && instance.render) {
+  instance.render(
+    { ctx, width, height, dpr: 1, aspectRatio: width / height },
+    { time, deltaTime: dt, frameCount: Math.floor(time * 60), fps: 60 },
+    defaultParams
+  );
 }`,
 
   // 081. Atmospheric Cloudbreak God Rays
   'atmospheric-cloudbreak-godrays': `// 081 - Atmospheric Cloudbreak God Rays (physics)
 // 1:1 Original algorithm engine source
-const sunX = width * 0.5;
-const sunY = height * 0.35;
+function createAtmosphericCloudbreakGodrays() {
+  const AEROSOL_COUNT = 100;
+  const aerosols = [];
 
-const skyGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.hypot(width, height));
-skyGrad.addColorStop(0, '#5a3d1b');
-skyGrad.addColorStop(0.3, '#2e2528');
-skyGrad.addColorStop(0.6, '#191924');
-skyGrad.addColorStop(1.0, '#0c0d14');
-ctx.fillStyle = skyGrad;
-ctx.fillRect(0, 0, width, height);
-
-ctx.save();
-ctx.globalCompositeOperation = 'screen';
-const RAY_BEAMS = 48;
-const maxRayDist = Math.hypot(width, height) * 0.95;
-
-for (let i = 0; i < RAY_BEAMS; i++) {
-  const baseTheta = (i / RAY_BEAMS) * Math.PI * 2;
-  const downward = Math.sin(baseTheta);
-  if (downward < -0.2) continue;
-
-  const gap = Math.sin(baseTheta * 8.0 + time * 0.5) * 0.06;
-  const theta = baseTheta + gap;
-  const rayAlpha = Math.min(0.7, 0.4 * Math.pow(Math.max(0, (downward + 0.2) / 1.2), 1.4) * (0.6 + 0.4 * Math.sin(i * 3.7 + time * 2.0)));
-
-  if (rayAlpha > 0.02) {
-    const beamGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, maxRayDist);
-    beamGrad.addColorStop(0, \`rgba(255, 255, 240, \${rayAlpha * 1.4})\`);
-    beamGrad.addColorStop(0.2, \`rgba(255, 225, 140, \${rayAlpha})\`);
-    beamGrad.addColorStop(0.6, \`rgba(240, 140, 50, \${rayAlpha * 0.4})\`);
-    beamGrad.addColorStop(1.0, 'rgba(100, 30, 10, 0)');
-
-    ctx.beginPath();
-    ctx.moveTo(sunX, sunY);
-    ctx.lineTo(sunX + Math.cos(theta - 0.03) * maxRayDist, sunY + Math.sin(theta - 0.03) * maxRayDist);
-    ctx.lineTo(sunX + Math.cos(theta + 0.03) * maxRayDist, sunY + Math.sin(theta + 0.03) * maxRayDist);
-    ctx.closePath();
-    ctx.fillStyle = beamGrad;
-    ctx.fill();
+  function initAerosols() {
+    aerosols.length = 0;
+    for (let i = 0; i < AEROSOL_COUNT; i++) {
+      aerosols.push({
+        x: Math.random(),
+        y: Math.random(),
+        vx: (Math.random() - 0.5) * 0.0008,
+        vy: -0.0003 - Math.random() * 0.0006,
+        r: 0.6 + Math.random() * 2.2,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
   }
-}
-ctx.restore();
 
-// Cloud Silhouettes
-for (let c = 0; c < 4; c++) {
-  const cxPuff = width * (0.25 + c * 0.18) + Math.sin(time * 0.2 + c) * 20;
-  const cyPuff = height * (0.22 + (c % 2) * 0.15);
-  ctx.fillStyle = 'rgba(25, 20, 30, 0.88)';
-  ctx.beginPath();
-  ctx.arc(cxPuff, cyPuff, 55 + (c % 2) * 20, 0, Math.PI * 2);
-  ctx.fill();
+  return {
+    setup() {
+      initAerosols();
+    },
+    render(context, timeState, params) {
+      const { ctx, width, height } = context;
+      const speed = Number(params.speed ?? 1.0);
+      const beamSharpness = Number(params.beamSharpness ?? 1.3);
+      const cloudContrast = Number(params.cloudContrast ?? 1.1);
+      const sunAngle = Number(params.sunAngle ?? 0.0);
+      const scatteringAerosol = Number(params.scatteringAerosol ?? 1.0);
+
+      const t = timeState.time * speed;
+      if (aerosols.length === 0) initAerosols();
+
+      const sunX = width * 0.5 + Math.sin(sunAngle) * (width * 0.25);
+      const sunY = height * 0.35;
+
+      // Sky Background
+      const skyGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.hypot(width, height));
+      skyGrad.addColorStop(0, '#5a3d1b');
+      skyGrad.addColorStop(0.25, '#2e2528');
+      skyGrad.addColorStop(0.55, '#191924');
+      skyGrad.addColorStop(1.0, '#0c0d14');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Sun Halo
+      ctx.save();
+      const sunFlare = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, width * 0.55);
+      sunFlare.addColorStop(0, 'rgba(255, 255, 250, 1.0)');
+      sunFlare.addColorStop(0.06, 'rgba(255, 240, 180, 0.9)');
+      sunFlare.addColorStop(0.2, 'rgba(255, 180, 70, 0.45)');
+      sunFlare.addColorStop(0.5, 'rgba(180, 80, 20, 0.15)');
+      sunFlare.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = sunFlare;
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, width * 0.55, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Mie Godrays
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const RAY_BEAMS = 54;
+      const maxRayDist = Math.hypot(width, height) * 0.95;
+
+      for (let i = 0; i < RAY_BEAMS; i++) {
+        const normI = i / RAY_BEAMS;
+        const baseTheta = normI * Math.PI * 2;
+        const downwardFactor = Math.sin(baseTheta);
+        if (downwardFactor < -0.2) continue;
+
+        const gap1 = Math.sin(baseTheta * 8.0 + t * 0.5) * 0.06;
+        const gap2 = Math.cos(baseTheta * 15.0 - t * 0.8) * 0.04;
+        const theta = baseTheta + (gap1 + gap2) * (2.0 - cloudContrast);
+        const forwardWeight = Math.pow(Math.max(0, (downwardFactor + 0.2) / 1.2), 1.4);
+        const dynamicIntensity = 0.6 + 0.4 * Math.sin(i * 3.7 + t * 2.0);
+        const rayAlpha = Math.min(0.7, 0.42 * forwardWeight * dynamicIntensity * beamSharpness);
+
+        if (rayAlpha > 0.02) {
+          const halfWidth = 0.04 / beamSharpness;
+          const beamGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, maxRayDist);
+          beamGrad.addColorStop(0, \`rgba(255, 255, 240, \${rayAlpha * 1.4})\`);
+          beamGrad.addColorStop(0.15, \`rgba(255, 225, 140, \${rayAlpha})\`);
+          beamGrad.addColorStop(0.5, \`rgba(240, 140, 50, \${rayAlpha * 0.45})\`);
+          beamGrad.addColorStop(1.0, 'rgba(100, 30, 10, 0)');
+
+          ctx.beginPath();
+          ctx.moveTo(sunX, sunY);
+          ctx.lineTo(sunX + Math.cos(theta - halfWidth) * maxRayDist, sunY + Math.sin(theta - halfWidth) * maxRayDist);
+          ctx.lineTo(sunX + Math.cos(theta + halfWidth) * maxRayDist, sunY + Math.sin(theta + halfWidth) * maxRayDist);
+          ctx.closePath();
+          ctx.fillStyle = beamGrad;
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+
+      // Cloud Clusters
+      ctx.save();
+      for (let c = 0; c < 5; c++) {
+        const cxCenter = width * (0.2 + (c / 5) * 0.6) + Math.sin(t * 0.2 + c) * 30;
+        const cyCenter = height * (0.2 + (c % 3) * 0.18);
+        for (let p = 0; p < 12; p++) {
+          const pAng = (p / 12) * Math.PI * 2;
+          const pDist = 35 + Math.sin(p * 3 + t * 0.4) * 15;
+          const px = cxCenter + Math.cos(pAng) * pDist * 1.8;
+          const py = cyCenter + Math.sin(pAng) * pDist * 0.9;
+          const pRadius = 45 + Math.cos(p * 2 + c) * 18;
+          const distToSun = Math.hypot(px - sunX, py - sunY);
+          const rimFactor = Math.max(0, 1 - distToSun / (width * 0.45));
+
+          const cloudGrad = ctx.createRadialGradient(px, py, pRadius * 0.2, px, py, pRadius);
+          cloudGrad.addColorStop(0, \`rgba(32, 26, 36, \${0.9 * cloudContrast})\`);
+          cloudGrad.addColorStop(0.7, \`rgba(20, 16, 25, \${0.95 * cloudContrast})\`);
+          cloudGrad.addColorStop(1.0, \`rgba(255, 200, 100, \${rimFactor * 0.45})\`);
+
+          ctx.fillStyle = cloudGrad;
+          ctx.beginPath();
+          ctx.arc(px, py, pRadius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+  };
+}
+
+const defaultParams = [
+  { key: "speed", label: "Atmospheric Cloud Motion", type: "range", min: 0.2, max: 2.5, step: 0.1, defaultValue: 1.0 },
+  { key: "beamSharpness", label: "Ray Collimation Sharpness", type: "range", min: 0.5, max: 2.5, step: 0.1, defaultValue: 1.3 },
+  { key: "cloudContrast", label: "Cumulus Edge Rim Glow", type: "range", min: 0.4, max: 1.8, step: 0.1, defaultValue: 1.1 },
+  { key: "sunAngle", label: "Solar Zenith Inclination", type: "range", min: -0.6, max: 0.6, step: 0.05, defaultValue: 0.0 },
+  { key: "scatteringAerosol", label: "Atmospheric Mote Density", type: "range", min: 0.3, max: 2.2, step: 0.1, defaultValue: 1.0 }
+];
+
+if (!window.__art_instances) window.__art_instances = {};
+if (!window.__art_instances['atmospheric-cloudbreak-godrays']) {
+  const inst = typeof createAtmosphericCloudbreakGodrays === 'function' ? createAtmosphericCloudbreakGodrays() : null;
+  if (inst && inst.setup) {
+    inst.setup({ ctx, width, height, dpr: 1, aspectRatio: width / height }, defaultParams);
+  }
+  window.__art_instances['atmospheric-cloudbreak-godrays'] = inst;
+}
+
+const instance = window.__art_instances['atmospheric-cloudbreak-godrays'];
+if (instance && instance.render) {
+  instance.render(
+    { ctx, width, height, dpr: 1, aspectRatio: width / height },
+    { time, deltaTime: dt, frameCount: Math.floor(time * 60), fps: 60 },
+    defaultParams
+  );
 }`,
 
   // 082. Solar Corona & Flare Prominence
   'solar-corona-flare': `// 082 - Solar Corona & Flare Prominence (physics)
 // 1:1 Original algorithm engine source
-const cx = width * 0.5;
-const cy = height * 0.5;
-const baseR = Math.min(width, height) * 0.19;
+function createSolarCoronaFlare() {
+  const PROMINENCE_LOOPS = 28;
+  const loopPhases = [];
 
-ctx.fillStyle = '#050407';
-ctx.fillRect(0, 0, width, height);
+  function initLoops() {
+    loopPhases.length = 0;
+    for (let i = 0; i < PROMINENCE_LOOPS; i++) {
+      loopPhases.push({
+        angle: (i / PROMINENCE_LOOPS) * Math.PI * 2 + (Math.random() - 0.5) * 0.2,
+        span: 0.15 + Math.random() * 0.35,
+        height: 25 + Math.random() * 65,
+        speed: 0.4 + Math.random() * 0.8,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+  }
 
-// Streamer Rays
-ctx.save();
-ctx.globalCompositeOperation = 'screen';
-const STREAMERS = 56;
-const maxLen = Math.min(width, height) * 0.48;
+  return {
+    setup() {
+      initLoops();
+    },
+    render(context, timeState, params) {
+      const { ctx, width, height } = context;
+      const speed = Number(params.speed ?? 1.0);
+      const solarActivity = Number(params.solarActivity ?? 1.2);
+      const loopDensity = Number(params.loopDensity ?? 1.0);
+      const coronaRadiusParam = Number(params.coronaRadius ?? 1.0);
+      const flareIntensity = Number(params.flareIntensity ?? 1.3);
 
-for (let i = 0; i < STREAMERS; i++) {
-  const theta = (i / STREAMERS) * Math.PI * 2 + Math.sin(i * 6 + time * 1.5) * 0.06;
-  const rayLen = baseR + (maxLen - baseR) * (0.6 + 0.4 * Math.sin(theta * 3 + time));
-  const alpha = 0.28 * (0.6 + 0.4 * Math.sin(i * 3.1 + time * 2.5));
+      const t = timeState.time * speed;
+      if (loopPhases.length === 0) initLoops();
 
-  const grad = ctx.createRadialGradient(cx, cy, baseR * 0.8, cx, cy, rayLen);
-  grad.addColorStop(0, \`rgba(255, 235, 160, \${alpha * 1.3})\`);
-  grad.addColorStop(0.3, \`rgba(255, 140, 40, \${alpha})\`);
-  grad.addColorStop(1.0, 'rgba(80, 10, 5, 0)');
+      const cx = width * 0.5;
+      const cy = height * 0.5;
+      const baseR = Math.min(width, height) * 0.19 * coronaRadiusParam;
 
-  ctx.beginPath();
-  ctx.moveTo(cx + Math.cos(theta - 0.04) * baseR, cy + Math.sin(theta - 0.04) * baseR);
-  ctx.lineTo(cx + Math.cos(theta) * rayLen, cy + Math.sin(theta) * rayLen);
-  ctx.lineTo(cx + Math.cos(theta + 0.04) * baseR, cy + Math.sin(theta + 0.04) * baseR);
-  ctx.closePath();
-  ctx.fillStyle = grad;
-  ctx.fill();
+      ctx.fillStyle = '#050407';
+      ctx.fillRect(0, 0, width, height);
+
+      // Extended Outer Solar Corona Streamers
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const STREAMER_RAYS = 64;
+      const maxStreamerLen = Math.min(width, height) * 0.48;
+
+      for (let i = 0; i < STREAMER_RAYS; i++) {
+        const theta = (i / STREAMER_RAYS) * Math.PI * 2;
+        const rayAngle = theta + Math.sin(theta * 6.0 + t * 1.5) * 0.08 + Math.cos(theta * 14.0 - t * 2.2) * 0.04;
+        const pulse = 0.6 + 0.4 * Math.sin(i * 3.1 + t * 2.5 * solarActivity);
+        const rayLen = baseR + (maxStreamerLen - baseR) * (0.6 + 0.4 * Math.sin(theta * 3 + t));
+        const alpha = Math.min(0.55, 0.28 * pulse * flareIntensity);
+
+        const streamerGrad = ctx.createRadialGradient(cx, cy, baseR * 0.8, cx, cy, rayLen);
+        streamerGrad.addColorStop(0, \`rgba(255, 235, 160, \${alpha * 1.3})\`);
+        streamerGrad.addColorStop(0.25, \`rgba(255, 140, 40, \${alpha})\`);
+        streamerGrad.addColorStop(0.65, \`rgba(210, 50, 15, \${alpha * 0.35})\`);
+        streamerGrad.addColorStop(1.0, 'rgba(80, 10, 5, 0)');
+
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(rayAngle - 0.045) * baseR, cy + Math.sin(rayAngle - 0.045) * baseR);
+        ctx.lineTo(cx + Math.cos(rayAngle) * rayLen, cy + Math.sin(rayAngle) * rayLen);
+        ctx.lineTo(cx + Math.cos(rayAngle + 0.045) * baseR, cy + Math.sin(rayAngle + 0.045) * baseR);
+        ctx.closePath();
+        ctx.fillStyle = streamerGrad;
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Magnetic Coronal Plasma Loops
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const activeLoops = Math.floor(PROMINENCE_LOOPS * loopDensity);
+      for (let l = 0; l < activeLoops; l++) {
+        const loop = loopPhases[l];
+        const a1 = loop.angle - loop.span * 0.5;
+        const a2 = loop.angle + loop.span * 0.5;
+        const loopHeightDynamic = loop.height * (0.75 + 0.25 * Math.sin(t * loop.speed + loop.phase)) * solarActivity;
+
+        const p1x = cx + Math.cos(a1) * baseR;
+        const p1y = cy + Math.sin(a1) * baseR;
+        const p2x = cx + Math.cos(a2) * baseR;
+        const p2y = cy + Math.sin(a2) * baseR;
+
+        const apexR = baseR + loopHeightDynamic;
+        const cpx = cx + Math.cos(loop.angle) * (apexR * 1.25);
+        const cpy = cy + Math.sin(loop.angle) * (apexR * 1.25);
+
+        ctx.beginPath();
+        ctx.moveTo(p1x, p1y);
+        ctx.quadraticCurveTo(cpx, cpy, p2x, p2y);
+        ctx.strokeStyle = \`hsla(\${20 + Math.sin(t + l) * 15}, 95%, 60%, 0.75)\`;
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Photosphere Core
+      ctx.save();
+      const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, baseR * 1.3);
+      coreGrad.addColorStop(0, '#ffffff');
+      coreGrad.addColorStop(0.35, '#fff0a0');
+      coreGrad.addColorStop(0.7, '#ff8010');
+      coreGrad.addColorStop(1.0, 'rgba(200, 30, 0, 0)');
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, baseR * 1.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  };
 }
 
-// Core Photosphere
-const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, baseR * 1.3);
-coreGrad.addColorStop(0, '#ffffff');
-coreGrad.addColorStop(0.35, '#fff0a0');
-coreGrad.addColorStop(0.7, '#ff8010');
-coreGrad.addColorStop(1.0, 'rgba(200, 30, 0, 0)');
-ctx.fillStyle = coreGrad;
-ctx.beginPath();
-ctx.arc(cx, cy, baseR * 1.3, 0, Math.PI * 2);
-ctx.fill();
-ctx.restore();`,
+const defaultParams = [
+  { key: "speed", label: "Solar Dynamic Cadence", type: "range", min: 0.2, max: 2.5, step: 0.1, defaultValue: 1.0 },
+  { key: "solarActivity", label: "MHD Prominence Activity", type: "range", min: 0.4, max: 2.2, step: 0.1, defaultValue: 1.2 },
+  { key: "loopDensity", label: "Magnetic Arc Loop Count", type: "range", min: 0.3, max: 1.8, step: 0.1, defaultValue: 1.0 },
+  { key: "coronaRadius", label: "Photosphere Core Scale", type: "range", min: 0.6, max: 1.5, step: 0.05, defaultValue: 1.0 },
+  { key: "flareIntensity", label: "Streamer Glow Luminance", type: "range", min: 0.5, max: 2.5, step: 0.1, defaultValue: 1.3 }
+];
+
+if (!window.__art_instances) window.__art_instances = {};
+if (!window.__art_instances['solar-corona-flare']) {
+  const inst = typeof createSolarCoronaFlare === 'function' ? createSolarCoronaFlare() : null;
+  if (inst && inst.setup) {
+    inst.setup({ ctx, width, height, dpr: 1, aspectRatio: width / height }, defaultParams);
+  }
+  window.__art_instances['solar-corona-flare'] = inst;
+}
+
+const instance = window.__art_instances['solar-corona-flare'];
+if (instance && instance.render) {
+  instance.render(
+    { ctx, width, height, dpr: 1, aspectRatio: width / height },
+    { time, deltaTime: dt, frameCount: Math.floor(time * 60), fps: 60 },
+    defaultParams
+  );
+}`,
 
   // 083. Moonlit Ocean & Lunar Rays
   'moonlit-ocean-rays': `// 083 - Moonlit Ocean & Lunar Rays (physics)
 // 1:1 Original algorithm engine source
-const moonX = width * 0.22;
-const moonY = height * 0.21;
-const moonR = Math.min(width, height) * 0.082;
-const horizonY = height * 0.62;
+function createMoonlitOceanRays() {
+  const STAR_COUNT = 130;
+  const BIOLUM_COUNT = 55;
+  const stars = [];
+  const biolumParticles = [];
 
-// 1. Midnight Sky Gradient
-const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
-skyGrad.addColorStop(0, '#010308');
-skyGrad.addColorStop(0.35, '#030818');
-skyGrad.addColorStop(0.7, '#06132c');
-skyGrad.addColorStop(1.0, '#0a1d3d');
-ctx.fillStyle = skyGrad;
-ctx.fillRect(0, 0, width, horizonY);
-
-// 2. Subtle & Dreamy Atmospheric Moonbeams
-ctx.save();
-ctx.globalCompositeOperation = 'screen';
-const RAY_COUNT = 12;
-const maxRayDist = Math.hypot(width, height) * 1.15;
-
-for (let i = 0; i < RAY_COUNT; i++) {
-  const normI = i / RAY_COUNT;
-  const baseAngle = -Math.PI * 0.02 + normI * (Math.PI * 0.44);
-  const waveMod = Math.sin(baseAngle * 4.0 + time * 0.2) * 0.05;
-  const rayAngle = baseAngle + waveMod;
-  const angleDiff = Math.abs(rayAngle - Math.PI * 0.20);
-  const centralFactor = Math.pow(Math.max(0, 1 - angleDiff / (Math.PI * 0.3)), 1.4);
-  const pulse = 0.75 + 0.25 * Math.sin(i * 1.8 + time * 0.9);
-  const beamAlpha = Math.min(0.18, 0.08 * centralFactor * pulse * 1.2);
-
-  if (beamAlpha > 0.008) {
-    const spreadWidth = 0.085 + (1 - centralFactor) * 0.045;
-    const moonbeamGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.8, moonX, moonY, maxRayDist);
-    moonbeamGrad.addColorStop(0, \`rgba(215, 238, 255, \${beamAlpha * 1.1})\`);
-    moonbeamGrad.addColorStop(0.25, \`rgba(130, 195, 255, \${beamAlpha * 0.7})\`);
-    moonbeamGrad.addColorStop(0.65, \`rgba(40, 110, 190, \${beamAlpha * 0.25})\`);
-    moonbeamGrad.addColorStop(1.0, 'rgba(0, 10, 30, 0)');
-
-    ctx.beginPath();
-    ctx.moveTo(moonX, moonY);
-    ctx.lineTo(moonX + Math.cos(rayAngle - spreadWidth) * maxRayDist, moonY + Math.sin(rayAngle - spreadWidth) * maxRayDist);
-    ctx.lineTo(moonX + Math.cos(rayAngle + spreadWidth) * maxRayDist, moonY + Math.sin(rayAngle + spreadWidth) * maxRayDist);
-    ctx.closePath();
-    ctx.fillStyle = moonbeamGrad;
-    ctx.fill();
+  function initNightSky() {
+    stars.length = 0;
+    for (let i = 0; i < STAR_COUNT; i++) {
+      stars.push({
+        x: Math.random(),
+        y: Math.random() * 0.62,
+        r: 0.4 + Math.random() * 1.4,
+        phase: Math.random() * Math.PI * 2,
+        isBright: Math.random() < 0.12,
+      });
+    }
+    biolumParticles.length = 0;
+    for (let i = 0; i < BIOLUM_COUNT; i++) {
+      biolumParticles.push({
+        x: Math.random(),
+        y: 0.64 + Math.random() * 0.35,
+        vx: (Math.random() - 0.5) * 0.0006,
+        vy: (Math.random() - 0.5) * 0.0004,
+        r: 0.8 + Math.random() * 2.0,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
   }
+
+  return {
+    setup() {
+      initNightSky();
+    },
+    render(context, timeState, params) {
+      const { ctx, width, height } = context;
+      const speed = Number(params.speed ?? 1.0);
+      const beamIntensity = Number(params.beamIntensity ?? 1.2);
+      const moonGlow = Number(params.moonGlow ?? 1.1);
+      const oceanGlitter = Number(params.oceanGlitter ?? 1.2);
+      const bioluminescence = Number(params.bioluminescence ?? 1.0);
+
+      const t = timeState.time * speed;
+      if (stars.length === 0) initNightSky();
+
+      const moonX = width * 0.22;
+      const moonY = height * 0.21;
+      const moonR = Math.min(width, height) * 0.082;
+      const horizonY = height * 0.62;
+
+      // 1. Sky Gradient
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+      skyGrad.addColorStop(0, '#010308');
+      skyGrad.addColorStop(0.35, '#030818');
+      skyGrad.addColorStop(0.7, '#06132c');
+      skyGrad.addColorStop(1.0, '#0a1d3d');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, width, horizonY);
+
+      // 2. Stars
+      ctx.save();
+      for (let s = 0; s < stars.length; s++) {
+        const star = stars[s];
+        const sx = star.x * width;
+        const sy = star.y * horizonY;
+        if (Math.hypot(sx - moonX, sy - moonY) < moonR * 1.8) continue;
+        const twinkle = 0.35 + 0.65 * Math.pow(Math.sin(t * 2.2 + star.phase), 2);
+        ctx.fillStyle = \`rgba(220, 240, 255, \${twinkle * (star.isBright ? 0.95 : 0.65)})\`;
+        ctx.beginPath();
+        ctx.arc(sx, sy, star.r * (star.isBright ? 1.2 : 0.8), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // 3. Subtle & Dreamy Atmospheric Moonbeams
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const RAY_COUNT = 12;
+      const maxRayDist = Math.hypot(width, height) * 1.15;
+
+      for (let i = 0; i < RAY_COUNT; i++) {
+        const normI = i / RAY_COUNT;
+        const baseAngle = -Math.PI * 0.02 + normI * (Math.PI * 0.44);
+        const waveMod = Math.sin(baseAngle * 4.0 + t * 0.2) * 0.05;
+        const rayAngle = baseAngle + waveMod;
+        const angleDiff = Math.abs(rayAngle - Math.PI * 0.20);
+        const centralFactor = Math.pow(Math.max(0, 1 - angleDiff / (Math.PI * 0.3)), 1.4);
+        const pulse = 0.75 + 0.25 * Math.sin(i * 1.8 + t * 0.9);
+        const beamAlpha = Math.min(0.18, 0.08 * centralFactor * pulse * beamIntensity);
+
+        if (beamAlpha > 0.008) {
+          const spreadWidth = 0.085 + (1 - centralFactor) * 0.045;
+          const moonbeamGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.8, moonX, moonY, maxRayDist);
+          moonbeamGrad.addColorStop(0, \`rgba(215, 238, 255, \${beamAlpha * 1.1})\`);
+          moonbeamGrad.addColorStop(0.25, \`rgba(130, 195, 255, \${beamAlpha * 0.7})\`);
+          moonbeamGrad.addColorStop(0.65, \`rgba(40, 110, 190, \${beamAlpha * 0.25})\`);
+          moonbeamGrad.addColorStop(1.0, 'rgba(0, 10, 30, 0)');
+
+          ctx.beginPath();
+          ctx.moveTo(moonX, moonY);
+          ctx.lineTo(moonX + Math.cos(rayAngle - spreadWidth) * maxRayDist, moonY + Math.sin(rayAngle - spreadWidth) * maxRayDist);
+          ctx.lineTo(moonX + Math.cos(rayAngle + spreadWidth) * maxRayDist, moonY + Math.sin(rayAngle + spreadWidth) * maxRayDist);
+          ctx.closePath();
+          ctx.fillStyle = moonbeamGrad;
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+
+      // 4. Lunar Atmospheric Halo
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const haloGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.9, moonX, moonY, width * 0.38);
+      haloGrad.addColorStop(0, \`rgba(215, 238, 255, \${0.28 * moonGlow})\`);
+      haloGrad.addColorStop(0.2, \`rgba(130, 190, 250, \${0.14 * moonGlow})\`);
+      haloGrad.addColorStop(0.5, \`rgba(30, 85, 160, \${0.04 * moonGlow})\`);
+      haloGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = haloGrad;
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, width * 0.38, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // 5. Realistic Moon Disk
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
+      ctx.clip();
+      const baseMoonGrad = ctx.createRadialGradient(moonX - moonR * 0.3, moonY - moonR * 0.3, moonR * 0.1, moonX, moonY, moonR);
+      baseMoonGrad.addColorStop(0, '#ffffff');
+      baseMoonGrad.addColorStop(0.3, '#f0f5fa');
+      baseMoonGrad.addColorStop(0.55, '#dbe4ee');
+      baseMoonGrad.addColorStop(0.85, '#b4c4d6');
+      baseMoonGrad.addColorStop(1.0, '#7f93a8');
+      ctx.fillStyle = baseMoonGrad;
+      ctx.fillRect(moonX - moonR, moonY - moonR, moonR * 2, moonR * 2);
+      ctx.restore();
+
+      // 6. Night Ocean & Gentle Shimmering Reflection
+      const oceanH = height - horizonY;
+      const oceanGrad = ctx.createLinearGradient(0, horizonY, 0, height);
+      oceanGrad.addColorStop(0, '#030a17');
+      oceanGrad.addColorStop(0.3, '#040d20');
+      oceanGrad.addColorStop(0.65, '#020714');
+      oceanGrad.addColorStop(1.0, '#010308');
+      ctx.fillStyle = oceanGrad;
+      ctx.fillRect(0, horizonY, width, oceanH);
+
+      const WAVE_LINES = 28;
+      for (let w = 0; w < WAVE_LINES; w++) {
+        const normW = w / WAVE_LINES;
+        const lineY = horizonY + Math.pow(normW, 1.4) * oceanH;
+        const waveAmp = 0.6 + normW * 4.0;
+        const waveFreq = 0.028 - normW * 0.015;
+
+        ctx.beginPath();
+        for (let p = 0; p <= 80; p++) {
+          const nx = p / 80;
+          const x = nx * width;
+          const waveOffset = Math.sin(x * waveFreq + t * (0.32 + normW * 0.45) + w * 1.2) * waveAmp;
+          const y = lineY + waveOffset;
+          if (p === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = \`rgba(20, 52, 95, \${0.3 + normW * 0.3})\`;
+        ctx.lineWidth = 0.8 + normW * 1.2;
+        ctx.stroke();
+
+        const glitterCount = Math.floor(22 + normW * 38);
+        const wakeCenterX = moonX + normW * (width * 0.20);
+        const spreadWidth = (width * 0.24 + normW * width * 0.54) * oceanGlitter;
+
+        for (let g = 0; g < glitterCount; g++) {
+          const u = (Math.random() - 0.5) * 2;
+          const gx = wakeCenterX + u * spreadWidth * (Math.random() * 0.7 + 0.3);
+          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.4);
+          const dist = Math.abs(gx - wakeCenterX) / spreadWidth;
+          const gaussianFalloff = Math.exp(-dist * dist * 1.2);
+
+          const shimmer = Math.sin(t * 0.85 + g * 1.7 + normW * 4.2);
+          if (shimmer > 0.15) {
+            const alpha = Math.pow((shimmer - 0.15) / 0.85, 1.6) * gaussianFalloff * (0.65 - normW * 0.12);
+            ctx.fillStyle = \`rgba(225, 242, 255, \${alpha * 0.75})\`;
+            ctx.beginPath();
+            ctx.arc(gx, gy, (0.8 + (1 - normW) * 1.6) * (shimmer * 0.6 + 0.4), 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+    }
+  };
 }
-ctx.restore();
 
-// 3. Lunar Atmospheric Halo & Moon Disk
-const haloGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.9, moonX, moonY, width * 0.38);
-haloGrad.addColorStop(0, 'rgba(215, 238, 255, 0.28)');
-haloGrad.addColorStop(0.2, 'rgba(130, 190, 250, 0.14)');
-haloGrad.addColorStop(0.5, 'rgba(30, 85, 160, 0.04)');
-haloGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-ctx.fillStyle = haloGrad;
-ctx.beginPath();
-ctx.arc(moonX, moonY, width * 0.38, 0, Math.PI * 2);
-ctx.fill();
+const defaultParams = [
+  { key: "speed", label: "Night Sky Cadence", type: "range", min: 0.2, max: 2.5, step: 0.1, defaultValue: 1.0 },
+  { key: "beamIntensity", label: "Volumetric Moonbeam Alpha", type: "range", min: 0.3, max: 2.2, step: 0.1, defaultValue: 1.2 },
+  { key: "moonGlow", label: "Lunar Corona Dispersion", type: "range", min: 0.4, max: 2.0, step: 0.1, defaultValue: 1.1 },
+  { key: "oceanGlitter", label: "Ocean Silver Reflection Path", type: "range", min: 0.4, max: 2.2, step: 0.1, defaultValue: 1.2 },
+  { key: "bioluminescence", label: "Nocturnal Plankton Glow", type: "range", min: 0.2, max: 2.0, step: 0.1, defaultValue: 1.0 }
+];
 
-// 4. Night Ocean & Broad Shimmering Lunar Wake
-const oceanH = height - horizonY;
-const oceanGrad = ctx.createLinearGradient(0, horizonY, 0, height);
-oceanGrad.addColorStop(0, '#030a17');
-oceanGrad.addColorStop(0.3, '#040d20');
-oceanGrad.addColorStop(0.65, '#020714');
-oceanGrad.addColorStop(1.0, '#010308');
-ctx.fillStyle = oceanGrad;
-ctx.fillRect(0, horizonY, width, oceanH);
-
-for (let w = 0; w < 28; w++) {
-  const normW = w / 28;
-  const lineY = horizonY + Math.pow(normW, 1.4) * oceanH;
-  const wakeCenterX = moonX + normW * (width * 0.20);
-  const spreadWidth = width * 0.22 + normW * width * 0.52;
-  for (let g = 0; g < 26; g++) {
-    const u = (Math.random() - 0.5) * 2;
-    const gx = wakeCenterX + u * spreadWidth * (Math.random() * 0.7 + 0.3);
-    const gy = lineY + Math.sin(gx * 0.035 + time * 1.8) * (0.6 + normW * 3.5);
-    const dist = Math.abs(gx - wakeCenterX) / spreadWidth;
-    const alpha = Math.max(0, Math.sin(time * 3.2 + g * 1.7 + normW * 5.2)) * Math.exp(-dist * dist * 1.2);
-    ctx.fillStyle = \`rgba(230, 245, 255, \${alpha * (0.85 - normW * 0.15)})\`;
-    ctx.beginPath();
-    ctx.arc(gx, gy, 0.9 + alpha * 1.6, 0, Math.PI * 2);
-    ctx.fill();
+if (!window.__art_instances) window.__art_instances = {};
+if (!window.__art_instances['moonlit-ocean-rays']) {
+  const inst = typeof createMoonlitOceanRays === 'function' ? createMoonlitOceanRays() : null;
+  if (inst && inst.setup) {
+    inst.setup({ ctx, width, height, dpr: 1, aspectRatio: width / height }, defaultParams);
   }
+  window.__art_instances['moonlit-ocean-rays'] = inst;
+}
+
+const instance = window.__art_instances['moonlit-ocean-rays'];
+if (instance && instance.render) {
+  instance.render(
+    { ctx, width, height, dpr: 1, aspectRatio: width / height },
+    { time, deltaTime: dt, frameCount: Math.floor(time * 60), fps: 60 },
+    defaultParams
+  );
 }`
 };
 

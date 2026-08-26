@@ -1,6 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import VisualControls from '../components/playground/VisualControls.astro';
 import CodeEditor from '../components/playground/CodeEditor.astro';
 import PreviewFrame from '../components/playground/PreviewFrame.astro';
 import { getCollection } from 'astro:content';
@@ -49,33 +48,21 @@ const playgroundSchema = {
   schema={playgroundSchema}
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
-    <!-- Header & Mode Switcher -->
+    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
       <div>
         <h1 class="text-2xl sm:text-3xl font-sans font-bold text-white tracking-tight">
           Formula Generator Studio
         </h1>
         <p class="text-xs sm:text-sm text-slate-400 font-sans mt-0.5">
-          Sculpt generative mathematical art visually with radial rotary knobs and micro-sliders.
+          Live generative coding editor. Modulate variables, customize mathematical algorithms, and test in real-time.
         </p>
       </div>
 
-      <!-- Mode Switcher Tabs -->
-      <div class="flex items-center gap-2 bg-[#0c0e17] p-1 rounded-xl border border-white/10">
-        <button
-          type="button"
-          id="tab-visual"
-          class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30 shadow-glow"
-        >
-          🎛️ Visual Knobs & Sliders
-        </button>
-        <button
-          type="button"
-          id="tab-code"
-          class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all text-slate-400 hover:text-white border border-transparent"
-        >
-          💻 Code Inspector
-        </button>
+      <div class="flex items-center gap-2">
+        <span class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30 shadow-glow">
+          💻 Live Code Studio
+        </span>
       </div>
     </div>
 
@@ -101,14 +88,11 @@ const playgroundSchema = {
       </span>
     </div>
 
-    <!-- Split-Pane: Visual Studio / Code Editor on Left, Live Canvas on Right -->
+    <!-- Split-Pane: Code Editor on Left, Live Canvas on Right -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch min-h-[560px]">
-      <!-- Left Panel: Visual Controls (Default) OR Code Editor -->
+      <!-- Left Panel: Live Code Editor -->
       <div class="lg:col-span-6 flex flex-col h-full">
-        <div id="panel-visual" class="h-full">
-          <VisualControls />
-        </div>
-        <div id="panel-code" class="h-full hidden">
+        <div id="panel-code" class="h-full">
           <CodeEditor initialCode={defaultCode} />
         </div>
       </div>
@@ -121,39 +105,13 @@ const playgroundSchema = {
   </div>
 </Layout>
 
-<script define:vars={{ presets }}>
+<script is:inline define:vars={{ presets }}>
   function setupPlaygroundView() {
-    const tabVisual = document.getElementById('tab-visual');
-    const tabCode = document.getElementById('tab-code');
-    const panelVisual = document.getElementById('panel-visual');
-    const panelCode = document.getElementById('panel-code');
     const select = document.getElementById('preset-select');
 
-    if (!tabVisual || !tabCode || !panelVisual || !panelCode) return;
-
-    function switchMode(mode) {
-      if (mode === 'visual') {
-        tabVisual.className = 'px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30 shadow-glow';
-        tabCode.className = 'px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all text-slate-400 hover:text-white border border-transparent';
-        panelVisual.classList.remove('hidden');
-        panelCode.classList.add('hidden');
-      } else {
-        tabCode.className = 'px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30 shadow-glow';
-        tabVisual.className = 'px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all text-slate-400 hover:text-white border border-transparent';
-        panelCode.classList.remove('hidden');
-        panelVisual.classList.add('hidden');
-      }
-    }
-
-    tabVisual.addEventListener('click', () => switchMode('visual'));
-    tabCode.addEventListener('click', () => switchMode('code'));
-
-    function loadAndRunPreset(slug, shouldSwitchToCode = true) {
+    function loadAndRunPreset(slug) {
       const found = presets.find((p) => p.slug === slug);
       if (found) {
-        if (shouldSwitchToCode) {
-          switchMode('code');
-        }
         window.dispatchEvent(new CustomEvent('math-art:load-preset', { detail: { code: found.code } }));
         window.dispatchEvent(new CustomEvent('math-art:run-code', { detail: { code: found.code } }));
       }
@@ -168,20 +126,12 @@ const playgroundSchema = {
     
     // Initial run of selected preset
     setTimeout(() => {
-      if (initialPreset) loadAndRunPreset(initialPreset, false);
+      if (initialPreset) loadAndRunPreset(initialPreset);
     }, 100);
 
     select?.addEventListener('change', () => {
       const slug = select.value;
-      loadAndRunPreset(slug, true);
-    });
-
-    // Sync generated code from Visual Studio into Code Editor textarea
-    window.addEventListener('math-art:code-generated', (e) => {
-      const textarea = document.getElementById('code-editor-textarea');
-      if (textarea && e.detail?.code) {
-        textarea.value = e.detail.code;
-      }
+      loadAndRunPreset(slug);
     });
   }
 

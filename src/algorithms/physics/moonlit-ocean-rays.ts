@@ -349,60 +349,57 @@ export function createMoonlitOceanRays(): ArtRenderer {
         const waveAmp = 0.6 + normW * 4.0;
         const waveFreq = 0.028 - normW * 0.015;
 
-        // Wave crest illumination line across full width
+        // Wave crest illumination line across full width (Smooth, Slow, Peaceful Ocean)
         ctx.beginPath();
         const pts = 90;
         for (let p = 0; p <= pts; p++) {
           const nx = p / pts;
           const x = nx * width;
-          const waveOffset = Math.sin(x * waveFreq + t * (1.0 + normW * 1.5) + w * 1.2) * waveAmp +
-                             Math.cos(x * waveFreq * 2.0 - t * 0.7) * (waveAmp * 0.3);
+          const waveOffset = Math.sin(x * waveFreq + t * (0.32 + normW * 0.45) + w * 1.2) * waveAmp +
+                             Math.cos(x * waveFreq * 1.8 - t * 0.25) * (waveAmp * 0.35);
           const y = lineY + waveOffset;
           if (p === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
 
         // Soft ambient wave crest tint
-        ctx.strokeStyle = `rgba(22, 55, 100, ${0.35 + normW * 0.35})`;
-        ctx.lineWidth = 0.9 + normW * 1.3;
+        ctx.strokeStyle = `rgba(20, 52, 95, ${0.3 + normW * 0.3})`;
+        ctx.lineWidth = 0.8 + normW * 1.2;
         ctx.stroke();
 
-        // 7c. Broad, Well-Spread Silver Specular Shimmer across the sea
-        const glitterCount = Math.floor(25 + normW * 45);
-        // Wake center fans smoothly from moonX (0.22) across towards the center (0.42)
+        // 7c. Broad, Well-Spread Silver Specular Shimmer across the sea (Gentle, Serene, Slow Shimmer)
+        const glitterCount = Math.floor(22 + normW * 38);
         const wakeCenterX = moonX + normW * (width * 0.20);
-        // Much wider, graceful spread (spanning across ~70-80% of the sea width in foreground)
-        const spreadWidth = (width * 0.22 + normW * width * 0.52) * oceanGlitter;
+        const spreadWidth = (width * 0.24 + normW * width * 0.54) * oceanGlitter;
 
         for (let g = 0; g < glitterCount; g++) {
-          // Broad natural distribution across the full spread
           const u = (Math.random() - 0.5) * 2;
           const gx = wakeCenterX + u * spreadWidth * (Math.random() * 0.7 + 0.3);
-          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.5);
+          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.4);
 
-          // Gentle smooth Gaussian falloff from the reflection axis
           const distFromAxis = Math.abs(gx - wakeCenterX) / spreadWidth;
           const gaussianFalloff = Math.exp(-distFromAxis * distFromAxis * 1.2);
 
-          const shimmerPhase = Math.sin(t * 3.2 + g * 1.7 + normW * 5.2);
+          // Much slower, tranquil sinusoidal phase
+          const shimmerPhase = Math.sin(t * 0.85 + g * 1.7 + normW * 4.2);
           if (shimmerPhase > 0.15) {
-            const alpha = Math.pow((shimmerPhase - 0.15) / 0.85, 1.8) * gaussianFalloff * (0.85 - normW * 0.15);
-            const size = (0.9 + (1 - normW) * 1.9) * (shimmerPhase * 0.7 + 0.3);
+            const alpha = Math.pow((shimmerPhase - 0.15) / 0.85, 1.6) * gaussianFalloff * (0.65 - normW * 0.12);
+            const size = (0.8 + (1 - normW) * 1.6) * (shimmerPhase * 0.6 + 0.4);
 
-            ctx.fillStyle = `rgba(230, 245, 255, ${alpha * 0.9})`;
+            ctx.fillStyle = `rgba(225, 242, 255, ${alpha * 0.75})`;
             ctx.beginPath();
             ctx.arc(gx, gy, size, 0, Math.PI * 2);
             ctx.fill();
 
             // Diamond twinkle lens cross on brightest sparkles
-            if (alpha > 0.55 && g % 5 === 0) {
-              ctx.strokeStyle = `rgba(210, 240, 255, ${alpha * 0.5})`;
-              ctx.lineWidth = 0.6;
+            if (alpha > 0.42 && g % 6 === 0) {
+              ctx.strokeStyle = `rgba(205, 235, 255, ${alpha * 0.45})`;
+              ctx.lineWidth = 0.55;
               ctx.beginPath();
-              ctx.moveTo(gx - size * 2.5, gy);
-              ctx.lineTo(gx + size * 2.5, gy);
-              ctx.moveTo(gx, gy - size * 2.0);
-              ctx.lineTo(gx, gy + size * 2.0);
+              ctx.moveTo(gx - size * 2.2, gy);
+              ctx.lineTo(gx + size * 2.2, gy);
+              ctx.moveTo(gx, gy - size * 1.8);
+              ctx.lineTo(gx, gy + size * 1.8);
               ctx.stroke();
             }
           }
@@ -421,9 +418,9 @@ export function createMoonlitOceanRays(): ArtRenderer {
         const by = horizonY + (bio.y - 0.62) * (oceanH * 1.35);
 
         if (by > horizonY + 5 && by < height) {
-          const glowPhase = Math.sin(t * 2.2 + bio.phase);
+          const glowPhase = Math.sin(t * 0.8 + bio.phase);
           if (glowPhase > 0) {
-            const bioAlpha = glowPhase * 0.65 * bioluminescence;
+            const bioAlpha = glowPhase * 0.55 * bioluminescence;
             ctx.fillStyle = `rgba(45, 235, 215, ${bioAlpha})`;
             ctx.beginPath();
             ctx.arc(bx, by, bio.r * (0.8 + glowPhase * 0.4), 0, Math.PI * 2);
