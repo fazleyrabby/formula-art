@@ -202,6 +202,12 @@ import SupportButton from '../common/SupportButton.astro';
 
     const DOMAIN = 'art.fazleyrabbi.xyz';
 
+    // 0. Instantly restore last known count from session storage to prevent flash
+    const cachedCount = sessionStorage.getItem('formula_last_view_count');
+    if (cachedCount && headerCountEl) {
+      headerCountEl.textContent = Number(cachedCount).toLocaleString();
+    }
+
     // 1. Check for explicit admin ignore trigger in URL (e.g. ?ignore_ip=true or ?admin=true)
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('ignore_ip') === 'true' || urlParams.get('admin') === 'true' || urlParams.get('ignore') === 'true') {
@@ -216,14 +222,17 @@ import SupportButton from '../common/SupportButton.astro';
     const shouldIgnoreIncrement = isLocalhost || isIgnoredAdmin || isAlreadyCountedInSession;
 
     function setDisplayCount(num: number) {
-      if (headerCountEl) headerCountEl.textContent = num.toLocaleString();
+      if (headerCountEl && num > 0) {
+        headerCountEl.textContent = num.toLocaleString();
+        sessionStorage.setItem('formula_last_view_count', num.toString());
+      }
     }
 
     try {
-      // If we should ignore, perform read-only fetch
+      // CounterAPI consistent namespace/action/key endpoint
       const endpoint = shouldIgnoreIncrement
-        ? `https://counterapi.com/api/${DOMAIN}/visitors/`
-        : `https://counterapi.com/api/${DOMAIN}/visitors/up`;
+        ? `https://counterapi.com/api/${DOMAIN}/view/visitors?readOnly=true`
+        : `https://counterapi.com/api/${DOMAIN}/view/visitors?readOnly=false`;
 
       const res = await fetch(endpoint);
       if (res.ok) {
@@ -235,16 +244,16 @@ import SupportButton from '../common/SupportButton.astro';
           sessionStorage.setItem('formula_visitor_counted', 'true');
         }
       } else {
-        // Fallback read
-        const fallbackRes = await fetch(`https://counterapi.com/api/${DOMAIN}/visitors/`);
+        // Fallback read-only query
+        const fallbackRes = await fetch(`https://counterapi.com/api/${DOMAIN}/view/visitors?readOnly=true`);
         if (fallbackRes.ok) {
           const fbData = await fallbackRes.json();
           setDisplayCount(Number(fbData.value || 1));
         }
       }
     } catch (e) {
-      // Offline fallback
-      setDisplayCount(1);
+      // Keep cached count or fallback
+      if (!cachedCount) setDisplayCount(1);
     }
   }
 
