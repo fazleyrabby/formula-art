@@ -3,10 +3,10 @@ import { hsla } from '../common/color';
 
 export function createUnderwaterOceanicSunbeams(): ArtRenderer {
   const MARINE_SNOW_COUNT = 90;
-  const FISH_COUNT = 32;
+  const FISH_COUNT = 45;
 
   const marineSnow: Array<{ x: number; y: number; vy: number; vx: number; size: number; phase: number }> = [];
-  const fishSchool: Array<{ x: number; y: number; speed: number; size: number; phase: number; depth: number }> = [];
+  const fishSchool: Array<{ x: number; y: number; speed: number; size: number; phase: number; depth: number; isLarge: boolean }> = [];
 
   function initOcean() {
     marineSnow.length = 0;
@@ -23,13 +23,31 @@ export function createUnderwaterOceanicSunbeams(): ArtRenderer {
 
     fishSchool.length = 0;
     for (let i = 0; i < FISH_COUNT; i++) {
+      // 18% large foreground fish, 32% medium, 50% schooling background fry
+      const randType = Math.random();
+      let fSize: number;
+      let isLarge = false;
+
+      if (randType < 0.18) {
+        // Large majestic fish
+        fSize = 16.0 + Math.random() * 10.0;
+        isLarge = true;
+      } else if (randType < 0.5) {
+        // Medium fish
+        fSize = 8.5 + Math.random() * 6.5;
+      } else {
+        // Schooling small fry
+        fSize = 3.8 + Math.random() * 4.2;
+      }
+
       fishSchool.push({
         x: Math.random(),
-        y: 0.35 + Math.random() * 0.5,
-        speed: 0.0008 + Math.random() * 0.0014,
-        size: 3.5 + Math.random() * 4.5,
+        y: 0.32 + Math.random() * 0.54,
+        speed: (0.0006 + Math.random() * 0.0012) * (isLarge ? 0.75 : 1.1),
+        size: fSize,
         phase: Math.random() * Math.PI * 2,
         depth: Math.random(),
+        isLarge,
       });
     }
   }
@@ -191,38 +209,82 @@ export function createUnderwaterOceanicSunbeams(): ArtRenderer {
       }
       ctx.restore();
 
-      // 6. School of Shimmering Mathematical Fish
+      // 6. School of Shimmering Mathematical Fish (Diverse Sizes & Fin Physics)
       ctx.save();
       for (let f = 0; f < fishSchool.length; f++) {
         const fish = fishSchool[f];
         fish.x = (fish.x + fish.speed + 1) % 1;
 
         const fx = fish.x * width;
-        const fy = fish.y * height + Math.sin(t * 2.0 + fish.phase) * 6;
+        const fy = fish.y * height + Math.sin(t * 1.8 + fish.phase) * (fish.isLarge ? 4 : 8);
 
-        // Fish lighting: illumination increases when crossing central sun shafts
+        // Illumination: Bright golden photons when inside the sun shafts
         const distToCenter = Math.abs(fx - lightX) / (width * 0.45);
         const inLightBeam = Math.max(0, 1 - distToCenter);
-        const fishAlpha = 0.5 + inLightBeam * 0.5;
+        const fishAlpha = 0.6 + inLightBeam * 0.4;
 
-        // Body: Glowing golden/yellow if inside sunbeam, teal silhouette outside
-        const bodyHue = inLightBeam > 0.4 ? 45 + (1 - inLightBeam) * 50 : 185;
-        const bodyLightness = inLightBeam > 0.4 ? 50 + inLightBeam * 35 : 35;
+        // Color palette: Warm golden-amber highlights in beam, deep oceanic cyan silhouette outside
+        const bodyHue = inLightBeam > 0.35 ? 42 + (1 - inLightBeam) * 55 : 188;
+        const bodyLightness = inLightBeam > 0.35 ? 52 + inLightBeam * 38 : 28 + (fish.isLarge ? 12 : 0);
 
+        // Main fish body
         ctx.fillStyle = hsla(bodyHue, 95, bodyLightness, fishAlpha);
         ctx.beginPath();
-        // Streamlined fish ellipse
-        ctx.ellipse(fx, fy, fish.size, fish.size * 0.45, 0, 0, Math.PI * 2);
+        ctx.ellipse(fx, fy, fish.size, fish.size * 0.42, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Oscillating caudal fin
-        const tailWag = Math.sin(t * 12.0 + fish.phase) * (fish.size * 0.4);
+        // Oscillating caudal tail fin
+        const tailFreq = fish.isLarge ? 8.0 : 13.0;
+        const tailWag = Math.sin(t * tailFreq + fish.phase) * (fish.size * 0.35);
         ctx.beginPath();
-        ctx.moveTo(fx - fish.size * 0.8, fy);
-        ctx.lineTo(fx - fish.size * 1.7, fy - fish.size * 0.5 + tailWag);
-        ctx.lineTo(fx - fish.size * 1.7, fy + fish.size * 0.5 + tailWag);
+        ctx.moveTo(fx - fish.size * 0.75, fy);
+        ctx.lineTo(fx - fish.size * 1.65, fy - fish.size * 0.48 + tailWag);
+        ctx.lineTo(fx - fish.size * 1.45, fy + tailWag * 0.4);
+        ctx.lineTo(fx - fish.size * 1.65, fy + fish.size * 0.48 + tailWag);
         ctx.closePath();
+        ctx.fillStyle = hsla(bodyHue + 8, 90, bodyLightness + 8, fishAlpha * 0.95);
         ctx.fill();
+
+        // Additional anatomical detail for Large & Medium fish
+        if (fish.size > 8.0) {
+          // Dorsal fin (top)
+          ctx.beginPath();
+          ctx.moveTo(fx - fish.size * 0.3, fy - fish.size * 0.38);
+          ctx.quadraticCurveTo(
+            fx - fish.size * 0.1,
+            fy - fish.size * 0.85,
+            fx + fish.size * 0.25,
+            fy - fish.size * 0.35
+          );
+          ctx.closePath();
+          ctx.fillStyle = hsla(bodyHue + 12, 95, bodyLightness + 10, fishAlpha * 0.85);
+          ctx.fill();
+
+          // Pectoral fin (side flutter)
+          const pecFlap = Math.sin(t * 10.0 + fish.phase) * (fish.size * 0.25);
+          ctx.beginPath();
+          ctx.moveTo(fx + fish.size * 0.1, fy + fish.size * 0.1);
+          ctx.lineTo(fx - fish.size * 0.35, fy + fish.size * 0.55 + pecFlap);
+          ctx.lineTo(fx - fish.size * 0.15, fy + fish.size * 0.15);
+          ctx.closePath();
+          ctx.fillStyle = hsla(bodyHue + 15, 100, bodyLightness + 15, fishAlpha * 0.8);
+          ctx.fill();
+
+          // Eye glint
+          const eyeX = fx + fish.size * 0.62;
+          const eyeY = fy - fish.size * 0.12;
+          const eyeRad = Math.max(1.0, fish.size * 0.12);
+
+          ctx.fillStyle = '#020d18';
+          ctx.beginPath();
+          ctx.arc(eyeX, eyeY, eyeRad, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = inLightBeam > 0.3 ? '#fff4b8' : '#38bdf8';
+          ctx.beginPath();
+          ctx.arc(eyeX + eyeRad * 0.3, eyeY - eyeRad * 0.3, eyeRad * 0.45, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
       ctx.restore();
 

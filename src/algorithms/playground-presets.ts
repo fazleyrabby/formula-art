@@ -11255,7 +11255,32 @@ sunCore.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
 ctx.fillStyle = sunCore;
 ctx.beginPath();
 ctx.arc(lightX, lightY, width * 0.35, 0, Math.PI * 2);
-ctx.fill();`,
+ctx.fill();
+
+// Shimmering School of Fish (Large & Small)
+for (let f = 0; f < 30; f++) {
+  const isLarge = f < 6;
+  const fSize = isLarge ? 18.0 + (f % 3) * 4 : 4.0 + (f % 4) * 2;
+  const speed = isLarge ? 0.0007 : 0.0012;
+  const fx = (((f * 0.07 + time * speed * 60) % 1) * width);
+  const fy = height * (0.35 + (f % 8) * 0.06) + Math.sin(time * 2 + f) * 6;
+  const dist = Math.abs(fx - lightX) / (width * 0.45);
+  const inBeam = Math.max(0, 1 - dist);
+  const hue = inBeam > 0.35 ? 42 + (1 - inBeam) * 55 : 188;
+
+  ctx.fillStyle = 'hsla(' + hue + ', 95%, ' + (inBeam > 0.35 ? 65 : 35) + '%, 0.85)';
+  ctx.beginPath();
+  ctx.ellipse(fx, fy, fSize, fSize * 0.42, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const tailWag = Math.sin(time * (isLarge ? 8 : 14) + f) * (fSize * 0.35);
+  ctx.beginPath();
+  ctx.moveTo(fx - fSize * 0.75, fy);
+  ctx.lineTo(fx - fSize * 1.6, fy - fSize * 0.45 + tailWag);
+  ctx.lineTo(fx - fSize * 1.6, fy + fSize * 0.45 + tailWag);
+  ctx.closePath();
+  ctx.fill();
+}`,
 
   // 081. Atmospheric Cloudbreak God Rays
   'atmospheric-cloudbreak-godrays': `// 081 - Atmospheric Cloudbreak God Rays (physics)
