@@ -4,17 +4,37 @@ import type { ArtworkData } from '../types/artwork';
  * Generates a full multi-part mathematical system in LaTeX
  * for display on the interactive Fullscreen Whiteboard / Chalkboard.
  */
+function formatSqrt(str: string): string {
+  let res = str;
+  let idx = 0;
+  while ((idx = res.indexOf('sqrt(', idx)) !== -1) {
+    let openCount = 1;
+    let i = idx + 5;
+    while (i < res.length && openCount > 0) {
+      if (res[i] === '(') openCount++;
+      else if (res[i] === ')') openCount--;
+      i++;
+    }
+    if (openCount === 0) {
+      res = res.substring(0, idx) + '\\sqrt{' + res.substring(idx + 5, i - 1) + '}' + res.substring(i);
+    } else {
+      idx += 5;
+    }
+  }
+  return res;
+}
+
 export function getFullMathematicalSystem(artwork: ArtworkData): string {
   const { mathNotation, formulaCompact, parameters = [] } = artwork;
 
   // Format compact formula into clean LaTeX representation
-  let cleanCompact = formulaCompact
-    .replace(/Math\./g, '')
+  let cleanCompact = formulaCompact.replace(/Math\./g, '');
+  cleanCompact = formatSqrt(cleanCompact);
+  cleanCompact = cleanCompact
     .replace(/\*/g, ' \\cdot ')
     .replace(/sin\(/g, '\\sin(')
     .replace(/cos\(/g, '\\cos(')
     .replace(/exp\(/g, '\\exp(')
-    .replace(/sqrt\(/g, '\\sqrt{')
     .replace(/atan2\(([^,]+),([^)]+)\)/g, '\\operatorname{atan2}($1, $2)')
     .replace(/PI/g, '\\pi')
     .replace(/σ/g, '\\sigma')
