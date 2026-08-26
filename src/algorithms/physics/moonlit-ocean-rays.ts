@@ -51,9 +51,9 @@ export function createMoonlitOceanRays(): ArtRenderer {
         initNightSky();
       }
 
-      const moonX = width * 0.5;
-      const moonY = height * 0.28;
-      const moonR = Math.min(width, height) * 0.065;
+      const moonX = width * 0.22;
+      const moonY = height * 0.20;
+      const moonR = Math.min(width, height) * 0.082;
       const horizonY = height * 0.63;
 
       // 1. Midnight Sky Gradient (Deep Abyss Navy & Charcoal)
@@ -95,30 +95,32 @@ export function createMoonlitOceanRays(): ArtRenderer {
       }
       ctx.restore();
 
-      // 3. Volumetric Lunar Silver Beams (Moonbeams / Nocturnal Crepuscular Rays)
+      // 3. Volumetric Lunar Silver Beams (Sweeping Diagonally from Top-Left Corner)
       ctx.save();
       ctx.globalCompositeOperation = 'screen';
       const RAY_COUNT = 40;
-      const maxRayDist = Math.hypot(width, height) * 0.95;
+      const maxRayDist = Math.hypot(width, height) * 1.05;
 
       for (let i = 0; i < RAY_COUNT; i++) {
         const normI = i / RAY_COUNT;
-        const baseAngle = normI * Math.PI; // Downward 180° sweep
+        // Diagonal sweep pointing downwards and towards the ocean
+        const baseAngle = -Math.PI * 0.04 + normI * (Math.PI * 0.62);
 
         // Nocturnal cloud gap modulation
         const cloudWarp = Math.sin(baseAngle * 6.0 + t * 0.3) * 0.07 +
                           Math.cos(baseAngle * 11.0 - t * 0.45) * 0.04;
         const rayAngle = baseAngle + cloudWarp;
 
-        // Central focus towards ocean horizon
-        const distFromCenter = Math.abs(rayAngle - Math.PI * 0.5);
-        const centralFactor = Math.pow(Math.max(0, 1 - distFromCenter / (Math.PI * 0.45)), 1.5);
+        // Central focus towards ocean horizon (around 45°-55° diagonal)
+        const targetDiagAngle = Math.PI * 0.28;
+        const distFromCenter = Math.abs(rayAngle - targetDiagAngle);
+        const centralFactor = Math.pow(Math.max(0, 1 - distFromCenter / (Math.PI * 0.35)), 1.5);
         const pulse = 0.6 + 0.4 * Math.sin(i * 2.1 + t * 1.4);
 
         const beamAlpha = Math.min(0.55, 0.26 * centralFactor * pulse * beamIntensity);
 
         if (beamAlpha > 0.015) {
-          const spreadWidth = 0.038 + (1 - centralFactor) * 0.02;
+          const spreadWidth = 0.036 + (1 - centralFactor) * 0.02;
           const a1 = rayAngle - spreadWidth;
           const a2 = rayAngle + spreadWidth;
 
@@ -367,12 +369,13 @@ export function createMoonlitOceanRays(): ArtRenderer {
         ctx.lineWidth = 1 + normW * 1.4;
         ctx.stroke();
 
-        // Silver Specular Shimmer on the Moon Wake
+        // Silver Specular Shimmer on the Moon Wake (Originating below left-corner moon)
         const glitterCount = Math.floor(16 + normW * 30);
+        const wakeCenterX = moonX + normW * (width * 0.14);
         for (let g = 0; g < glitterCount; g++) {
-          const spread = (width * 0.07 + normW * width * 0.28) * oceanGlitter;
+          const spread = (width * 0.06 + normW * width * 0.24) * oceanGlitter;
           const u = (Math.random() - 0.5) * 2;
-          const gx = moonX + u * spread * (Math.random() * 0.85 + 0.15);
+          const gx = wakeCenterX + u * spread * (Math.random() * 0.85 + 0.15);
           const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.8);
 
           const shimmerPhase = Math.sin(t * 3.5 + g * 1.9 + normW * 5.5);
