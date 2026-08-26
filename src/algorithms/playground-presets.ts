@@ -12084,10 +12084,10 @@ if (instance && instance.render) {
 }`,
 
   // 084. Zen Bonsai Tree
-  'zen-bonsai-tree': `// 084 - Zen Japanese Bonsai Tree (botany)
+  'zen-bonsai-tree': `// 084 - Masterpiece Zen Bonsai Tree (botany)
 // 1:1 Original algorithm engine source
 function createZenBonsaiTree() {
-  const PETAL_COUNT = 45;
+  const PETAL_COUNT = 50;
   const petals = [];
 
   function initPetals() {
@@ -12096,74 +12096,299 @@ function createZenBonsaiTree() {
       petals.push({
         x: Math.random(),
         y: Math.random(),
-        vx: 0.0003 + Math.random() * 0.0006,
+        vx: 0.0002 + Math.random() * 0.0005,
         vy: 0.0004 + Math.random() * 0.0008,
         rot: Math.random() * Math.PI * 2,
-        rotV: (Math.random() - 0.5) * 0.03,
+        rotV: (Math.random() - 0.5) * 0.025,
         size: 1.5 + Math.random() * 2.5,
         phase: Math.random() * Math.PI * 2,
       });
     }
   }
 
-  const foliagePads = [
-    { xRatio: 0.28, yRatio: 0.56, radiusX: 52, radiusY: 28, density: 1.1, depth: 0.2, swayPhase: 0.0 },
-    { xRatio: 0.22, yRatio: 0.52, radiusX: 42, radiusY: 22, density: 0.9, depth: 0.3, swayPhase: 0.4 },
-    { xRatio: 0.34, yRatio: 0.48, radiusX: 38, radiusY: 20, density: 0.85, depth: 0.1, swayPhase: 0.7 },
-    { xRatio: 0.72, yRatio: 0.48, radiusX: 58, radiusY: 30, density: 1.15, depth: 0.15, swayPhase: 1.2 },
-    { xRatio: 0.78, yRatio: 0.44, radiusX: 44, radiusY: 24, density: 0.95, depth: 0.25, swayPhase: 1.6 },
-    { xRatio: 0.65, yRatio: 0.42, radiusX: 40, radiusY: 22, density: 0.85, depth: 0.35, swayPhase: 2.0 },
-    { xRatio: 0.38, yRatio: 0.38, radiusX: 46, radiusY: 24, density: 1.0, depth: 0.7, swayPhase: 2.3 },
-    { xRatio: 0.58, yRatio: 0.34, radiusX: 48, radiusY: 26, density: 1.05, depth: 0.6, swayPhase: 2.8 },
-    { xRatio: 0.44, yRatio: 0.28, radiusX: 45, radiusY: 25, density: 1.1, depth: 0.4, swayPhase: 3.2 },
-    { xRatio: 0.54, yRatio: 0.24, radiusX: 50, radiusY: 26, density: 1.15, depth: 0.2, swayPhase: 3.6 },
-    { xRatio: 0.48, yRatio: 0.18, radiusX: 56, radiusY: 28, density: 1.25, depth: 0.1, swayPhase: 4.1 },
-    { xRatio: 0.43, yRatio: 0.16, radiusX: 36, radiusY: 20, density: 0.85, depth: 0.45, swayPhase: 4.5 },
-    { xRatio: 0.53, yRatio: 0.15, radiusX: 38, radiusY: 20, density: 0.9, depth: 0.3, swayPhase: 4.8 },
-  ];
+  let branchNodes = [];
+  let foliageClouds = [];
+
+  function buildBonsaiModel() {
+    branchNodes = [];
+    foliageClouds = [];
+
+    // Trunk
+    branchNodes.push({
+      start: { x: 0.50, y: 0.81 },
+      ctrl1: { x: 0.49, y: 0.74 },
+      ctrl2: { x: 0.44, y: 0.68 },
+      end: { x: 0.43, y: 0.61 },
+      thicknessStart: 38,
+      thicknessEnd: 28,
+      depth: 0.1,
+      phase: 0.0,
+    });
+    branchNodes.push({
+      start: { x: 0.43, y: 0.61 },
+      ctrl1: { x: 0.42, y: 0.54 },
+      ctrl2: { x: 0.48, y: 0.48 },
+      end: { x: 0.51, y: 0.43 },
+      thicknessStart: 28,
+      thicknessEnd: 20,
+      depth: 0.1,
+      phase: 0.4,
+    });
+    branchNodes.push({
+      start: { x: 0.51, y: 0.43 },
+      ctrl1: { x: 0.54, y: 0.37 },
+      ctrl2: { x: 0.50, y: 0.31 },
+      end: { x: 0.47, y: 0.25 },
+      thicknessStart: 20,
+      thicknessEnd: 12,
+      depth: 0.1,
+      phase: 0.8,
+    });
+    branchNodes.push({
+      start: { x: 0.47, y: 0.25 },
+      ctrl1: { x: 0.45, y: 0.20 },
+      ctrl2: { x: 0.49, y: 0.17 },
+      end: { x: 0.50, y: 0.14 },
+      thicknessStart: 12,
+      thicknessEnd: 5,
+      depth: 0.0,
+      phase: 1.2,
+    });
+
+    // Sashi-eda Left Wings
+    branchNodes.push({
+      start: { x: 0.43, y: 0.60 },
+      ctrl1: { x: 0.36, y: 0.62 },
+      ctrl2: { x: 0.28, y: 0.65 },
+      end: { x: 0.24, y: 0.63 },
+      thicknessStart: 18,
+      thicknessEnd: 8,
+      depth: 0.15,
+      phase: 0.5,
+    });
+    branchNodes.push({
+      start: { x: 0.33, y: 0.63 },
+      ctrl1: { x: 0.28, y: 0.58 },
+      ctrl2: { x: 0.22, y: 0.56 },
+      end: { x: 0.18, y: 0.55 },
+      thicknessStart: 9,
+      thicknessEnd: 4,
+      depth: 0.2,
+      phase: 0.8,
+    });
+    branchNodes.push({
+      start: { x: 0.26, y: 0.64 },
+      ctrl1: { x: 0.22, y: 0.68 },
+      ctrl2: { x: 0.17, y: 0.69 },
+      end: { x: 0.14, y: 0.68 },
+      thicknessStart: 7,
+      thicknessEnd: 3,
+      depth: 0.1,
+      phase: 1.1,
+    });
+
+    // Uke-eda Right Wings
+    branchNodes.push({
+      start: { x: 0.50, y: 0.48 },
+      ctrl1: { x: 0.58, y: 0.49 },
+      ctrl2: { x: 0.66, y: 0.53 },
+      end: { x: 0.72, y: 0.51 },
+      thicknessStart: 16,
+      thicknessEnd: 7,
+      depth: 0.2,
+      phase: 1.3,
+    });
+    branchNodes.push({
+      start: { x: 0.62, y: 0.50 },
+      ctrl1: { x: 0.68, y: 0.45 },
+      ctrl2: { x: 0.74, y: 0.43 },
+      end: { x: 0.80, y: 0.42 },
+      thicknessStart: 8,
+      thicknessEnd: 4,
+      depth: 0.25,
+      phase: 1.6,
+    });
+    branchNodes.push({
+      start: { x: 0.69, y: 0.52 },
+      ctrl1: { x: 0.76, y: 0.56 },
+      ctrl2: { x: 0.82, y: 0.56 },
+      end: { x: 0.86, y: 0.54 },
+      thicknessStart: 6,
+      thicknessEnd: 3,
+      depth: 0.15,
+      phase: 1.9,
+    });
+
+    // Ushiro-eda Back Depth
+    branchNodes.push({
+      start: { x: 0.47, y: 0.52 },
+      ctrl1: { x: 0.41, y: 0.46 },
+      ctrl2: { x: 0.35, y: 0.43 },
+      end: { x: 0.31, y: 0.42 },
+      thicknessStart: 12,
+      thicknessEnd: 5,
+      depth: 0.7,
+      phase: 2.2,
+    });
+    branchNodes.push({
+      start: { x: 0.38, y: 0.45 },
+      ctrl1: { x: 0.34, y: 0.38 },
+      ctrl2: { x: 0.28, y: 0.36 },
+      end: { x: 0.24, y: 0.37 },
+      thicknessStart: 6,
+      thicknessEnd: 3,
+      depth: 0.75,
+      phase: 2.5,
+    });
+
+    // Mid-Upper Tiers
+    branchNodes.push({
+      start: { x: 0.52, y: 0.37 },
+      ctrl1: { x: 0.59, y: 0.34 },
+      ctrl2: { x: 0.65, y: 0.32 },
+      end: { x: 0.70, y: 0.30 },
+      thicknessStart: 11,
+      thicknessEnd: 5,
+      depth: 0.3,
+      phase: 2.8,
+    });
+    branchNodes.push({
+      start: { x: 0.62, y: 0.33 },
+      ctrl1: { x: 0.68, y: 0.27 },
+      ctrl2: { x: 0.73, y: 0.25 },
+      end: { x: 0.77, y: 0.24 },
+      thicknessStart: 6,
+      thicknessEnd: 3,
+      depth: 0.35,
+      phase: 3.1,
+    });
+    branchNodes.push({
+      start: { x: 0.49, y: 0.32 },
+      ctrl1: { x: 0.43, y: 0.29 },
+      ctrl2: { x: 0.38, y: 0.27 },
+      end: { x: 0.33, y: 0.26 },
+      thicknessStart: 10,
+      thicknessEnd: 4,
+      depth: 0.3,
+      phase: 3.4,
+    });
+
+    // Apex Crown
+    branchNodes.push({
+      start: { x: 0.48, y: 0.22 },
+      ctrl1: { x: 0.42, y: 0.18 },
+      ctrl2: { x: 0.39, y: 0.15 },
+      end: { x: 0.38, y: 0.13 },
+      thicknessStart: 7,
+      thicknessEnd: 3,
+      depth: 0.2,
+      phase: 3.7,
+    });
+    branchNodes.push({
+      start: { x: 0.49, y: 0.20 },
+      ctrl1: { x: 0.55, y: 0.17 },
+      ctrl2: { x: 0.60, y: 0.15 },
+      end: { x: 0.62, y: 0.14 },
+      thicknessStart: 7,
+      thicknessEnd: 3,
+      depth: 0.2,
+      phase: 4.0,
+    });
+
+    function generateTufts(count, rx, ry) {
+      const tufts = [];
+      for (let i = 0; i < count; i++) {
+        const u = (Math.random() - 0.5) * 2;
+        const v = (Math.random() - 0.5) * 1.5;
+        tufts.push({
+          dx: u * rx * 0.75,
+          dy: v * ry * 0.65 - ry * 0.15,
+          scale: 0.7 + Math.random() * 0.55,
+          angle: (Math.random() - 0.5) * 0.5,
+        });
+      }
+      return tufts;
+    }
+
+    const cloudDefs = [
+      { cx: 0.14, cy: 0.68, rx: 0.085, ry: 0.045, depth: 0.1, density: 1.2, phase: 1.1, count: 12 },
+      { cx: 0.18, cy: 0.55, rx: 0.095, ry: 0.050, depth: 0.2, density: 1.3, phase: 0.8, count: 14 },
+      { cx: 0.24, cy: 0.63, rx: 0.090, ry: 0.048, depth: 0.15, density: 1.25, phase: 0.5, count: 13 },
+      { cx: 0.86, cy: 0.54, rx: 0.080, ry: 0.042, depth: 0.15, density: 1.15, phase: 1.9, count: 11 },
+      { cx: 0.80, cy: 0.42, rx: 0.090, ry: 0.048, depth: 0.25, density: 1.3, phase: 1.6, count: 13 },
+      { cx: 0.72, cy: 0.51, rx: 0.095, ry: 0.052, depth: 0.2, density: 1.35, phase: 1.3, count: 14 },
+      { cx: 0.24, cy: 0.37, rx: 0.080, ry: 0.042, depth: 0.75, density: 1.1, phase: 2.5, count: 10 },
+      { cx: 0.31, cy: 0.42, rx: 0.085, ry: 0.045, depth: 0.7, density: 1.15, phase: 2.2, count: 11 },
+      { cx: 0.33, cy: 0.26, rx: 0.090, ry: 0.048, depth: 0.3, density: 1.25, phase: 3.4, count: 12 },
+      { cx: 0.70, cy: 0.30, rx: 0.085, ry: 0.045, depth: 0.3, density: 1.2, phase: 2.8, count: 12 },
+      { cx: 0.77, cy: 0.24, rx: 0.080, ry: 0.042, depth: 0.35, density: 1.15, phase: 3.1, count: 11 },
+      { cx: 0.38, cy: 0.13, rx: 0.075, ry: 0.040, depth: 0.2, density: 1.2, phase: 3.7, count: 10 },
+      { cx: 0.62, cy: 0.14, rx: 0.075, ry: 0.040, depth: 0.2, density: 1.2, phase: 4.0, count: 10 },
+      { cx: 0.50, cy: 0.11, rx: 0.110, ry: 0.055, depth: 0.05, density: 1.45, phase: 1.2, count: 18 },
+    ];
+
+    for (const cd of cloudDefs) {
+      foliageClouds.push({
+        center: { x: cd.cx, y: cd.cy },
+        radiusX: cd.rx,
+        radiusY: cd.ry,
+        depth: cd.depth,
+        density: cd.density,
+        phase: cd.phase,
+        tufts: generateTufts(cd.count, cd.rx, cd.ry),
+      });
+    }
+  }
 
   return {
     setup() {
       initPetals();
+      buildBonsaiModel();
     },
     render(context, timeState, params) {
       const { ctx, width, height } = context;
       const speed = Number(params.speed ?? 0.8);
       const windSway = Number(params.windSway ?? 1.0);
-      const foliageDensity = Number(params.foliageDensity ?? 1.2);
-      const trunkThickness = Number(params.trunkThickness ?? 1.0);
+      const foliageDensity = Number(params.foliageDensity ?? 1.3);
+      const trunkThickness = Number(params.trunkThickness ?? 1.15);
       const sunGlow = Number(params.sunGlow ?? 1.1);
 
       const t = timeState.time * speed;
       if (petals.length === 0) initPetals();
+      if (branchNodes.length === 0) buildBonsaiModel();
 
       // Background
-      const bgGrad = ctx.createRadialGradient(width * 0.5, height * 0.45, 0, width * 0.5, height * 0.5, Math.hypot(width, height) * 0.65);
-      bgGrad.addColorStop(0, '#15131b');
-      bgGrad.addColorStop(0.5, '#0d0c12');
-      bgGrad.addColorStop(1.0, '#060508');
+      const bgGrad = ctx.createRadialGradient(
+        width * 0.5, height * 0.42, 0,
+        width * 0.5, height * 0.5, Math.hypot(width, height) * 0.7
+      );
+      bgGrad.addColorStop(0, '#19151e');
+      bgGrad.addColorStop(0.45, '#100e16');
+      bgGrad.addColorStop(0.85, '#07060a');
+      bgGrad.addColorStop(1.0, '#030305');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Rising Sun Halo
+      // Sun Halo
       ctx.save();
       const sunX = width * 0.52;
       const sunY = height * 0.38;
-      const sunRadius = Math.min(width, height) * 0.28;
-      const sunAura = ctx.createRadialGradient(sunX, sunY, sunRadius * 0.2, sunX, sunY, sunRadius * 1.5);
-      sunAura.addColorStop(0, \`rgba(215, 65, 35, \${0.35 * sunGlow})\`);
-      sunAura.addColorStop(0.4, \`rgba(180, 45, 25, \${0.18 * sunGlow})\`);
-      sunAura.addColorStop(0.8, \`rgba(120, 25, 20, \${0.06 * sunGlow})\`);
+      const sunRadius = Math.min(width, height) * 0.32;
+      const sunAura = ctx.createRadialGradient(sunX, sunY, sunRadius * 0.1, sunX, sunY, sunRadius * 1.6);
+      sunAura.addColorStop(0, \`rgba(220, 60, 30, \${0.42 * sunGlow})\`);
+      sunAura.addColorStop(0.35, \`rgba(180, 40, 25, \${0.22 * sunGlow})\`);
+      sunAura.addColorStop(0.7, \`rgba(120, 20, 20, \${0.08 * sunGlow})\`);
       sunAura.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = sunAura;
       ctx.beginPath();
-      ctx.arc(sunX, sunY, sunRadius * 1.5, 0, Math.PI * 2);
+      ctx.arc(sunX, sunY, sunRadius * 1.6, 0, Math.PI * 2);
       ctx.fill();
 
       const coreGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunRadius);
-      coreGrad.addColorStop(0, \`rgba(245, 110, 60, \${0.28 * sunGlow})\`);
-      coreGrad.addColorStop(0.85, \`rgba(195, 45, 30, \${0.15 * sunGlow})\`);
-      coreGrad.addColorStop(1.0, 'rgba(150, 30, 20, 0)');
+      coreGrad.addColorStop(0, \`rgba(255, 120, 60, \${0.45 * sunGlow})\`);
+      coreGrad.addColorStop(0.65, \`rgba(210, 50, 30, \${0.28 * sunGlow})\`);
+      coreGrad.addColorStop(0.95, \`rgba(150, 25, 20, \${0.05 * sunGlow})\`);
+      coreGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = coreGrad;
       ctx.beginPath();
       ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
@@ -12171,207 +12396,230 @@ function createZenBonsaiTree() {
       ctx.restore();
 
       // Pot & Moss
-      const potBaseY = height * 0.86;
-      const potTopY = height * 0.80;
-      const potWidth = width * 0.52;
+      const potBaseY = height * 0.88;
+      const potTopY = height * 0.81;
+      const potWidth = width * 0.58;
       const potLeft = (width - potWidth) * 0.5;
       const potRight = potLeft + potWidth;
 
       // Shadow
       ctx.save();
-      const shadowGrad = ctx.createRadialGradient(width * 0.5, potBaseY + 12, 0, width * 0.5, potBaseY + 12, potWidth * 0.65);
-      shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.7)');
-      shadowGrad.addColorStop(0.6, 'rgba(0, 0, 0, 0.35)');
+      const shadowGrad = ctx.createRadialGradient(width * 0.5, potBaseY + 14, 0, width * 0.5, potBaseY + 14, potWidth * 0.65);
+      shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.85)');
+      shadowGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.45)');
       shadowGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = shadowGrad;
       ctx.beginPath();
-      ctx.ellipse(width * 0.5, potBaseY + 10, potWidth * 0.58, 14, 0, 0, Math.PI * 2);
+      ctx.ellipse(width * 0.5, potBaseY + 12, potWidth * 0.56, 16, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
       // Pot Body
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(potLeft + 15, potTopY);
-      ctx.lineTo(potRight - 15, potTopY);
+      ctx.moveTo(potLeft + 16, potTopY);
+      ctx.lineTo(potRight - 16, potTopY);
       ctx.quadraticCurveTo(potRight, potTopY, potRight - 8, potTopY + 14);
-      ctx.lineTo(potRight - 22, potBaseY);
-      ctx.quadraticCurveTo(potRight - 26, potBaseY + 6, potRight - 36, potBaseY + 6);
-      ctx.lineTo(potLeft + 36, potBaseY + 6);
-      ctx.quadraticCurveTo(potLeft + 26, potBaseY + 6, potLeft + 22, potBaseY);
+      ctx.lineTo(potRight - 26, potBaseY);
+      ctx.quadraticCurveTo(potRight - 32, potBaseY + 6, potRight - 44, potBaseY + 6);
+      ctx.lineTo(potLeft + 44, potBaseY + 6);
+      ctx.quadraticCurveTo(potLeft + 32, potBaseY + 6, potLeft + 26, potBaseY);
       ctx.lineTo(potLeft + 8, potTopY + 14);
-      ctx.quadraticCurveTo(potLeft, potTopY, potLeft + 15, potTopY);
+      ctx.quadraticCurveTo(potLeft, potTopY, potLeft + 16, potTopY);
       ctx.closePath();
 
       const potGrad = ctx.createLinearGradient(potLeft, potTopY, potRight, potBaseY);
-      potGrad.addColorStop(0, '#242128');
-      potGrad.addColorStop(0.35, '#3a3440');
-      potGrad.addColorStop(0.7, '#28232c');
-      potGrad.addColorStop(1.0, '#19171d');
+      potGrad.addColorStop(0, '#221f26');
+      potGrad.addColorStop(0.25, '#352e3c');
+      potGrad.addColorStop(0.5, '#443c4d');
+      potGrad.addColorStop(0.75, '#2c2532');
+      potGrad.addColorStop(1.0, '#16141a');
       ctx.fillStyle = potGrad;
       ctx.fill();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
       ctx.lineWidth = 1.2;
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.ellipse(width * 0.5, potTopY + 2, potWidth * 0.51, 8, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#3f3847';
+      ctx.ellipse(width * 0.5, potTopY + 2, potWidth * 0.51, 9, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#3c3543';
       ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+      ctx.lineWidth = 1.2;
       ctx.stroke();
 
-      ctx.fillStyle = '#1c1920';
-      ctx.fillRect(potLeft + 32, potBaseY + 6, 16, 8);
-      ctx.fillRect(potRight - 48, potBaseY + 6, 16, 8);
+      ctx.fillStyle = '#151318';
+      ctx.fillRect(potLeft + 36, potBaseY + 6, 20, 9);
+      ctx.fillRect(potRight - 56, potBaseY + 6, 20, 9);
       ctx.restore();
 
-      // Moss
+      // Moss Mound
       ctx.save();
       ctx.beginPath();
-      ctx.ellipse(width * 0.5, potTopY, potWidth * 0.46, 20, 0, Math.PI, 0);
-      const mossGrad = ctx.createRadialGradient(width * 0.5, potTopY - 4, 10, width * 0.5, potTopY, potWidth * 0.48);
-      mossGrad.addColorStop(0, '#4b7538');
-      mossGrad.addColorStop(0.4, '#2f5223');
-      mossGrad.addColorStop(0.8, '#1b3314');
-      mossGrad.addColorStop(1.0, '#101f0c');
+      ctx.ellipse(width * 0.5, potTopY, potWidth * 0.46, 24, 0, Math.PI, 0);
+      const mossGrad = ctx.createRadialGradient(width * 0.5, potTopY - 6, 12, width * 0.5, potTopY, potWidth * 0.48);
+      mossGrad.addColorStop(0, '#53823d');
+      mossGrad.addColorStop(0.35, '#355c27');
+      mossGrad.addColorStop(0.7, '#1f3816');
+      mossGrad.addColorStop(1.0, '#101e0a');
       ctx.fillStyle = mossGrad;
       ctx.fill();
-      ctx.restore();
 
-      // Roots (Nebari)
-      ctx.save();
-      const rootBaseX = width * 0.5;
-      const rootBaseY = potTopY - 4;
-      for (let r = 0; r < 7; r++) {
-        const normR = (r / 6 - 0.5) * 2;
-        const rx = rootBaseX + normR * 65 + (Math.sin(r * 2.4) * 8);
-        const ry = rootBaseY + 6 + Math.abs(normR) * 4;
-        ctx.beginPath();
-        ctx.moveTo(rootBaseX + normR * 16, rootBaseY - 24);
-        ctx.quadraticCurveTo(rootBaseX + normR * 38, rootBaseY - 6, rx, ry);
-        ctx.strokeStyle = '#2b1c14';
-        ctx.lineWidth = (10 - Math.abs(normR) * 4) * trunkThickness;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-      }
-      ctx.restore();
-
-      // Trunk (Moyogi)
-      ctx.save();
-      const swayOffset = Math.sin(t * 1.2) * 5 * windSway;
-      const P0 = { x: width * 0.50, y: potTopY - 20 };
-      const P1 = { x: width * 0.44 + Math.sin(t * 0.9) * 2 * windSway, y: height * 0.62 };
-      const P2 = { x: width * 0.58 + Math.cos(t * 1.1) * 3 * windSway, y: height * 0.44 };
-      const P3 = { x: width * 0.47 + swayOffset, y: height * 0.22 };
-
-      function getBezierPoint(p0, p1, p2, p3, u) {
-        const u1 = 1 - u;
-        return {
-          x: u1 * u1 * u1 * p0.x + 3 * u1 * u1 * u * p1.x + 3 * u1 * u * u * p2.x + u * u * u * p3.x,
-          y: u1 * u1 * u1 * p0.y + 3 * u1 * u1 * u * p1.y + 3 * u1 * u * u * p2.y + u * u * u * p3.y,
-        };
-      }
-
-      let prevPt = P0;
-      for (let s = 1; s <= 50; s++) {
-        const u = s / 50;
-        const curPt = getBezierPoint(P0, P1, P2, P3, u);
-        const taper = Math.pow(1 - u * 0.78, 1.4);
-        const w = (28 * taper + 3) * trunkThickness;
-
-        ctx.beginPath();
-        ctx.moveTo(prevPt.x, prevPt.y);
-        ctx.lineTo(curPt.x, curPt.y);
-        ctx.strokeStyle = '#22150f';
-        ctx.lineWidth = w;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(prevPt.x + w * 0.22, prevPt.y);
-        ctx.lineTo(curPt.x + w * 0.22, curPt.y);
-        ctx.strokeStyle = '#755038';
-        ctx.lineWidth = w * 0.18;
-        ctx.stroke();
-
-        prevPt = curPt;
-      }
-
-      // Branches
-      const branchMappings = [
-        { fromU: 0.30, toPadIdx: 0, curvature: -35 },
-        { fromU: 0.35, toPadIdx: 1, curvature: -42 },
-        { fromU: 0.45, toPadIdx: 2, curvature: -25 },
-        { fromU: 0.42, toPadIdx: 3, curvature: 45 },
-        { fromU: 0.52, toPadIdx: 4, curvature: 50 },
-        { fromU: 0.58, toPadIdx: 5, curvature: 30 },
-        { fromU: 0.65, toPadIdx: 6, curvature: -28 },
-        { fromU: 0.72, toPadIdx: 7, curvature: 32 },
-        { fromU: 0.82, toPadIdx: 8, curvature: -18 },
-        { fromU: 0.88, toPadIdx: 9, curvature: 22 },
-        { fromU: 0.96, toPadIdx: 10, curvature: 5 },
+      // River Stones
+      const stones = [
+        { x: width * 0.38, y: potTopY - 2, rx: 14, ry: 7, rot: -0.2, c: '#484440' },
+        { x: width * 0.62, y: potTopY - 1, rx: 18, ry: 9, rot: 0.15, c: '#363432' },
+        { x: width * 0.43, y: potTopY + 3, rx: 11, ry: 5, rot: 0.3, c: '#5a5652' },
       ];
+      for (const s of stones) {
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.rotate(s.rot);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, s.rx, s.ry, 0, 0, Math.PI * 2);
+        ctx.fillStyle = s.c;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+        ctx.restore();
+      }
+      ctx.restore();
 
-      for (let b = 0; b < branchMappings.length; b++) {
-        const bp = branchMappings[b];
-        const pad = foliagePads[bp.toPadIdx];
-        const startPt = getBezierPoint(P0, P1, P2, P3, bp.fromU);
-
-        const padSwayX = Math.sin(t * 1.5 + pad.swayPhase) * 6 * windSway;
-        const padSwayY = Math.cos(t * 1.2 + pad.swayPhase) * 3 * windSway;
-        const endX = width * pad.xRatio + padSwayX;
-        const endY = height * pad.yRatio + padSwayY;
-        const ctrlX = (startPt.x + endX) * 0.5 + bp.curvature;
-        const ctrlY = (startPt.y + endY) * 0.5 - 15;
+      // Nebari Roots
+      ctx.save();
+      const rootBaseX = width * 0.50;
+      const rootBaseY = potTopY - 8;
+      const roots = [
+        { endDx: -75, endDy: 16, ctrlDx: -45, ctrlDy: -4, w: 16 },
+        { endDx: -48, endDy: 14, ctrlDx: -28, ctrlDy: -2, w: 14 },
+        { endDx: -22, endDy: 12, ctrlDx: -12, ctrlDy: 0, w: 12 },
+        { endDx: 18, endDy: 12, ctrlDx: 10, ctrlDy: 0, w: 12 },
+        { endDx: 42, endDy: 14, ctrlDx: 25, ctrlDy: -2, w: 14 },
+        { endDx: 70, endDy: 16, ctrlDx: 42, ctrlDy: -4, w: 16 },
+        { endDx: -95, endDy: 18, ctrlDx: -65, ctrlDy: 2, w: 10 },
+        { endDx: 90, endDy: 18, ctrlDx: 62, ctrlDy: 2, w: 10 },
+      ];
+      for (const r of roots) {
+        ctx.beginPath();
+        ctx.moveTo(rootBaseX + r.ctrlDx * 0.35, rootBaseY - 18);
+        ctx.quadraticCurveTo(rootBaseX + r.ctrlDx, rootBaseY + r.ctrlDy, rootBaseX + r.endDx, rootBaseY + r.endDy);
+        ctx.strokeStyle = '#22140d';
+        ctx.lineWidth = r.w * trunkThickness;
+        ctx.lineCap = 'round';
+        ctx.stroke();
 
         ctx.beginPath();
-        ctx.moveTo(startPt.x, startPt.y);
-        ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
-        ctx.strokeStyle = pad.depth > 0.5 ? '#1a100c' : '#2b1b13';
-        ctx.lineWidth = (6.5 * (1 - bp.fromU * 0.5)) * trunkThickness;
+        ctx.moveTo(rootBaseX + r.ctrlDx * 0.35 - 2, rootBaseY - 16);
+        ctx.quadraticCurveTo(rootBaseX + r.ctrlDx - 2, rootBaseY + r.ctrlDy, rootBaseX + r.endDx - 2, rootBaseY + r.endDy);
+        ctx.strokeStyle = '#5a3b29';
+        ctx.lineWidth = r.w * 0.38 * trunkThickness;
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Trunk & Branches
+      function evalBranchPoint(node, u) {
+        const u1 = 1 - u;
+        const sway = Math.sin(t * 1.4 + node.phase) * (4 * u * windSway);
+        const swayY = Math.cos(t * 1.1 + node.phase) * (2 * u * windSway);
+        const x = (u1 * u1 * u1 * node.start.x + 3 * u1 * u1 * u * node.ctrl1.x + 3 * u1 * u * u * node.ctrl2.x + u * u * u * node.end.x) * width + sway;
+        const y = (u1 * u1 * u1 * node.start.y + 3 * u1 * u1 * u * node.ctrl1.y + 3 * u1 * u * u * node.ctrl2.y + u * u * u * node.end.y) * height + swayY;
+        return { x, y };
+      }
+
+      const sortedBranches = [...branchNodes].sort((a, b) => b.depth - a.depth);
+      ctx.save();
+      for (const node of sortedBranches) {
+        let prevPt = evalBranchPoint(node, 0);
+        for (let s = 1; s <= 30; s++) {
+          const u = s / 30;
+          const curPt = evalBranchPoint(node, u);
+          const w = (node.thicknessStart * (1 - u) + node.thicknessEnd * u) * trunkThickness;
+
+          ctx.beginPath();
+          ctx.moveTo(prevPt.x, prevPt.y);
+          ctx.lineTo(curPt.x, curPt.y);
+          ctx.strokeStyle = node.depth > 0.5 ? '#150d09' : '#22140d';
+          ctx.lineWidth = w;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+
+          if (node.depth < 0.5) {
+            ctx.beginPath();
+            ctx.moveTo(prevPt.x - w * 0.18, prevPt.y - w * 0.18);
+            ctx.lineTo(curPt.x - w * 0.18, curPt.y - w * 0.18);
+            ctx.strokeStyle = '#5a3d2a';
+            ctx.lineWidth = w * 0.35;
+            ctx.stroke();
+          }
+          prevPt = curPt;
+        }
+      }
+
+      // Shari deadwood vein
+      if (branchNodes[1]) {
+        ctx.beginPath();
+        for (let s = 0; s <= 25; s++) {
+          const u = s / 25;
+          const pt = evalBranchPoint(branchNodes[1], u);
+          const shariX = pt.x + (Math.sin(s * 0.8) * 3) + 2;
+          const shariY = pt.y;
+          if (s === 0) ctx.moveTo(shariX, shariY);
+          else ctx.lineTo(shariX, shariY);
+        }
+        ctx.strokeStyle = 'rgba(215, 205, 190, 0.65)';
+        ctx.lineWidth = 3.5 * trunkThickness;
         ctx.lineCap = 'round';
         ctx.stroke();
       }
       ctx.restore();
 
       // Foliage Clouds
-      const sortedPads = [...foliagePads].sort((a, b) => b.depth - a.depth);
-      for (let p = 0; p < sortedPads.length; p++) {
-        const pad = sortedPads[p];
-        const padSwayX = Math.sin(t * 1.5 + pad.swayPhase) * 6 * windSway;
-        const padSwayY = Math.cos(t * 1.2 + pad.swayPhase) * 3 * windSway;
-        const cx = width * pad.xRatio + padSwayX;
-        const cy = height * pad.yRatio + padSwayY;
-        const rx = pad.radiusX * (0.85 + foliageDensity * 0.15);
-        const ry = pad.radiusY * (0.85 + foliageDensity * 0.15);
+      const sortedClouds = [...foliageClouds].sort((a, b) => b.depth - a.depth);
+      for (const cloud of sortedClouds) {
+        const sway = Math.sin(t * 1.4 + cloud.phase) * (4 * windSway);
+        const swayY = Math.cos(t * 1.1 + cloud.phase) * (2 * windSway);
+        const cx = cloud.center.x * width + sway;
+        const cy = cloud.center.y * height + swayY;
+        const rx = cloud.radiusX * width * (0.85 + foliageDensity * 0.15);
+        const ry = cloud.radiusY * height * (0.85 + foliageDensity * 0.15);
 
         ctx.save();
         ctx.beginPath();
-        ctx.ellipse(cx, cy + 4, rx * 1.05, ry * 0.95, 0, 0, Math.PI * 2);
-        ctx.fillStyle = pad.depth > 0.5 ? 'rgba(7, 24, 14, 0.85)' : 'rgba(10, 36, 20, 0.92)';
+        ctx.ellipse(cx, cy + ry * 0.15, rx * 1.05, ry * 0.95, 0, 0, Math.PI * 2);
+        ctx.fillStyle = cloud.depth > 0.5 ? 'rgba(5, 18, 10, 0.95)' : 'rgba(8, 28, 15, 0.95)';
         ctx.fill();
 
-        const NEEDLE_COUNT = Math.floor(75 * pad.density * foliageDensity);
-        for (let n = 0; n < NEEDLE_COUNT; n++) {
-          const normN = n / NEEDLE_COUNT;
-          const angle = -Math.PI * 0.15 + normN * (Math.PI * 1.3) + (Math.sin(n * 4.3) * 0.15);
-          const rDist = (0.25 + 0.75 * Math.sqrt(Math.random())) * (1 + 0.12 * Math.sin(n * 7.1));
-          const nx0 = cx + Math.cos(angle) * (rx * rDist * 0.5);
-          const ny0 = cy + Math.sin(angle) * (ry * rDist * 0.5);
-          const needleLen = (9 + Math.sin(n * 3.7) * 4.5) * (1 - pad.depth * 0.3);
-          const nx1 = nx0 + Math.cos(angle) * needleLen;
-          const ny1 = ny0 + Math.sin(angle) * needleLen;
+        for (const tuft of cloud.tufts) {
+          const tx = cx + tuft.dx * width;
+          const ty = cy + tuft.dy * height;
+          const tuftScale = tuft.scale * (0.9 + foliageDensity * 0.1);
+          const NEEDLES_PER_TUFT = Math.floor(32 * cloud.density * foliageDensity);
 
-          let needleColor = ny1 < cy - 2
-            ? (n % 4 === 0 ? '#78c46e' : n % 4 === 1 ? '#4ea355' : '#2d7a42')
-            : (n % 3 === 0 ? '#236136' : n % 3 === 1 ? '#1a4a29' : '#10331c');
+          for (let n = 0; n < NEEDLES_PER_TUFT; n++) {
+            const normN = n / NEEDLES_PER_TUFT;
+            const angle = -Math.PI * 0.25 + normN * (Math.PI * 1.5) + tuft.angle + (Math.sin(n * 5.3) * 0.12);
+            const rDist = (0.2 + 0.8 * Math.sqrt(Math.random())) * 14 * tuftScale;
+            const nx0 = tx + Math.cos(angle) * (rDist * 0.4);
+            const ny0 = ty + Math.sin(angle) * (rDist * 0.4);
+            const needleLen = (7 + Math.sin(n * 3.7) * 4.5) * tuftScale * (1 - cloud.depth * 0.25);
+            const nx1 = nx0 + Math.cos(angle) * needleLen;
+            const ny1 = ny0 + Math.sin(angle) * needleLen;
 
-          ctx.beginPath();
-          ctx.moveTo(nx0, ny0);
-          ctx.lineTo(nx1, ny1);
-          ctx.strokeStyle = needleColor;
-          ctx.lineWidth = 1.1;
-          ctx.stroke();
+            let needleColor = cloud.depth > 0.5
+              ? (n % 3 === 0 ? '#0f381f' : n % 3 === 1 ? '#164d2b' : '#0a2615')
+              : (ny1 < cy - ry * 0.15
+                  ? (n % 4 === 0 ? '#7fd674' : n % 4 === 1 ? '#4db857' : n % 4 === 2 ? '#a4f092' : '#308c45')
+                  : (n % 3 === 0 ? '#26733a' : n % 3 === 1 ? '#1a542a' : '#123d1e'));
+
+            ctx.beginPath();
+            ctx.moveTo(nx0, ny0);
+            ctx.lineTo(nx1, ny1);
+            ctx.strokeStyle = needleColor;
+            ctx.lineWidth = 1.15;
+            ctx.stroke();
+          }
         }
         ctx.restore();
       }
@@ -12385,14 +12633,14 @@ function createZenBonsaiTree() {
         pt.rot += pt.rotV;
         const px = pt.x * width;
         const py = pt.y * height;
-        const sway = Math.sin(t * 2.0 + pt.phase) * 6;
+        const sway = Math.sin(t * 1.8 + pt.phase) * 7;
 
         ctx.save();
         ctx.translate(px + sway, py);
         ctx.rotate(pt.rot);
         ctx.beginPath();
-        ctx.ellipse(0, 0, pt.size * 1.8, pt.size * 0.9, 0, 0, Math.PI * 2);
-        ctx.fillStyle = i % 3 === 0 ? 'rgba(255, 185, 200, 0.7)' : i % 3 === 1 ? 'rgba(255, 215, 140, 0.65)' : 'rgba(255, 240, 245, 0.8)';
+        ctx.ellipse(0, 0, pt.size * 1.9, pt.size * 0.95, 0, 0, Math.PI * 2);
+        ctx.fillStyle = i % 3 === 0 ? 'rgba(255, 185, 200, 0.75)' : i % 3 === 1 ? 'rgba(255, 220, 145, 0.7)' : 'rgba(255, 245, 248, 0.85)';
         ctx.fill();
         ctx.restore();
       }
@@ -12403,8 +12651,8 @@ function createZenBonsaiTree() {
 
 const defaultParams = [
   { key: "windSway", label: "Breeze Sway Amplitude", type: "range", min: 0.2, max: 2.5, step: 0.1, defaultValue: 1.0 },
-  { key: "foliageDensity", label: "Pine Needle Cloud Density", type: "range", min: 0.5, max: 2.2, step: 0.1, defaultValue: 1.2 },
-  { key: "trunkThickness", label: "Trunk & Limb Caliber", type: "range", min: 0.5, max: 1.8, step: 0.1, defaultValue: 1.0 },
+  { key: "foliageDensity", label: "Pine Needle Cloud Density", type: "range", min: 0.5, max: 2.2, step: 0.1, defaultValue: 1.3 },
+  { key: "trunkThickness", label: "Trunk & Limb Caliber", type: "range", min: 0.5, max: 1.8, step: 0.1, defaultValue: 1.15 },
   { key: "sunGlow", label: "Zen Solar Aura Dispersion", type: "range", min: 0.3, max: 2.0, step: 0.1, defaultValue: 1.1 },
   { key: "speed", label: "Breeze Cadence", type: "range", min: 0.2, max: 2.5, step: 0.1, defaultValue: 0.8 }
 ];
