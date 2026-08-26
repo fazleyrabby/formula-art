@@ -1,0 +1,84 @@
+{
+  "id": "084",
+  "slug": "zen-bonsai-tree",
+  "title": "Zen Bonsai Tree",
+  "subtitle": "Leonardo da Vinci Branching & Moyogi Curvature",
+  "category": "botany",
+  "description": "A Japanese Moyogi-style Zen Bonsai Tree rendered through Leonardo da Vinci's branching area laws, cubic Bézier trunk splines, flared Nebari roots, and layered Matsu pine needle foliage clouds swaying in a gentle breeze.",
+  "mathNotation": "r_{\\text{parent}}^\\Delta = \\sum_{k=1}^2 r_{k}^\\Delta, \\quad \\mathbf{B}(u) = \\sum_{i=0}^3 \\binom{3}{i} (1-u)^{3-i} u^i \\mathbf{P}_i, \\quad \\Delta x(t) = A \\sin(\\omega t + \\phi)",
+  "formulaCompact": "B(u) = (1-u)^3 P_0 + 3(1-u)^2 u P_1 + 3(1-u) u^2 P_2 + u^3 P_3, \\quad w(u) = w_0 (1 - 0.78u)^{1.4}",
+  "formulaFull": "const u1 = 1 - u;\nconst bx = u1*u1*u1*p0.x + 3*u1*u1*u*p1.x + 3*u1*u*u*p2.x + u*u*u*p3.x;\nconst by = u1*u1*u1*p0.y + 3*u1*u1*u*p1.y + 3*u1*u*u*p2.y + u*u*u*p3.y;\nconst branchW = (28 * Math.pow(1 - u * 0.78, 1.4) + 3) * trunkThickness;",
+  "algorithmKey": "zen-bonsai-tree",
+  "complexity": "high",
+  "particleCount": 1200,
+  "parameters": [
+    {
+      "key": "windSway",
+      "label": "Breeze Sway Amplitude",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Harmonic oscillation of branches and needle clouds"
+    },
+    {
+      "key": "foliageDensity",
+      "label": "Pine Needle Cloud Density",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.2,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Density and volume of Matsu foliage pads"
+    },
+    {
+      "key": "trunkThickness",
+      "label": "Trunk & Limb Caliber",
+      "type": "range",
+      "min": 0.5,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Vascular width of Moyogi trunk and limbs"
+    },
+    {
+      "key": "sunGlow",
+      "label": "Zen Solar Aura Dispersion",
+      "type": "range",
+      "min": 0.3,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Luminosity of background rising sunburst"
+    },
+    {
+      "key": "speed",
+      "label": "Breeze Cadence",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 0.8,
+      "description": "Temporal rate of branch sway and drifting petals"
+    }
+  ],
+  "tags": [
+    "bonsai",
+    "botany",
+    "tree",
+    "zen",
+    "japanese",
+    "matsuba",
+    "bezier",
+    "leonardo",
+    "fractal",
+    "sakura"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60
+}

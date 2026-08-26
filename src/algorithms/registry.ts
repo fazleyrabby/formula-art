@@ -90,6 +90,7 @@ export const algorithmLoaders: Record<string, AlgorithmModuleLoader> = {
   'chrysanthemum-bloom': () => import('./botany/chrysanthemum-bloom'),
   'bioluminescent-orchid': () => import('./botany/bioluminescent-orchid'),
   'fibonacci-sunflower': () => import('./botany/fibonacci-sunflower'),
+  'zen-bonsai-tree': () => import('./botany/zen-bonsai-tree'),
 
   // Human Anatomy & Biology
   'cardiac-pulse': () => import('./anatomy/cardiac-pulse'),
