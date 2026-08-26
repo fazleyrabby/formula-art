@@ -109,41 +109,41 @@ export function createMoonlitOceanRays(): ArtRenderer {
       }
       ctx.restore();
 
-      // 3. Volumetric Silver Moonbeams (Originating cleanly from Top-Left Moon)
+      // 3. Subtle & Dreamy Atmospheric Moonbeams (Soft, Wide, Ethereal Silvery-Cyan Haze)
       ctx.save();
       ctx.globalCompositeOperation = 'screen';
-      const RAY_COUNT = 36;
-      const maxRayDist = Math.hypot(width, height) * 1.1;
+      const RAY_COUNT = 12; // Fewer, much broader, silky shafts
+      const maxRayDist = Math.hypot(width, height) * 1.15;
 
       for (let i = 0; i < RAY_COUNT; i++) {
         const normI = i / RAY_COUNT;
-        // Angles sweeping from slightly above horizontal down across the sea (approx -5° to +75°)
-        const baseAngle = -Math.PI * 0.03 + normI * (Math.PI * 0.45);
+        // Broad sweeping angle from top-left across the ocean
+        const baseAngle = -Math.PI * 0.02 + normI * (Math.PI * 0.44);
 
-        // Sinusoidal light gap modulation simulating cloud wisps
-        const cloudWarp = Math.sin(baseAngle * 7.0 + t * 0.25) * 0.06 +
-                          Math.cos(baseAngle * 13.0 - t * 0.4) * 0.03;
-        const rayAngle = baseAngle + cloudWarp;
+        // Soft undulating atmospheric modulation
+        const waveMod = Math.sin(baseAngle * 4.0 + t * 0.2) * 0.05 +
+                        Math.cos(baseAngle * 8.0 - t * 0.3) * 0.03;
+        const rayAngle = baseAngle + waveMod;
 
-        // Central focus pointing towards diagonal ocean center (~35°)
         const targetAngle = Math.PI * 0.20;
         const angleDiff = Math.abs(rayAngle - targetAngle);
-        const centralFactor = Math.pow(Math.max(0, 1 - angleDiff / (Math.PI * 0.28)), 1.6);
-        const pulse = 0.65 + 0.35 * Math.sin(i * 2.3 + t * 1.2);
+        const centralFactor = Math.pow(Math.max(0, 1 - angleDiff / (Math.PI * 0.3)), 1.4);
+        const pulse = 0.75 + 0.25 * Math.sin(i * 1.8 + t * 0.9);
 
-        const beamAlpha = Math.min(0.48, 0.22 * centralFactor * pulse * beamIntensity);
+        // Subtle, gentle, non-harsh alpha
+        const beamAlpha = Math.min(0.18, 0.08 * centralFactor * pulse * beamIntensity);
 
-        if (beamAlpha > 0.015) {
-          const spreadWidth = 0.034 + (1 - centralFactor) * 0.018;
+        if (beamAlpha > 0.008) {
+          // Broad, smooth fan width (soft diffuse shafts)
+          const spreadWidth = 0.085 + (1 - centralFactor) * 0.045;
           const a1 = rayAngle - spreadWidth;
           const a2 = rayAngle + spreadWidth;
 
-          const moonbeamGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.6, moonX, moonY, maxRayDist);
-          moonbeamGrad.addColorStop(0, `rgba(235, 246, 255, ${beamAlpha * 1.25})`);
-          moonbeamGrad.addColorStop(0.18, `rgba(175, 220, 255, ${beamAlpha * 0.85})`);
-          moonbeamGrad.addColorStop(0.55, `rgba(60, 135, 210, ${beamAlpha * 0.3})`);
-          moonbeamGrad.addColorStop(0.85, `rgba(15, 55, 115, ${beamAlpha * 0.08})`);
-          moonbeamGrad.addColorStop(1.0, 'rgba(0, 15, 40, 0)');
+          const moonbeamGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.8, moonX, moonY, maxRayDist);
+          moonbeamGrad.addColorStop(0, `rgba(215, 238, 255, ${beamAlpha * 1.1})`);
+          moonbeamGrad.addColorStop(0.25, `rgba(130, 195, 255, ${beamAlpha * 0.7})`);
+          moonbeamGrad.addColorStop(0.65, `rgba(40, 110, 190, ${beamAlpha * 0.25})`);
+          moonbeamGrad.addColorStop(1.0, 'rgba(0, 10, 30, 0)');
 
           ctx.beginPath();
           ctx.moveTo(moonX, moonY);
@@ -156,21 +156,21 @@ export function createMoonlitOceanRays(): ArtRenderer {
       }
       ctx.restore();
 
-      // 4. Subtle Earth Atmospheric Lunar Halo (Soft, Translucent 22° Halo Ring)
+      // 4. Soft Earth Atmospheric Lunar Corona (Gentle Optical Glow)
       ctx.save();
       ctx.globalCompositeOperation = 'screen';
-      const haloGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.9, moonX, moonY, width * 0.36);
-      haloGrad.addColorStop(0, `rgba(215, 238, 255, ${0.32 * moonGlow})`);
-      haloGrad.addColorStop(0.18, `rgba(140, 195, 250, ${0.16 * moonGlow})`);
-      haloGrad.addColorStop(0.45, `rgba(40, 95, 175, ${0.05 * moonGlow})`);
+      const haloGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.9, moonX, moonY, width * 0.38);
+      haloGrad.addColorStop(0, `rgba(215, 238, 255, ${0.28 * moonGlow})`);
+      haloGrad.addColorStop(0.2, `rgba(130, 190, 250, ${0.14 * moonGlow})`);
+      haloGrad.addColorStop(0.5, `rgba(30, 85, 160, ${0.04 * moonGlow})`);
       haloGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = haloGrad;
       ctx.beginPath();
-      ctx.arc(moonX, moonY, width * 0.36, 0, Math.PI * 2);
+      ctx.arc(moonX, moonY, width * 0.38, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
-      // 5. Photorealistic Lunar Disk (Spherical Regolith, Maria Basalt Seas & Crater Ejecta Rays)
+      // 5. Photorealistic Lunar Disk (Smooth Regolith & Organic Maria Basalt Seas)
       ctx.save();
       // Clip to crisp circular lunar limb
       ctx.beginPath();
@@ -187,23 +187,23 @@ export function createMoonlitOceanRays(): ArtRenderer {
         moonR
       );
       baseMoonGrad.addColorStop(0, '#f8fafc');    // Bright highland anorthosite
-      baseMoonGrad.addColorStop(0.55, '#dce5f0');
-      baseMoonGrad.addColorStop(0.85, '#b4c5d8');
-      baseMoonGrad.addColorStop(1.0, '#7f94aa');     // Subtle limb shading
+      baseMoonGrad.addColorStop(0.55, '#dbe4ee');
+      baseMoonGrad.addColorStop(0.85, '#b4c4d6');
+      baseMoonGrad.addColorStop(1.0, '#7f93a8');     // Subtle limb shading
       ctx.fillStyle = baseMoonGrad;
       ctx.fillRect(moonX - moonR, moonY - moonR, moonR * 2, moonR * 2);
 
-      // 5b. Lunar Maria (Dark Basalt Lava Plains: Imbrium, Serenitatis, Tranquillitatis, Procellarum, Crisium)
+      // 5b. Lunar Maria (Dark Basalt Lava Plains: Smooth Organic Blends)
       const mariaSeas = [
-        { u: -0.32, v: -0.18, rx: 0.38, ry: 0.32, rot: 0.2, dark: 0.44 }, // Oceanus Procellarum
-        { u: -0.16, v: -0.34, rx: 0.26, ry: 0.22, rot: -0.1, dark: 0.48 }, // Mare Imbrium
-        { u: 0.14, v: -0.26, rx: 0.22, ry: 0.19, rot: 0.15, dark: 0.45 }, // Mare Serenitatis
-        { u: 0.28, v: -0.06, rx: 0.24, ry: 0.20, rot: -0.2, dark: 0.46 }, // Mare Tranquillitatis
-        { u: 0.46, v: -0.16, rx: 0.13, ry: 0.11, rot: 0.4, dark: 0.52 },  // Mare Crisium (isolated oval)
-        { u: 0.32, v: 0.16, rx: 0.20, ry: 0.16, rot: 0.1, dark: 0.42 },  // Mare Fecunditatis
-        { u: 0.18, v: 0.24, rx: 0.14, ry: 0.12, rot: -0.3, dark: 0.43 },  // Mare Nectaris
-        { u: -0.12, v: 0.12, rx: 0.18, ry: 0.14, rot: 0.3, dark: 0.40 },  // Mare Nubium
-        { u: -0.30, v: 0.22, rx: 0.15, ry: 0.12, rot: -0.1, dark: 0.38 },  // Mare Humorum
+        { u: -0.32, v: -0.18, rx: 0.38, ry: 0.32, rot: 0.2, dark: 0.38 }, // Oceanus Procellarum
+        { u: -0.16, v: -0.34, rx: 0.26, ry: 0.22, rot: -0.1, dark: 0.42 }, // Mare Imbrium
+        { u: 0.14, v: -0.26, rx: 0.22, ry: 0.19, rot: 0.15, dark: 0.40 }, // Mare Serenitatis
+        { u: 0.28, v: -0.06, rx: 0.24, ry: 0.20, rot: -0.2, dark: 0.40 }, // Mare Tranquillitatis
+        { u: 0.46, v: -0.16, rx: 0.13, ry: 0.11, rot: 0.4, dark: 0.46 },  // Mare Crisium
+        { u: 0.32, v: 0.16, rx: 0.20, ry: 0.16, rot: 0.1, dark: 0.36 },  // Mare Fecunditatis
+        { u: 0.18, v: 0.24, rx: 0.14, ry: 0.12, rot: -0.3, dark: 0.38 },  // Mare Nectaris
+        { u: -0.12, v: 0.12, rx: 0.18, ry: 0.14, rot: 0.3, dark: 0.35 },  // Mare Nubium
+        { u: -0.30, v: 0.22, rx: 0.15, ry: 0.12, rot: -0.1, dark: 0.34 },  // Mare Humorum
       ];
 
       for (let m = 0; m < mariaSeas.length; m++) {
@@ -217,7 +217,6 @@ export function createMoonlitOceanRays(): ArtRenderer {
         ctx.translate(sx, sy);
         ctx.rotate(sea.rot);
 
-        // Organic basalt perimeter
         ctx.beginPath();
         const steps = 32;
         for (let st = 0; st <= steps; st++) {
@@ -230,116 +229,72 @@ export function createMoonlitOceanRays(): ArtRenderer {
         }
         ctx.closePath();
 
-        const seaGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, rx * 1.2);
-        seaGrad.addColorStop(0, `rgba(45, 62, 82, ${sea.dark})`);
-        seaGrad.addColorStop(0.7, `rgba(55, 75, 98, ${sea.dark * 0.85})`);
-        seaGrad.addColorStop(1.0, 'rgba(75, 100, 125, 0)');
+        const seaGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, rx * 1.25);
+        seaGrad.addColorStop(0, `rgba(50, 68, 88, ${sea.dark})`);
+        seaGrad.addColorStop(0.65, `rgba(60, 80, 102, ${sea.dark * 0.7})`);
+        seaGrad.addColorStop(1.0, 'rgba(80, 105, 130, 0)');
         ctx.fillStyle = seaGrad;
         ctx.fill();
         ctx.restore();
       }
 
-      // 5c. Tycho Crater & Radiating Bright Ejecta Rays (Southern Hemisphere)
-      const tychoX = moonX + 0.06 * moonR;
-      const tychoY = moonY + 0.54 * moonR;
-
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      const RAY_STREAKS = 18;
-      for (let r = 0; r < RAY_STREAKS; r++) {
-        const rayAngle = (r / RAY_STREAKS) * Math.PI * 2 + (r % 3) * 0.15;
-        const rayLen = moonR * (0.4 + (r % 4) * 0.22);
-        const rayWidth = 0.04 + (r % 2) * 0.02;
-
-        const rayGrad = ctx.createLinearGradient(
-          tychoX,
-          tychoY,
-          tychoX + Math.cos(rayAngle) * rayLen,
-          tychoY + Math.sin(rayAngle) * rayLen
-        );
-        rayGrad.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
-        rayGrad.addColorStop(0.3, 'rgba(240, 248, 255, 0.25)');
-        rayGrad.addColorStop(1.0, 'rgba(210, 230, 250, 0)');
-
-        ctx.beginPath();
-        ctx.moveTo(tychoX, tychoY);
-        ctx.lineTo(
-          tychoX + Math.cos(rayAngle - rayWidth) * rayLen,
-          tychoY + Math.sin(rayAngle - rayWidth) * rayLen
-        );
-        ctx.lineTo(
-          tychoX + Math.cos(rayAngle + rayWidth) * rayLen,
-          tychoY + Math.sin(rayAngle + rayWidth) * rayLen
-        );
-        ctx.closePath();
-        ctx.fillStyle = rayGrad;
-        ctx.fill();
-      }
-      ctx.restore();
-
-      // Tycho crater rim and central peak
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
-      ctx.beginPath();
-      ctx.arc(tychoX, tychoY, moonR * 0.045, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = 'rgba(35, 50, 65, 0.6)';
-      ctx.beginPath();
-      ctx.arc(tychoX, tychoY, moonR * 0.028, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(tychoX - moonR * 0.006, tychoY - moonR * 0.006, moonR * 0.012, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 5d. Copernicus & Kepler Impact Craters (Bright Halos)
-      const brightCraters = [
-        { u: -0.22, v: -0.08, r: 0.038 },
-        { u: -0.38, v: -0.06, r: 0.024 },
-        { u: -0.42, v: -0.24, r: 0.022 },
+      // 5c. Soft Natural Impact Craters (Tycho, Copernicus, Kepler with subtle soft halos)
+      const craters = [
+        { u: 0.06, v: 0.54, r: 0.038, glow: 0.45 },   // Tycho
+        { u: -0.22, v: -0.08, r: 0.032, glow: 0.35 },  // Copernicus
+        { u: -0.38, v: -0.06, r: 0.022, glow: 0.30 },  // Kepler
+        { u: -0.42, v: -0.24, r: 0.020, glow: 0.35 },  // Aristarchus
       ];
 
-      for (let c = 0; c < brightCraters.length; c++) {
-        const cr = brightCraters[c];
+      for (let c = 0; c < craters.length; c++) {
+        const cr = craters[c];
         const cx0 = moonX + cr.u * moonR;
         const cy0 = moonY + cr.v * moonR;
         const rad = moonR * cr.r;
 
-        const crGrad = ctx.createRadialGradient(cx0, cy0, 0, cx0, cy0, rad * 2.8);
-        crGrad.addColorStop(0, 'rgba(255, 255, 255, 0.72)');
-        crGrad.addColorStop(0.35, 'rgba(240, 248, 255, 0.32)');
+        // Soft circular ejecta glow
+        const crGrad = ctx.createRadialGradient(cx0, cy0, 0, cx0, cy0, rad * 2.5);
+        crGrad.addColorStop(0, `rgba(255, 255, 255, ${cr.glow})`);
+        crGrad.addColorStop(0.4, `rgba(240, 248, 255, ${cr.glow * 0.4})`);
         crGrad.addColorStop(1.0, 'rgba(200, 220, 240, 0)');
         ctx.fillStyle = crGrad;
         ctx.beginPath();
-        ctx.arc(cx0, cy0, rad * 2.8, 0, Math.PI * 2);
+        ctx.arc(cx0, cy0, rad * 2.5, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = 'rgba(45, 60, 75, 0.58)';
+        // Crater central depression
+        ctx.fillStyle = 'rgba(55, 70, 88, 0.5)';
         ctx.beginPath();
-        ctx.arc(cx0, cy0, rad * 0.65, 0, Math.PI * 2);
+        ctx.arc(cx0, cy0, rad * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bright rim glint
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(cx0 - rad * 0.25, cy0 - rad * 0.25, rad * 0.35, 0, Math.PI * 2);
         ctx.fill();
       }
 
       ctx.restore(); // End lunar clip
 
-      // 6. Soft Volumetric Cirrus Clouds (Delicate, Organic Clouds — No Hard Cutoff Bars!)
+      // 6. Soft Volumetric Cirrus Clouds (Delicate, Organic Clouds)
       ctx.save();
-      const CLOUD_WISPS = 4;
+      const CLOUD_WISPS = 3;
       for (let c = 0; c < CLOUD_WISPS; c++) {
-        const baseY = height * (0.34 + c * 0.08);
-        const cloudSpeed = 0.08 + c * 0.04;
-        const cloudAlpha = 0.18 + c * 0.08;
+        const baseY = height * (0.35 + c * 0.08);
+        const cloudSpeed = 0.06 + c * 0.03;
+        const cloudAlpha = 0.14 + c * 0.06;
 
         ctx.beginPath();
         const steps = 80;
-        ctx.moveTo(0, baseY + 40);
+        ctx.moveTo(0, baseY + 45);
 
         for (let s = 0; s <= steps; s++) {
           const nx = s / steps;
           const x = nx * width;
-          // Harmonic undulating wave
-          const w1 = Math.sin(nx * 8.0 + t * cloudSpeed + c * 1.5) * 16;
-          const w2 = Math.cos(nx * 15.0 - t * cloudSpeed * 1.2) * 9;
-          const w3 = Math.sin(nx * 3.0 + t * 0.05) * 22;
+          const w1 = Math.sin(nx * 7.0 + t * cloudSpeed + c * 1.5) * 14;
+          const w2 = Math.cos(nx * 13.0 - t * cloudSpeed * 1.1) * 8;
+          const w3 = Math.sin(nx * 2.5 + t * 0.04) * 18;
           const y = baseY + w1 + w2 + w3;
           ctx.lineTo(x, y);
         }
@@ -348,87 +303,106 @@ export function createMoonlitOceanRays(): ArtRenderer {
         ctx.lineTo(0, baseY + 60);
         ctx.closePath();
 
-        const cloudGrad = ctx.createLinearGradient(0, baseY - 20, 0, baseY + 60);
-        cloudGrad.addColorStop(0, `rgba(8, 20, 42, ${cloudAlpha * 0.6})`);
-        cloudGrad.addColorStop(0.4, `rgba(5, 14, 30, ${cloudAlpha})`);
+        const cloudGrad = ctx.createLinearGradient(0, baseY - 15, 0, baseY + 60);
+        cloudGrad.addColorStop(0, `rgba(8, 20, 42, ${cloudAlpha * 0.5})`);
+        cloudGrad.addColorStop(0.5, `rgba(4, 12, 28, ${cloudAlpha})`);
         cloudGrad.addColorStop(1.0, `rgba(2, 6, 16, 0.0)`);
         ctx.fillStyle = cloudGrad;
         ctx.fill();
-
-        // Silver rim-light on upper cloud fringe near the moon
-        ctx.strokeStyle = `rgba(180, 220, 255, ${cloudAlpha * 0.4})`;
-        ctx.lineWidth = 1.0;
-        ctx.stroke();
       }
       ctx.restore();
 
-      // 7. Night Ocean & Shimmering Lunar Wake (Silver Moon Track on Water)
+      // 7. Night Ocean & Well-Spread Shimmering Lunar Wake
       const oceanH = height - horizonY;
       const oceanGrad = ctx.createLinearGradient(0, horizonY, 0, height);
-      oceanGrad.addColorStop(0, '#040b18');     // Horizon indigo
-      oceanGrad.addColorStop(0.35, '#050e22');
-      oceanGrad.addColorStop(0.7, '#030816');
-      oceanGrad.addColorStop(1.0, '#01040a');     // Deep foreground
+      oceanGrad.addColorStop(0, '#030a17');     // Horizon dark indigo
+      oceanGrad.addColorStop(0.3, '#040d20');
+      oceanGrad.addColorStop(0.65, '#020714');
+      oceanGrad.addColorStop(1.0, '#010308');     // Foreground
       ctx.fillStyle = oceanGrad;
       ctx.fillRect(0, horizonY, width, oceanH);
 
-      // Ocean Wave Crests & Perspective Gerstner Wave Undulation
-      const WAVE_LINES = 28;
+      // 7a. Broad Moonlight Wash / Ambient Sea Sheen across the water
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const seaWash = ctx.createRadialGradient(
+        moonX + width * 0.15,
+        horizonY + oceanH * 0.2,
+        0,
+        moonX + width * 0.25,
+        horizonY + oceanH * 0.5,
+        width * 0.8
+      );
+      seaWash.addColorStop(0, `rgba(80, 150, 220, ${0.18 * oceanGlitter})`);
+      seaWash.addColorStop(0.35, `rgba(35, 80, 140, ${0.09 * oceanGlitter})`);
+      seaWash.addColorStop(0.75, `rgba(12, 35, 75, ${0.03 * oceanGlitter})`);
+      seaWash.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = seaWash;
+      ctx.fillRect(0, horizonY, width, oceanH);
+      ctx.restore();
+
+      // 7b. Full-Width Ocean Waves & Well-Spread Specular Glitter Path
+      const WAVE_LINES = 32;
       for (let w = 0; w < WAVE_LINES; w++) {
         const normW = w / WAVE_LINES;
-        const lineY = horizonY + Math.pow(normW, 1.45) * oceanH;
-        const waveAmp = 0.8 + normW * 4.5;
-        const waveFreq = 0.032 - normW * 0.018;
+        const lineY = horizonY + Math.pow(normW, 1.4) * oceanH;
+        const waveAmp = 0.6 + normW * 4.0;
+        const waveFreq = 0.028 - normW * 0.015;
 
-        // Wave surface crest line
+        // Wave crest illumination line across full width
         ctx.beginPath();
-        const pts = 80;
+        const pts = 90;
         for (let p = 0; p <= pts; p++) {
           const nx = p / pts;
           const x = nx * width;
-          const waveOffset = Math.sin(x * waveFreq + t * (1.1 + normW * 1.6) + w * 1.3) * waveAmp +
-                             Math.cos(x * waveFreq * 2.2 - t * 0.8) * (waveAmp * 0.35);
+          const waveOffset = Math.sin(x * waveFreq + t * (1.0 + normW * 1.5) + w * 1.2) * waveAmp +
+                             Math.cos(x * waveFreq * 2.0 - t * 0.7) * (waveAmp * 0.3);
           const y = lineY + waveOffset;
           if (p === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
-        ctx.strokeStyle = `rgba(18, 48, 92, ${0.4 + normW * 0.45})`;
-        ctx.lineWidth = 1.0 + normW * 1.5;
+
+        // Soft ambient wave crest tint
+        ctx.strokeStyle = `rgba(22, 55, 100, ${0.35 + normW * 0.35})`;
+        ctx.lineWidth = 0.9 + normW * 1.3;
         ctx.stroke();
 
-        // Silver Specular Shimmer on the Moon Wake (Originating directly under Top-Left Moon)
-        const glitterCount = Math.floor(18 + normW * 34);
-        // Wake center fans gently from moonX (0.22) at horizon towards 0.38 in foreground
-        const wakeCenterX = moonX + normW * (width * 0.16);
-        const spread = (width * 0.07 + normW * width * 0.28) * oceanGlitter;
+        // 7c. Broad, Well-Spread Silver Specular Shimmer across the sea
+        const glitterCount = Math.floor(25 + normW * 45);
+        // Wake center fans smoothly from moonX (0.22) across towards the center (0.42)
+        const wakeCenterX = moonX + normW * (width * 0.20);
+        // Much wider, graceful spread (spanning across ~70-80% of the sea width in foreground)
+        const spreadWidth = (width * 0.22 + normW * width * 0.52) * oceanGlitter;
 
         for (let g = 0; g < glitterCount; g++) {
+          // Broad natural distribution across the full spread
           const u = (Math.random() - 0.5) * 2;
-          const gx = wakeCenterX + u * spread * (Math.random() * 0.85 + 0.15);
-          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.6);
+          const gx = wakeCenterX + u * spreadWidth * (Math.random() * 0.7 + 0.3);
+          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.5);
 
-          const distFromAxis = Math.abs(gx - wakeCenterX) / spread;
-          const gaussianFalloff = Math.exp(-distFromAxis * distFromAxis * 2.5);
+          // Gentle smooth Gaussian falloff from the reflection axis
+          const distFromAxis = Math.abs(gx - wakeCenterX) / spreadWidth;
+          const gaussianFalloff = Math.exp(-distFromAxis * distFromAxis * 1.2);
 
-          const shimmerPhase = Math.sin(t * 3.6 + g * 1.9 + normW * 6.0);
-          if (shimmerPhase > 0.25) {
-            const alpha = Math.pow((shimmerPhase - 0.25) / 0.75, 2.0) * gaussianFalloff * (1 - normW * 0.22);
-            const size = (1.0 + (1 - normW) * 2.2) * (shimmerPhase * 0.8 + 0.2);
+          const shimmerPhase = Math.sin(t * 3.2 + g * 1.7 + normW * 5.2);
+          if (shimmerPhase > 0.15) {
+            const alpha = Math.pow((shimmerPhase - 0.15) / 0.85, 1.8) * gaussianFalloff * (0.85 - normW * 0.15);
+            const size = (0.9 + (1 - normW) * 1.9) * (shimmerPhase * 0.7 + 0.3);
 
-            ctx.fillStyle = `rgba(235, 248, 255, ${alpha * 0.96})`;
+            ctx.fillStyle = `rgba(230, 245, 255, ${alpha * 0.9})`;
             ctx.beginPath();
             ctx.arc(gx, gy, size, 0, Math.PI * 2);
             ctx.fill();
 
-            // Diamond twinkle lens cross on brightest reflections
-            if (alpha > 0.65 && g % 4 === 0) {
-              ctx.strokeStyle = `rgba(215, 242, 255, ${alpha * 0.55})`;
-              ctx.lineWidth = 0.7;
+            // Diamond twinkle lens cross on brightest sparkles
+            if (alpha > 0.55 && g % 5 === 0) {
+              ctx.strokeStyle = `rgba(210, 240, 255, ${alpha * 0.5})`;
+              ctx.lineWidth = 0.6;
               ctx.beginPath();
-              ctx.moveTo(gx - size * 2.8, gy);
-              ctx.lineTo(gx + size * 2.8, gy);
-              ctx.moveTo(gx, gy - size * 2.4);
-              ctx.lineTo(gx, gy + size * 2.4);
+              ctx.moveTo(gx - size * 2.5, gy);
+              ctx.lineTo(gx + size * 2.5, gy);
+              ctx.moveTo(gx, gy - size * 2.0);
+              ctx.lineTo(gx, gy + size * 2.0);
               ctx.stroke();
             }
           }

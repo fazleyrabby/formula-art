@@ -11402,29 +11402,29 @@ skyGrad.addColorStop(1.0, '#0a1d3d');
 ctx.fillStyle = skyGrad;
 ctx.fillRect(0, 0, width, horizonY);
 
-// 2. Volumetric Lunar Silver Beams
+// 2. Subtle & Dreamy Atmospheric Moonbeams
 ctx.save();
 ctx.globalCompositeOperation = 'screen';
-const RAY_COUNT = 36;
-const maxRayDist = Math.hypot(width, height) * 1.1;
+const RAY_COUNT = 12;
+const maxRayDist = Math.hypot(width, height) * 1.15;
 
 for (let i = 0; i < RAY_COUNT; i++) {
   const normI = i / RAY_COUNT;
-  const baseAngle = -Math.PI * 0.03 + normI * (Math.PI * 0.45);
-  const cloudWarp = Math.sin(baseAngle * 7.0 + time * 0.25) * 0.06;
-  const rayAngle = baseAngle + cloudWarp;
+  const baseAngle = -Math.PI * 0.02 + normI * (Math.PI * 0.44);
+  const waveMod = Math.sin(baseAngle * 4.0 + time * 0.2) * 0.05;
+  const rayAngle = baseAngle + waveMod;
   const angleDiff = Math.abs(rayAngle - Math.PI * 0.20);
-  const centralFactor = Math.pow(Math.max(0, 1 - angleDiff / (Math.PI * 0.28)), 1.6);
-  const pulse = 0.65 + 0.35 * Math.sin(i * 2.3 + time * 1.2);
-  const beamAlpha = Math.min(0.48, 0.22 * centralFactor * pulse * 1.2);
+  const centralFactor = Math.pow(Math.max(0, 1 - angleDiff / (Math.PI * 0.3)), 1.4);
+  const pulse = 0.75 + 0.25 * Math.sin(i * 1.8 + time * 0.9);
+  const beamAlpha = Math.min(0.18, 0.08 * centralFactor * pulse * 1.2);
 
-  if (beamAlpha > 0.015) {
-    const spreadWidth = 0.034 + (1 - centralFactor) * 0.018;
-    const moonbeamGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.6, moonX, moonY, maxRayDist);
-    moonbeamGrad.addColorStop(0, \`rgba(235, 246, 255, \${beamAlpha * 1.25})\`);
-    moonbeamGrad.addColorStop(0.18, \`rgba(175, 220, 255, \${beamAlpha * 0.85})\`);
-    moonbeamGrad.addColorStop(0.55, \`rgba(60, 135, 210, \${beamAlpha * 0.3})\`);
-    moonbeamGrad.addColorStop(1.0, 'rgba(0, 15, 40, 0)');
+  if (beamAlpha > 0.008) {
+    const spreadWidth = 0.085 + (1 - centralFactor) * 0.045;
+    const moonbeamGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.8, moonX, moonY, maxRayDist);
+    moonbeamGrad.addColorStop(0, \`rgba(215, 238, 255, \${beamAlpha * 1.1})\`);
+    moonbeamGrad.addColorStop(0.25, \`rgba(130, 195, 255, \${beamAlpha * 0.7})\`);
+    moonbeamGrad.addColorStop(0.65, \`rgba(40, 110, 190, \${beamAlpha * 0.25})\`);
+    moonbeamGrad.addColorStop(1.0, 'rgba(0, 10, 30, 0)');
 
     ctx.beginPath();
     ctx.moveTo(moonX, moonY);
@@ -11438,40 +11438,40 @@ for (let i = 0; i < RAY_COUNT; i++) {
 ctx.restore();
 
 // 3. Lunar Atmospheric Halo & Moon Disk
-const haloGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.9, moonX, moonY, width * 0.36);
-haloGrad.addColorStop(0, 'rgba(215, 238, 255, 0.32)');
-haloGrad.addColorStop(0.18, 'rgba(140, 195, 250, 0.16)');
-haloGrad.addColorStop(0.45, 'rgba(40, 95, 175, 0.05)');
+const haloGrad = ctx.createRadialGradient(moonX, moonY, moonR * 0.9, moonX, moonY, width * 0.38);
+haloGrad.addColorStop(0, 'rgba(215, 238, 255, 0.28)');
+haloGrad.addColorStop(0.2, 'rgba(130, 190, 250, 0.14)');
+haloGrad.addColorStop(0.5, 'rgba(30, 85, 160, 0.04)');
 haloGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
 ctx.fillStyle = haloGrad;
 ctx.beginPath();
-ctx.arc(moonX, moonY, width * 0.36, 0, Math.PI * 2);
+ctx.arc(moonX, moonY, width * 0.38, 0, Math.PI * 2);
 ctx.fill();
 
-// 4. Night Ocean & Silver Wake Reflection
+// 4. Night Ocean & Broad Shimmering Lunar Wake
 const oceanH = height - horizonY;
 const oceanGrad = ctx.createLinearGradient(0, horizonY, 0, height);
-oceanGrad.addColorStop(0, '#040b18');
-oceanGrad.addColorStop(0.35, '#050e22');
-oceanGrad.addColorStop(0.7, '#030816');
-oceanGrad.addColorStop(1.0, '#01040a');
+oceanGrad.addColorStop(0, '#030a17');
+oceanGrad.addColorStop(0.3, '#040d20');
+oceanGrad.addColorStop(0.65, '#020714');
+oceanGrad.addColorStop(1.0, '#010308');
 ctx.fillStyle = oceanGrad;
 ctx.fillRect(0, horizonY, width, oceanH);
 
-for (let w = 0; w < 24; w++) {
-  const normW = w / 24;
-  const lineY = horizonY + Math.pow(normW, 1.45) * oceanH;
-  const wakeCenterX = moonX + normW * (width * 0.16);
-  const spread = width * 0.07 + normW * width * 0.28;
-  for (let g = 0; g < 22; g++) {
+for (let w = 0; w < 28; w++) {
+  const normW = w / 28;
+  const lineY = horizonY + Math.pow(normW, 1.4) * oceanH;
+  const wakeCenterX = moonX + normW * (width * 0.20);
+  const spreadWidth = width * 0.22 + normW * width * 0.52;
+  for (let g = 0; g < 26; g++) {
     const u = (Math.random() - 0.5) * 2;
-    const gx = wakeCenterX + u * spread * (Math.random() * 0.85 + 0.15);
-    const gy = lineY + Math.sin(gx * 0.04 + time * 1.8) * 2;
-    const dist = Math.abs(gx - wakeCenterX) / spread;
-    const alpha = Math.max(0, Math.sin(time * 3.6 + g * 1.9 + normW * 6.0)) * Math.exp(-dist * dist * 2.5);
-    ctx.fillStyle = \`rgba(235, 248, 255, \${alpha * (1 - normW * 0.22)})\`;
+    const gx = wakeCenterX + u * spreadWidth * (Math.random() * 0.7 + 0.3);
+    const gy = lineY + Math.sin(gx * 0.035 + time * 1.8) * (0.6 + normW * 3.5);
+    const dist = Math.abs(gx - wakeCenterX) / spreadWidth;
+    const alpha = Math.max(0, Math.sin(time * 3.2 + g * 1.7 + normW * 5.2)) * Math.exp(-dist * dist * 1.2);
+    ctx.fillStyle = \`rgba(230, 245, 255, \${alpha * (0.85 - normW * 0.15)})\`;
     ctx.beginPath();
-    ctx.arc(gx, gy, 1.0 + alpha * 1.5, 0, Math.PI * 2);
+    ctx.arc(gx, gy, 0.9 + alpha * 1.6, 0, Math.PI * 2);
     ctx.fill();
   }
 }`
