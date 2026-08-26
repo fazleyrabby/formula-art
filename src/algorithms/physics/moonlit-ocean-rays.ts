@@ -367,41 +367,29 @@ export function createMoonlitOceanRays(): ArtRenderer {
         ctx.lineWidth = 0.8 + normW * 1.2;
         ctx.stroke();
 
-        // 7c. Broad, Well-Spread Silver Specular Shimmer across the sea (Gentle, Serene, Slow Shimmer)
-        const glitterCount = Math.floor(22 + normW * 38);
+        // 7c. Broad, Well-Spread Silver Specular Shimmer across the sea (Delicate, Soft, Serene Shimmer)
+        const glitterCount = Math.floor(18 + normW * 26);
         const wakeCenterX = moonX + normW * (width * 0.20);
         const spreadWidth = (width * 0.24 + normW * width * 0.54) * oceanGlitter;
 
         for (let g = 0; g < glitterCount; g++) {
           const u = (Math.random() - 0.5) * 2;
           const gx = wakeCenterX + u * spreadWidth * (Math.random() * 0.7 + 0.3);
-          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.4);
+          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.2);
 
           const distFromAxis = Math.abs(gx - wakeCenterX) / spreadWidth;
-          const gaussianFalloff = Math.exp(-distFromAxis * distFromAxis * 1.2);
+          const gaussianFalloff = Math.exp(-distFromAxis * distFromAxis * 1.3);
 
-          // Much slower, tranquil sinusoidal phase
-          const shimmerPhase = Math.sin(t * 0.85 + g * 1.7 + normW * 4.2);
+          // Tranquil sinusoidal phase
+          const shimmerPhase = Math.sin(t * 0.75 + g * 1.7 + normW * 4.2);
           if (shimmerPhase > 0.15) {
-            const alpha = Math.pow((shimmerPhase - 0.15) / 0.85, 1.6) * gaussianFalloff * (0.65 - normW * 0.12);
-            const size = (0.8 + (1 - normW) * 1.6) * (shimmerPhase * 0.6 + 0.4);
+            const alpha = Math.pow((shimmerPhase - 0.15) / 0.85, 1.6) * gaussianFalloff * (0.42 - normW * 0.10);
+            const size = (0.7 + (1 - normW) * 1.3) * (shimmerPhase * 0.5 + 0.5);
 
-            ctx.fillStyle = `rgba(225, 242, 255, ${alpha * 0.75})`;
+            ctx.fillStyle = `rgba(215, 238, 255, ${alpha * 0.75})`;
             ctx.beginPath();
             ctx.arc(gx, gy, size, 0, Math.PI * 2);
             ctx.fill();
-
-            // Diamond twinkle lens cross on brightest sparkles
-            if (alpha > 0.42 && g % 6 === 0) {
-              ctx.strokeStyle = `rgba(205, 235, 255, ${alpha * 0.45})`;
-              ctx.lineWidth = 0.55;
-              ctx.beginPath();
-              ctx.moveTo(gx - size * 2.2, gy);
-              ctx.lineTo(gx + size * 2.2, gy);
-              ctx.moveTo(gx, gy - size * 1.8);
-              ctx.lineTo(gx, gy + size * 1.8);
-              ctx.stroke();
-            }
           }
         }
       }

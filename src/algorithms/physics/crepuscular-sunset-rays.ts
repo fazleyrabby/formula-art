@@ -142,7 +142,7 @@ export function createCrepuscularSunsetRays(): ArtRenderer {
       }
       ctx.restore();
 
-      // 5. Ocean Water & Shimmering Horizon
+      // 5. Ocean Water & Ambient Sunset Glow
       const oceanH = height - horizonY;
       const oceanGrad = ctx.createLinearGradient(0, horizonY, 0, height);
       oceanGrad.addColorStop(0, '#100c14');
@@ -152,59 +152,61 @@ export function createCrepuscularSunsetRays(): ArtRenderer {
       ctx.fillStyle = oceanGrad;
       ctx.fillRect(0, horizonY, width, oceanH);
 
-      // Ocean Wave Ripples & Specular Sun Glitter Path
-      const WAVE_LINES = 28;
+      // 5a. Soft Golden Sunset Sheen across water
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const seaWash = ctx.createRadialGradient(sunX, horizonY, 0, sunX, horizonY + oceanH * 0.4, width * 0.65);
+      seaWash.addColorStop(0, `rgba(220, 130, 45, ${0.25 * glitterSpread})`);
+      seaWash.addColorStop(0.4, `rgba(160, 75, 20, ${0.12 * glitterSpread})`);
+      seaWash.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = seaWash;
+      ctx.fillRect(0, horizonY, width, oceanH);
+      ctx.restore();
+
+      // 5b. Gentle Ocean Wave Crests & Subtle Specular Shimmer
+      const WAVE_LINES = 26;
       for (let w = 0; w < WAVE_LINES; w++) {
         const normW = w / WAVE_LINES;
         const lineY = horizonY + Math.pow(normW, 1.4) * oceanH;
-        const waveAmp = (1 + normW * 4.5);
-        const waveFreq = 0.04 - normW * 0.025;
+        const waveAmp = (0.6 + normW * 3.6);
+        const waveFreq = 0.035 - normW * 0.02;
 
         ctx.beginPath();
         const pts = 80;
         for (let p = 0; p <= pts; p++) {
           const nx = p / pts;
           const x = nx * width;
-          const waveOffset = Math.sin(x * waveFreq + t * (1.5 + normW * 2.0) + w * 1.3) * waveAmp +
-                             Math.cos(x * waveFreq * 2.2 - t * 2.5) * (waveAmp * 0.4);
+          const waveOffset = Math.sin(x * waveFreq + t * (0.35 + normW * 0.45) + w * 1.3) * waveAmp +
+                             Math.cos(x * waveFreq * 1.8 - t * 0.28) * (waveAmp * 0.3);
           const y = lineY + waveOffset;
           if (p === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
-        ctx.strokeStyle = `rgba(35, 25, 45, ${0.4 + normW * 0.4})`;
-        ctx.lineWidth = 1 + normW * 1.5;
+        ctx.strokeStyle = `rgba(45, 30, 52, ${0.3 + normW * 0.3})`;
+        ctx.lineWidth = 0.8 + normW * 1.2;
         ctx.stroke();
 
-        // Golden Specular Glitter on Wave Crests
-        const glitterCount = Math.floor(18 + normW * 35);
+        // Subtle, Smooth Golden Glitter on Wave Crests
+        const glitterCount = Math.floor(16 + normW * 26);
+        const spread = (width * 0.12 + normW * width * 0.38) * glitterSpread;
+
         for (let g = 0; g < glitterCount; g++) {
-          // Concentrate along central vertical sun line with Gaussian spread
-          const spread = (width * 0.08 + normW * width * 0.32) * glitterSpread;
           const u = (Math.random() - 0.5) * 2;
-          const gx = sunX + u * spread * (Math.random() * 0.8 + 0.2);
-          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 2);
+          const gx = sunX + u * spread * (Math.random() * 0.7 + 0.3);
+          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.2);
 
-          const glitterPhase = Math.sin(t * 4.0 + g * 1.8 + normW * 6);
-          if (glitterPhase > 0.35) {
-            const glitterAlpha = Math.pow((glitterPhase - 0.35) / 0.65, 2.0) * (1 - normW * 0.3);
-            const size = (1.0 + (1 - normW) * 2.5) * (glitterPhase * 0.8 + 0.2);
+          const dist = Math.abs(gx - sunX) / spread;
+          const gaussianFalloff = Math.exp(-dist * dist * 1.4);
 
-            ctx.fillStyle = `rgba(255, 245, 180, ${glitterAlpha})`;
+          const shimmer = Math.sin(t * 0.8 + g * 1.7 + normW * 4.2);
+          if (shimmer > 0.15) {
+            const alpha = Math.pow((shimmer - 0.15) / 0.85, 1.6) * gaussianFalloff * (0.48 - normW * 0.12);
+            const size = (0.75 + (1 - normW) * 1.5) * (shimmer * 0.6 + 0.4);
+
+            ctx.fillStyle = `rgba(255, 225, 155, ${alpha * 0.85})`;
             ctx.beginPath();
             ctx.arc(gx, gy, size, 0, Math.PI * 2);
             ctx.fill();
-
-            // Lens sparkle cross on brightest reflections
-            if (glitterAlpha > 0.6 && g % 4 === 0) {
-              ctx.strokeStyle = `rgba(255, 230, 140, ${glitterAlpha * 0.6})`;
-              ctx.lineWidth = 0.8;
-              ctx.beginPath();
-              ctx.moveTo(gx - size * 3, gy);
-              ctx.lineTo(gx + size * 3, gy);
-              ctx.moveTo(gx, gy - size * 2);
-              ctx.lineTo(gx, gy + size * 2);
-              ctx.stroke();
-            }
           }
         }
       }

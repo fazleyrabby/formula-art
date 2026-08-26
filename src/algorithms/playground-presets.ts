@@ -11244,7 +11244,7 @@ function createCrepuscularSunsetRays() {
       }
       ctx.restore();
 
-      // 5. Ocean Water & Shimmer
+      // 5. Ocean Water & Ambient Sunset Glow
       const oceanH = height - horizonY;
       const oceanGrad = ctx.createLinearGradient(0, horizonY, 0, height);
       oceanGrad.addColorStop(0, '#100c14');
@@ -11254,38 +11254,60 @@ function createCrepuscularSunsetRays() {
       ctx.fillStyle = oceanGrad;
       ctx.fillRect(0, horizonY, width, oceanH);
 
-      const WAVE_LINES = 28;
+      // 5a. Soft Golden Sunset Sheen across water
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const seaWash = ctx.createRadialGradient(sunX, horizonY, 0, sunX, horizonY + oceanH * 0.4, width * 0.65);
+      seaWash.addColorStop(0, \`rgba(220, 130, 45, \${0.25 * glitterSpread})\`);
+      seaWash.addColorStop(0.4, \`rgba(160, 75, 20, \${0.12 * glitterSpread})\`);
+      seaWash.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = seaWash;
+      ctx.fillRect(0, horizonY, width, oceanH);
+      ctx.restore();
+
+      // 5b. Gentle Ocean Wave Crests & Subtle Specular Shimmer
+      const WAVE_LINES = 26;
       for (let w = 0; w < WAVE_LINES; w++) {
         const normW = w / WAVE_LINES;
         const lineY = horizonY + Math.pow(normW, 1.4) * oceanH;
-        const waveAmp = (1 + normW * 4.5);
-        const waveFreq = 0.04 - normW * 0.025;
+        const waveAmp = (0.6 + normW * 3.6);
+        const waveFreq = 0.035 - normW * 0.02;
 
         ctx.beginPath();
         const pts = 80;
         for (let p = 0; p <= pts; p++) {
           const nx = p / pts;
           const x = nx * width;
-          const waveOffset = Math.sin(x * waveFreq + t * (1.5 + normW * 2.0) + w * 1.3) * waveAmp +
-                             Math.cos(x * waveFreq * 2.2 - t * 2.5) * (waveAmp * 0.4);
+          const waveOffset = Math.sin(x * waveFreq + t * (0.35 + normW * 0.45) + w * 1.3) * waveAmp +
+                             Math.cos(x * waveFreq * 1.8 - t * 0.28) * (waveAmp * 0.3);
           const y = lineY + waveOffset;
           if (p === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
-        ctx.strokeStyle = \`rgba(35, 25, 45, \${0.4 + normW * 0.4})\`;
-        ctx.lineWidth = 1 + normW * 1.5;
+        ctx.strokeStyle = \`rgba(45, 30, 52, \${0.3 + normW * 0.3})\`;
+        ctx.lineWidth = 0.8 + normW * 1.2;
         ctx.stroke();
 
-        const glitterCount = Math.floor(18 + normW * 35);
+        // Subtle, Smooth Golden Glitter on Wave Crests
+        const glitterCount = Math.floor(16 + normW * 26);
+        const spread = (width * 0.12 + normW * width * 0.38) * glitterSpread;
+
         for (let g = 0; g < glitterCount; g++) {
-          const gx = sunX + (Math.sin(g * 7.1 + t * 3 + w) * (width * 0.12) + (Math.random() - 0.5) * 15) * (1 + normW * 2.4) * glitterSpread;
-          const gy = lineY + (Math.random() - 0.5) * waveAmp * 1.5;
-          const shimmer = Math.sin(t * 4.0 + g * 1.8 + normW * 6);
-          if (shimmer > 0.2) {
-            const alpha = (shimmer - 0.2) * (1 - normW * 0.4) * 0.9;
-            ctx.fillStyle = \`rgba(255, 240, 180, \${alpha})\`;
+          const u = (Math.random() - 0.5) * 2;
+          const gx = sunX + u * spread * (Math.random() * 0.7 + 0.3);
+          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.2);
+
+          const dist = Math.abs(gx - sunX) / spread;
+          const gaussianFalloff = Math.exp(-dist * dist * 1.4);
+
+          const shimmer = Math.sin(t * 0.8 + g * 1.7 + normW * 4.2);
+          if (shimmer > 0.15) {
+            const alpha = Math.pow((shimmer - 0.15) / 0.85, 1.6) * gaussianFalloff * (0.48 - normW * 0.12);
+            const size = (0.75 + (1 - normW) * 1.5) * (shimmer * 0.6 + 0.4);
+
+            ctx.fillStyle = \`rgba(255, 225, 155, \${alpha * 0.85})\`;
             ctx.beginPath();
-            ctx.arc(gx, gy, (1.0 + (1 - normW) * 1.8) * shimmer, 0, Math.PI * 2);
+            ctx.arc(gx, gy, size, 0, Math.PI * 2);
             ctx.fill();
           }
         }
@@ -11394,24 +11416,27 @@ function createUnderwaterOceanicSunbeams() {
       const lightX = width * 0.5 + Math.sin(t * 0.3) * (width * 0.04);
       const lightY = height * 0.08;
 
-      // Caustics
+      // 2. Surface Caustics & Water Ripple Band (Soft, Gentle Refraction)
       ctx.save();
       ctx.globalCompositeOperation = 'screen';
-      for (let c = 0; c < 16; c++) {
-        const normC = c / 16;
-        const cy0 = normC * (height * 0.12);
+      const CAUSTIC_CURVES = 14;
+      for (let c = 0; c < CAUSTIC_CURVES; c++) {
+        const normC = c / CAUSTIC_CURVES;
+        const cy0 = normC * (height * 0.10);
         ctx.beginPath();
-        for (let s = 0; s <= 60; s++) {
-          const nx = s / 60;
+        const steps = 60;
+        for (let s = 0; s <= steps; s++) {
+          const nx = s / steps;
           const x = nx * width;
-          const wave1 = Math.sin(nx * 18 + t * causticSpeed * 2.0 + c) * 7;
-          const wave2 = Math.cos(nx * 32 - t * causticSpeed * 1.5) * 4;
+          const wave1 = Math.sin(nx * 14 + t * causticSpeed * 0.7 + c) * 5;
+          const wave2 = Math.cos(nx * 24 - t * causticSpeed * 0.5) * 3;
           const y = cy0 + wave1 + wave2;
           if (s === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
-        ctx.strokeStyle = \`rgba(180, 240, 255, \${(1 - normC) * 0.35 * waterClarity})\`;
-        ctx.lineWidth = 1.5 + (1 - normC) * 2.0;
+        const causticAlpha = (1 - normC) * 0.18 * waterClarity;
+        ctx.strokeStyle = \`rgba(160, 230, 255, \${causticAlpha})\`;
+        ctx.lineWidth = 1.0 + (1 - normC) * 1.5;
         ctx.stroke();
       }
       ctx.restore();
@@ -11989,23 +12014,23 @@ function createMoonlitOceanRays() {
         ctx.lineWidth = 0.8 + normW * 1.2;
         ctx.stroke();
 
-        const glitterCount = Math.floor(22 + normW * 38);
+        const glitterCount = Math.floor(18 + normW * 26);
         const wakeCenterX = moonX + normW * (width * 0.20);
         const spreadWidth = (width * 0.24 + normW * width * 0.54) * oceanGlitter;
 
         for (let g = 0; g < glitterCount; g++) {
           const u = (Math.random() - 0.5) * 2;
           const gx = wakeCenterX + u * spreadWidth * (Math.random() * 0.7 + 0.3);
-          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.4);
+          const gy = lineY + (Math.random() - 0.5) * (waveAmp * 1.2);
           const dist = Math.abs(gx - wakeCenterX) / spreadWidth;
-          const gaussianFalloff = Math.exp(-dist * dist * 1.2);
+          const gaussianFalloff = Math.exp(-dist * dist * 1.3);
 
-          const shimmer = Math.sin(t * 0.85 + g * 1.7 + normW * 4.2);
+          const shimmer = Math.sin(t * 0.75 + g * 1.7 + normW * 4.2);
           if (shimmer > 0.15) {
-            const alpha = Math.pow((shimmer - 0.15) / 0.85, 1.6) * gaussianFalloff * (0.65 - normW * 0.12);
-            ctx.fillStyle = \`rgba(225, 242, 255, \${alpha * 0.75})\`;
+            const alpha = Math.pow((shimmer - 0.15) / 0.85, 1.6) * gaussianFalloff * (0.42 - normW * 0.10);
+            ctx.fillStyle = \`rgba(215, 238, 255, \${alpha * 0.75})\`;
             ctx.beginPath();
-            ctx.arc(gx, gy, (0.8 + (1 - normW) * 1.6) * (shimmer * 0.6 + 0.4), 0, Math.PI * 2);
+            ctx.arc(gx, gy, (0.7 + (1 - normW) * 1.3) * (shimmer * 0.5 + 0.5), 0, Math.PI * 2);
             ctx.fill();
           }
         }

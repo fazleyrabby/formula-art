@@ -84,27 +84,27 @@ export function createUnderwaterOceanicSunbeams(): ArtRenderer {
       const lightX = width * 0.5 + Math.sin(t * 0.3) * (width * 0.04);
       const lightY = height * 0.08;
 
-      // 2. Surface Caustics & Water Ripple Band
+      // 2. Surface Caustics & Water Ripple Band (Soft, Gentle Refraction)
       ctx.save();
       ctx.globalCompositeOperation = 'screen';
-      const CAUSTIC_CURVES = 16;
+      const CAUSTIC_CURVES = 14;
       for (let c = 0; c < CAUSTIC_CURVES; c++) {
         const normC = c / CAUSTIC_CURVES;
-        const cy0 = normC * (height * 0.12);
+        const cy0 = normC * (height * 0.10);
         ctx.beginPath();
         const steps = 60;
         for (let s = 0; s <= steps; s++) {
           const nx = s / steps;
           const x = nx * width;
-          const wave1 = Math.sin(nx * 18 + t * causticSpeed * 2.0 + c) * 7;
-          const wave2 = Math.cos(nx * 32 - t * causticSpeed * 1.5) * 4;
+          const wave1 = Math.sin(nx * 14 + t * causticSpeed * 0.7 + c) * 5;
+          const wave2 = Math.cos(nx * 24 - t * causticSpeed * 0.5) * 3;
           const y = cy0 + wave1 + wave2;
           if (s === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
-        const causticAlpha = (1 - normC) * 0.35 * waterClarity;
-        ctx.strokeStyle = `rgba(180, 240, 255, ${causticAlpha})`;
-        ctx.lineWidth = 1.5 + (1 - normC) * 2.0;
+        const causticAlpha = (1 - normC) * 0.18 * waterClarity;
+        ctx.strokeStyle = `rgba(160, 230, 255, ${causticAlpha})`;
+        ctx.lineWidth = 1.0 + (1 - normC) * 1.5;
         ctx.stroke();
       }
       ctx.restore();
