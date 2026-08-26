@@ -17,6 +17,7 @@ export const algorithmLoaders: Record<string, AlgorithmModuleLoader> = {
   'atmospheric-tornado': () => import('./fluid/atmospheric-tornado'),
   'water-splash': () => import('./fluid/water-splash'),
   'rain-effect': () => import('./fluid/rain-effect'),
+  'stripe-kinetic-ribbon': () => import('./fluid/stripe-kinetic-ribbon'),
 
   // Particles
   'gravitational-swarm': () => import('./particles/gravitational-swarm'),

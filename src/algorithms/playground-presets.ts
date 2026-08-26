@@ -12673,6 +12673,262 @@ if (instance && instance.render) {
     { time, deltaTime: dt, frameCount: Math.floor(time * 60), fps: 60 },
     defaultParams
   );
+}`,
+
+  // 085. Stripe Kinetic Mesh Ribbon
+  'stripe-kinetic-ribbon': `// 085 - Stripe Kinetic Mesh Ribbon (fluid)
+// 1:1 Original algorithm engine source
+function createStripeKineticRibbon() {
+  const PALETTE = [
+    { r: 56, g: 189, b: 248 },
+    { r: 99, g: 102, b: 241 },
+    { r: 236, g: 72, b: 153 },
+    { r: 249, g: 115, b: 22 },
+    { r: 251, g: 191, b: 36 },
+  ];
+
+  function getStripeColor(val, alpha = 1.0) {
+    const wrapped = ((val % 1.0) + 1.0) % 1.0;
+    const scaled = wrapped * (PALETTE.length - 1);
+    const idx = Math.floor(scaled);
+    const frac = scaled - idx;
+    const c1 = PALETTE[idx];
+    const c2 = PALETTE[Math.min(idx + 1, PALETTE.length - 1)];
+    const r = Math.round(c1.r + (c2.r - c1.r) * frac);
+    const g = Math.round(c1.g + (c2.g - c1.g) * frac);
+    const b = Math.round(c1.b + (c2.b - c1.b) * frac);
+    return \`rgba(\${r}, \${g}, \${b}, \${alpha})\`;
+  }
+
+  const MOTE_COUNT = 30;
+  const motes = [];
+
+  function initMotes() {
+    motes.length = 0;
+    for (let i = 0; i < MOTE_COUNT; i++) {
+      motes.push({
+        x: Math.random(),
+        y: Math.random(),
+        vx: 0.0003 + Math.random() * 0.0006,
+        vy: 0.0002 + Math.random() * 0.0004,
+        size: 1.2 + Math.random() * 2.2,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+  }
+
+  return {
+    setup() {
+      initMotes();
+    },
+    render(context, timeState, params) {
+      const { ctx, width, height } = context;
+      const speed = Number(params.speed ?? 1.0);
+      const ribbonTwist = Number(params.ribbonTwist ?? 1.1);
+      const streamlineDensity = Number(params.streamlineDensity ?? 1.0);
+      const colorShift = Number(params.colorShift ?? 1.0);
+      const ribbonWidthScale = Number(params.ribbonWidth ?? 1.1);
+
+      const t = timeState.time * speed * 0.6;
+      if (motes.length === 0) initMotes();
+
+      // Clean Light Substrate Background
+      const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+      bgGrad.addColorStop(0, '#fcfdfd');
+      bgGrad.addColorStop(0.5, '#f4f6fb');
+      bgGrad.addColorStop(1.0, '#eef2f9');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Ambient Bloom
+      ctx.save();
+      const glowGrad = ctx.createRadialGradient(
+        width * 0.65, height * 0.45, width * 0.1,
+        width * 0.65, height * 0.45, width * 0.65
+      );
+      glowGrad.addColorStop(0, 'rgba(236, 72, 153, 0.12)');
+      glowGrad.addColorStop(0.4, 'rgba(99, 102, 241, 0.08)');
+      glowGrad.addColorStop(0.8, 'rgba(56, 189, 248, 0.04)');
+      glowGrad.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = glowGrad;
+      ctx.fillRect(0, 0, width, height);
+      ctx.restore();
+
+      const EVAL_STEPS = 65;
+      const totalStreamlines = Math.floor(450 * streamlineDensity);
+
+      function getSpinePoint(u, timeVal, layer = 0) {
+        const startX = width * (0.08 - layer * 0.05);
+        const startY = height * (-0.12 + layer * 0.08);
+        const endX = width * (1.15 + layer * 0.06);
+        const endY = height * (1.05 + layer * 0.04);
+
+        const p0x = startX;
+        const p0y = startY;
+        const p1x = width * (0.42 + Math.sin(timeVal * 1.2 + layer * 1.5) * 0.08 * ribbonTwist);
+        const p1y = height * (0.15 + Math.cos(timeVal * 0.9 + layer * 1.2) * 0.06 * ribbonTwist);
+        const p2x = width * (0.68 + Math.cos(timeVal * 1.1 + layer * 1.8) * 0.07 * ribbonTwist);
+        const p2y = height * (0.58 + Math.sin(timeVal * 0.8 + layer * 1.4) * 0.07 * ribbonTwist);
+        const p3x = endX;
+        const p3y = endY;
+
+        const u1 = 1 - u;
+        const bx = u1 * u1 * u1 * p0x + 3 * u1 * u1 * u * p1x + 3 * u1 * u * u * p2x + u * u * u * p3x;
+        const by = u1 * u1 * u1 * p0y + 3 * u1 * u1 * u * p1y + 3 * u1 * u * u * p2y + u * u * u * p3y;
+
+        const wave = Math.sin(u * 5.2 - timeVal * 2.0 + layer) * (24 * ribbonTwist);
+        const wave2 = Math.cos(u * 8.4 + timeVal * 1.6) * (12 * ribbonTwist);
+
+        const dx = 3 * u1 * u1 * (p1x - p0x) + 6 * u1 * u * (p2x - p1x) + 3 * u * u * (p3x - p2x);
+        const dy = 3 * u1 * u1 * (p1y - p0y) + 6 * u1 * u * (p2y - p1y) + 3 * u * u * (p3y - p2y);
+        const len = Math.hypot(dx, dy) || 1;
+        const nx = -dy / len;
+        const ny = dx / len;
+
+        return { x: bx + nx * (wave + wave2), y: by + ny * (wave + wave2), nx, ny };
+      }
+
+      const layers = [
+        { id: 0, widthCoeff: 0.38, alpha: 0.22, speedMult: 0.8, colorOffset: 0.3 },
+        { id: 1, widthCoeff: 0.52, alpha: 0.75, speedMult: 1.0, colorOffset: 0.0 },
+        { id: 2, widthCoeff: 0.28, alpha: 0.95, speedMult: 1.15, colorOffset: 0.65 },
+      ];
+
+      for (const layer of layers) {
+        const baseWidth = Math.min(width, height) * layer.widthCoeff * ribbonWidthScale;
+        const layerTime = t * layer.speedMult;
+
+        const spinePts = [];
+        for (let s = 0; s <= EVAL_STEPS; s++) {
+          const u = s / EVAL_STEPS;
+          spinePts.push(getSpinePoint(u, layerTime, layer.id));
+        }
+
+        // Drop shadow
+        if (layer.id === 1) {
+          ctx.save();
+          ctx.beginPath();
+          for (let s = 0; s <= EVAL_STEPS; s++) {
+            const pt = spinePts[s];
+            const u = s / EVAL_STEPS;
+            const w = baseWidth * Math.sin(u * Math.PI) * 0.9;
+            const sx = pt.x + pt.nx * w * 0.5 + 20;
+            const sy = pt.y + pt.ny * w * 0.5 + 35;
+            if (s === 0) ctx.moveTo(sx, sy);
+            else ctx.lineTo(sx, sy);
+          }
+          for (let s = EVAL_STEPS; s >= 0; s--) {
+            const pt = spinePts[s];
+            const u = s / EVAL_STEPS;
+            const w = baseWidth * Math.sin(u * Math.PI) * 0.9;
+            const sx = pt.x - pt.nx * w * 0.5 + 20;
+            const sy = pt.y - pt.ny * w * 0.5 + 35;
+            ctx.lineTo(sx, sy);
+          }
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(70, 80, 110, 0.07)';
+          ctx.filter = 'blur(16px)';
+          ctx.fill();
+          ctx.filter = 'none';
+          ctx.restore();
+        }
+
+        // Streamlines
+        const linesInLayer = Math.floor((totalStreamlines / layers.length) * (layer.id === 1 ? 1.5 : 0.8));
+        ctx.save();
+        for (let i = 0; i < linesInLayer; i++) {
+          const v = (i / (linesInLayer - 1) - 0.5) * 2;
+          const vNorm = (v + 1) * 0.5;
+          const fluteFreq = 12.0 + layer.id * 4.0;
+          const flutePhase = i * 0.35;
+
+          ctx.beginPath();
+          for (let s = 0; s <= EVAL_STEPS; s++) {
+            const u = s / EVAL_STEPS;
+            const pt = spinePts[s];
+            const profile = Math.sin(Math.pow(u, 0.75) * Math.PI);
+            const rWidth = baseWidth * profile * (0.85 + 0.15 * Math.sin(u * 6.0 + layerTime));
+            const microFlute = Math.sin(u * fluteFreq + flutePhase + layerTime * 1.5) * (3.5 * ribbonTwist);
+
+            const px = pt.x + pt.nx * (v * rWidth * 0.5 + microFlute);
+            const py = pt.y + pt.ny * (v * rWidth * 0.5 + microFlute);
+
+            if (s === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+
+          const colorParam = (vNorm * 0.45 + layer.colorOffset + t * 0.15 * colorShift) % 1.0;
+          const streamAlpha = layer.alpha * (0.45 + 0.55 * Math.sin(vNorm * Math.PI)) * (0.7 + 0.3 * Math.sin(i * 1.2));
+
+          ctx.strokeStyle = getStripeColor(colorParam, streamAlpha);
+          ctx.lineWidth = 1.1 + (1.0 - Math.abs(v)) * 0.8;
+          ctx.stroke();
+        }
+
+        // Rim highlight
+        ctx.beginPath();
+        for (let s = 0; s <= EVAL_STEPS; s++) {
+          const u = s / EVAL_STEPS;
+          const pt = spinePts[s];
+          const profile = Math.sin(Math.pow(u, 0.75) * Math.PI);
+          const rWidth = baseWidth * profile;
+          const rx = pt.x + pt.nx * (rWidth * 0.5);
+          const ry = pt.y + pt.ny * (rWidth * 0.5);
+          if (s === 0) ctx.moveTo(rx, ry);
+          else ctx.lineTo(rx, ry);
+        }
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Floating Motes
+      ctx.save();
+      for (let i = 0; i < motes.length; i++) {
+        const m = motes[i];
+        m.x = (m.x + m.vx + 1) % 1;
+        m.y = (m.y + m.vy + 1) % 1;
+        const mx = m.x * width;
+        const my = m.y * height;
+        const sparkle = 0.5 + 0.5 * Math.sin(t * 2.5 + m.phase);
+
+        ctx.beginPath();
+        ctx.arc(mx, my, m.size * (0.8 + sparkle * 0.5), 0, Math.PI * 2);
+        ctx.fillStyle = i % 2 === 0
+          ? \`rgba(99, 102, 241, \${0.45 * sparkle})\`
+          : \`rgba(236, 72, 153, \${0.45 * sparkle})\`;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  };
+}
+
+const defaultParams = [
+  { key: "ribbonTwist", label: "3D Manifold S-Curve Twist", type: "range", min: 0.4, max: 2.2, step: 0.1, defaultValue: 1.1 },
+  { key: "streamlineDensity", label: "Flowline Micro-Striation Density", type: "range", min: 0.4, max: 2.0, step: 0.1, defaultValue: 1.0 },
+  { key: "ribbonWidth", label: "Ribbon Swath Caliber", type: "range", min: 0.5, max: 1.8, step: 0.1, defaultValue: 1.1 },
+  { key: "colorShift", label: "Spectral Wave Velocity", type: "range", min: 0.2, max: 2.5, step: 0.1, defaultValue: 1.0 },
+  { key: "speed", label: "Harmonic Flow Cadence", type: "range", min: 0.2, max: 2.5, step: 0.1, defaultValue: 1.0 }
+];
+
+if (!window.__art_instances) window.__art_instances = {};
+if (!window.__art_instances['stripe-kinetic-ribbon']) {
+  const inst = typeof createStripeKineticRibbon === 'function' ? createStripeKineticRibbon() : null;
+  if (inst && inst.setup) {
+    inst.setup({ ctx, width, height, dpr: 1, aspectRatio: width / height }, defaultParams);
+  }
+  window.__art_instances['stripe-kinetic-ribbon'] = inst;
+}
+
+const instance = window.__art_instances['stripe-kinetic-ribbon'];
+if (instance && instance.render) {
+  instance.render(
+    { ctx, width, height, dpr: 1, aspectRatio: width / height },
+    { time, deltaTime: dt, frameCount: Math.floor(time * 60), fps: 60 },
+    defaultParams
+  );
 }`
 };
 

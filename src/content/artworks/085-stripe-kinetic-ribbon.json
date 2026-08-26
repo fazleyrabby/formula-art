@@ -1,0 +1,83 @@
+{
+  "id": "085",
+  "slug": "stripe-kinetic-ribbon",
+  "title": "Stripe Kinetic Mesh Ribbon",
+  "subtitle": "Bézier Streamline Manifolds & Spectral Interpolation",
+  "category": "fluid",
+  "description": "The iconic Stripe animated background element formulated through sweeping Bézier ribbon manifolds, 3D harmonic traveling wave fluting, and continuous 5-stop spectral color interpolation (Cyan, Indigo, Magenta, Orange, Amber) rendered across hundreds of brushed-silk streamlines.",
+  "mathNotation": "\\mathbf{R}(u, v, t) = \\mathbf{B}(u, t) + \\mathbf{n}(u, t) \\cdot \\left( v \\frac{w(u)}{2} + \\sum_{i=1}^2 A_i \\sin(m_i u + \\omega_i t + \\phi_v) \\right), \\quad C(\\xi) = \\operatorname{SplineColormap}(\\xi)",
+  "formulaCompact": "R(u, v, t) = B(u) + n(u) * (v * w(u)*0.5 + sin(12u + phi + 1.5t)*3.5), \\quad C = LerpPalette((0.45v + 0.15t) \\bmod 1)",
+  "formulaFull": "const flute = Math.sin(u * 12.0 + i * 0.35 + t * 1.5) * (3.5 * ribbonTwist);\nconst px = pt.x + pt.nx * (v * rWidth * 0.5 + flute);\nconst py = pt.y + pt.ny * (v * rWidth * 0.5 + flute);\nctx.strokeStyle = getStripeColor(colorParam, alpha);",
+  "algorithmKey": "stripe-kinetic-ribbon",
+  "complexity": "high",
+  "particleCount": 1400,
+  "parameters": [
+    {
+      "key": "ribbonTwist",
+      "label": "3D Manifold S-Curve Twist",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.2,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Amplitude of 3D spatial ribbon twisting and harmonic fluting"
+    },
+    {
+      "key": "streamlineDensity",
+      "label": "Flowline Micro-Striation Density",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Density of brushed-silk iridescent streamline fibers"
+    },
+    {
+      "key": "ribbonWidth",
+      "label": "Ribbon Swath Caliber",
+      "type": "range",
+      "min": 0.5,
+      "max": 1.8,
+      "step": 0.1,
+      "defaultValue": 1.1,
+      "description": "Cross-sectional width profile of the traveling ribbons"
+    },
+    {
+      "key": "colorShift",
+      "label": "Spectral Wave Velocity",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Rate of traveling chromatic phase shift along the ribbon"
+    },
+    {
+      "key": "speed",
+      "label": "Harmonic Flow Cadence",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Global animation speed of traveling wave progression"
+    }
+  ],
+  "tags": [
+    "stripe",
+    "mesh",
+    "gradient",
+    "ribbon",
+    "bezier",
+    "streamlines",
+    "fluid",
+    "spectral",
+    "kinetic"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60
+}
