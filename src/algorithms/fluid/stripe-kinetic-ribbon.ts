@@ -1,24 +1,28 @@
 import type { ArtRenderer, ParameterState, RenderContext, TimeState } from '../../types/engine';
 
-// 085 - Stripe Kinetic Mesh Ribbon (Bézier Manifold Streamlines with 3D Foreground Twisted Arch)
+// 085 - Authentic Stripe Kinetic Gradient Mesh & 3D Twisted Ribbon Loop
 export function createStripeKineticRibbon(): ArtRenderer {
-  // Stripe 5-Color Gradient Mesh Palette (RGBA tuples for interpolation)
-  const PALETTE = [
-    { r: 56, g: 189, b: 248 },  // 0.00: Cyan Sky
-    { r: 99, g: 102, b: 241 },  // 0.25: Electric Indigo
-    { r: 236, g: 72, b: 153 },  // 0.50: Vivid Magenta
-    { r: 249, g: 115, b: 22 },  // 0.75: Sunset Orange
-    { r: 251, g: 191, b: 36 },  // 1.00: Golden Amber
+  // Stripe Exact Colormap (Hex to RGB interpolation)
+  const COLOR_STOPS = [
+    { pos: 0.00, r: 85,  g: 170, b: 255 }, // 0.00: Sky Blue
+    { pos: 0.22, r: 120, g: 110, b: 245 }, // 0.22: Periwinkle Indigo
+    { pos: 0.42, r: 215, g: 70,  b: 190 }, // 0.42: Rich Fuchsia
+    { pos: 0.60, r: 245, g: 60,  b: 130 }, // 0.60: Hot Rose Pink
+    { pos: 0.78, r: 255, g: 110, b: 50  }, // 0.78: Sunset Orange
+    { pos: 0.92, r: 255, g: 175, b: 40  }, // 0.92: Golden Citron
+    { pos: 1.00, r: 255, g: 215, b: 120 }, // 1.00: Soft Warm Light
   ];
 
-  function getStripeColor(val: number, alpha: number = 1.0): string {
-    const wrapped = ((val % 1.0) + 1.0) % 1.0;
-    const scaled = wrapped * (PALETTE.length - 1);
-    const idx = Math.floor(scaled);
-    const frac = scaled - idx;
-
-    const c1 = PALETTE[idx];
-    const c2 = PALETTE[Math.min(idx + 1, PALETTE.length - 1)];
+  function evaluateColormap(val: number, alpha: number = 1.0): string {
+    const v = Math.max(0, Math.min(1, val));
+    let i = 0;
+    while (i < COLOR_STOPS.length - 1 && COLOR_STOPS[i + 1].pos < v) {
+      i++;
+    }
+    const c1 = COLOR_STOPS[i];
+    const c2 = COLOR_STOPS[Math.min(i + 1, COLOR_STOPS.length - 1)];
+    const range = (c2.pos - c1.pos) || 1;
+    const frac = Math.max(0, Math.min(1, (v - c1.pos) / range));
 
     const r = Math.round(c1.r + (c2.r - c1.r) * frac);
     const g = Math.round(c1.g + (c2.g - c1.g) * frac);
@@ -27,303 +31,292 @@ export function createStripeKineticRibbon(): ArtRenderer {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 
-  // Floating particles
-  const MOTE_COUNT = 32;
-  const motes: Array<{ x: number; y: number; vx: number; vy: number; size: number; phase: number }> = [];
-
-  function initMotes() {
-    motes.length = 0;
-    for (let i = 0; i < MOTE_COUNT; i++) {
-      motes.push({
-        x: Math.random(),
-        y: Math.random(),
-        vx: 0.0002 + Math.random() * 0.0005,
-        vy: 0.0002 + Math.random() * 0.0004,
-        size: 1.2 + Math.random() * 2.2,
-        phase: Math.random() * Math.PI * 2,
-      });
-    }
-  }
-
   return {
-    setup() {
-      initMotes();
-    },
+    setup() {},
 
     render(context: RenderContext, timeState: TimeState, params: ParameterState) {
       const { ctx, width, height } = context;
       const speed = Number(params.speed ?? 1.0);
-      const ribbonTwist = Number(params.ribbonTwist ?? 1.2);
-      const streamlineDensity = Number(params.streamlineDensity ?? 1.1);
+      const ribbonTwist = Number(params.ribbonTwist ?? 1.0);
+      const streamlineDensity = Number(params.streamlineDensity ?? 1.2);
       const colorShift = Number(params.colorShift ?? 1.0);
-      const ribbonWidthScale = Number(params.ribbonWidth ?? 1.1);
+      const ribbonWidthScale = Number(params.ribbonWidth ?? 1.0);
 
-      const t = timeState.time * speed * 0.55;
+      const t = timeState.time * speed * 0.45;
 
-      if (motes.length === 0) initMotes();
-
-      // 1. Clean Modern Substrate Background
-      const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-      bgGrad.addColorStop(0, '#fdfdfe');
-      bgGrad.addColorStop(0.5, '#f6f8fc');
-      bgGrad.addColorStop(1.0, '#edf1f8');
-      ctx.fillStyle = bgGrad;
+      // 1. Pristine Stripe Light Canvas Background
+      ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, width, height);
 
-      // Ambient Spectral Light Halo
+      // Soft ambient wash in the top-right quadrant
       ctx.save();
-      const glowGrad = ctx.createRadialGradient(
-        width * 0.62, height * 0.42, width * 0.08,
-        width * 0.62, height * 0.42, width * 0.7
+      const bgWash = ctx.createRadialGradient(
+        width * 0.70, height * 0.35, width * 0.1,
+        width * 0.70, height * 0.35, width * 0.85
       );
-      glowGrad.addColorStop(0, 'rgba(236, 72, 153, 0.16)');
-      glowGrad.addColorStop(0.35, 'rgba(99, 102, 241, 0.10)');
-      glowGrad.addColorStop(0.75, 'rgba(56, 189, 248, 0.05)');
-      glowGrad.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
-      ctx.fillStyle = glowGrad;
+      bgWash.addColorStop(0, 'rgba(255, 120, 70, 0.18)');
+      bgWash.addColorStop(0.35, 'rgba(235, 70, 160, 0.12)');
+      bgWash.addColorStop(0.65, 'rgba(110, 100, 245, 0.06)');
+      bgWash.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = bgWash;
       ctx.fillRect(0, 0, width, height);
       ctx.restore();
 
-      const EVAL_STEPS = 75;
-
-      // ====================================================================
-      // LAYER 1: WIDE DIAGONAL BACKGROUND FLOW FIELD (Brushed Silk Streamlines)
-      // ====================================================================
-      const bgSpinePts: Array<{ x: number; y: number; nx: number; ny: number }> = [];
-      const bgWidth = Math.min(width, height) * 0.65 * ribbonWidthScale;
-
-      for (let s = 0; s <= EVAL_STEPS; s++) {
-        const u = s / EVAL_STEPS;
-        const u1 = 1 - u;
-
-        // Broad diagonal sweep from top-left (x: 0.05) to bottom-right (x: 1.15)
-        const p0x = width * 0.05;
-        const p0y = height * -0.15;
-
-        const p1x = width * (0.35 + Math.sin(t * 1.1) * 0.05 * ribbonTwist);
-        const p1y = height * (0.18 + Math.cos(t * 0.8) * 0.04 * ribbonTwist);
-
-        const p2x = width * (0.62 + Math.cos(t * 0.9) * 0.05 * ribbonTwist);
-        const p2y = height * (0.55 + Math.sin(t * 1.0) * 0.05 * ribbonTwist);
-
-        const p3x = width * 1.18;
-        const p3y = height * 1.08;
-
-        const bx = u1 * u1 * u1 * p0x + 3 * u1 * u1 * u * p1x + 3 * u1 * u * u * p2x + u * u * u * p3x;
-        const by = u1 * u1 * u1 * p0y + 3 * u1 * u1 * u * p1y + 3 * u1 * u * u * p2y + u * u * u * p3y;
-
-        const wave = Math.sin(u * 4.8 - t * 1.8) * (20 * ribbonTwist);
-        const dx = 3 * u1 * u1 * (p1x - p0x) + 6 * u1 * u * (p2x - p1x) + 3 * u * u * (p3x - p2x);
-        const dy = 3 * u1 * u1 * (p1y - p0y) + 6 * u1 * u * (p2y - p1y) + 3 * u * u * (p3y - p2y);
-        const len = Math.hypot(dx, dy) || 1;
-        const nx = -dy / len;
-        const ny = dx / len;
-
-        bgSpinePts.push({ x: bx + nx * wave, y: by + ny * wave, nx, ny });
-      }
-
-      // Render Background Streamlines
-      const bgLines = Math.floor(320 * streamlineDensity);
+      // =========================================================================
+      // LAYER 1: DIAGONAL FLOW FAN (Center-Left to Upper-Right Brushed Gradient)
+      // =========================================================================
       ctx.save();
-      for (let i = 0; i < bgLines; i++) {
-        const v = (i / (bgLines - 1) - 0.5) * 2; // -1 to 1
-        const vNorm = (v + 1) * 0.5;
+      const FAN_STEPS = 65;
+      const fanLines = Math.floor(380 * streamlineDensity);
 
-        const flutePhase = i * 0.28;
+      // Fan origin (top-center, just like Stripe's header)
+      const originX = width * 0.48 + Math.sin(t * 0.8) * 15 * ribbonTwist;
+      const originY = height * -0.15;
+
+      for (let i = 0; i < fanLines; i++) {
+        const normI = i / (fanLines - 1); // 0 (left blue) to 1 (right orange)
+
+        // Trajectory end point along the diagonal swath
+        const endAngle = -Math.PI * 0.22 + normI * (Math.PI * 0.48) + Math.sin(normI * 3.5 + t * 0.9) * 0.06 * ribbonTwist;
+        const endDist = Math.max(width, height) * 1.45;
+
+        const endX = originX + Math.cos(endAngle) * endDist;
+        const endY = originY + Math.sin(endAngle) * endDist;
+
+        // Bézier curvature control points (creating the gentle diagonal S-flow)
+        const ctrl1X = originX + (endX - originX) * 0.35 - (1 - normI) * (width * 0.15 * ribbonTwist);
+        const ctrl1Y = originY + (endY - originY) * 0.35 + Math.sin(t * 1.2 + normI * 4.0) * (20 * ribbonTwist);
+
+        const ctrl2X = originX + (endX - originX) * 0.65 + normI * (width * 0.12 * ribbonTwist);
+        const ctrl2Y = originY + (endY - originY) * 0.65 + Math.cos(t * 1.0 + normI * 3.0) * (20 * ribbonTwist);
+
+        // Micro-fluting wave
+        const flutePhase = i * 0.42;
+
         ctx.beginPath();
+        for (let s = 0; s <= FAN_STEPS; s++) {
+          const u = s / FAN_STEPS;
+          const u1 = 1 - u;
 
-        for (let s = 0; s <= EVAL_STEPS; s++) {
-          const u = s / EVAL_STEPS;
-          const pt = bgSpinePts[s];
-          const profile = Math.sin(Math.pow(u, 0.7) * Math.PI);
-          const rW = bgWidth * profile * (0.9 + 0.1 * Math.sin(u * 5.0 + t));
+          const bx = u1 * u1 * u1 * originX + 3 * u1 * u1 * u * ctrl1X + 3 * u1 * u * u * ctrl2X + u * u * u * endX;
+          const by = u1 * u1 * u1 * originY + 3 * u1 * u1 * u * ctrl1Y + 3 * u1 * u * u * ctrl2Y + u * u * u * endY;
 
-          const microFlute = Math.sin(u * 14.0 + flutePhase + t * 1.6) * (3.0 * ribbonTwist);
+          // Silk micro-harmonic striations
+          const microJitter = Math.sin(u * 18.0 + flutePhase + t * 2.2) * (2.8 * ribbonTwist);
 
-          const px = pt.x + pt.nx * (v * rW * 0.5 + microFlute);
-          const py = pt.y + pt.ny * (v * rW * 0.5 + microFlute);
+          // Normal displacement
+          const nx = -(endY - originY) / endDist;
+          const ny = (endX - originX) / endDist;
+
+          const px = bx + nx * microJitter;
+          const py = by + ny * microJitter;
 
           if (s === 0) ctx.moveTo(px, py);
           else ctx.lineTo(px, py);
         }
 
-        const colorParam = (vNorm * 0.55 + u_colorOffset(i, bgLines) + t * 0.12 * colorShift) % 1.0;
-        const alpha = 0.55 * (0.35 + 0.65 * Math.sin(vNorm * Math.PI)) * (0.75 + 0.25 * Math.sin(i * 1.1));
+        // Color mapping: 0.0 (Sky Blue) -> 0.4 (Magenta) -> 0.85 (Sunset Orange)
+        const colorVal = (normI * 0.82 + Math.sin(t * 0.6) * 0.05 * colorShift);
+        const lineAlpha = (0.35 + 0.65 * Math.sin(normI * Math.PI)) * (0.65 + 0.35 * Math.sin(i * 1.4));
 
-        ctx.strokeStyle = getStripeColor(colorParam, alpha);
-        ctx.lineWidth = 1.15 + (1 - Math.abs(v)) * 0.6;
+        ctx.strokeStyle = evaluateColormap(colorVal, lineAlpha * 0.72);
+        ctx.lineWidth = 1.25 + (1 - Math.abs(normI - 0.5) * 2) * 0.8;
         ctx.stroke();
       }
       ctx.restore();
 
-      function u_colorOffset(idx: number, total: number) {
-        return (idx / total) * 0.25;
+      // =========================================================================
+      // LAYER 2: THE ICONIC 3D TWISTED RIBBON ARCH (The Sculptural Stripe Curve)
+      // =========================================================================
+      // In the Stripe video, there is a giant 3D ribbon on the right that loops down,
+      // twists 180° so you see the outer tubular peach rim in front, casting a shadow
+      // onto the inner orange/fuchsia fan!
+      ctx.save();
+      const LOOP_STEPS = 90;
+
+      // 2a. Define the 3D Centerline Spine of the Twisted Arch
+      interface SpinePoint {
+        x: number;
+        y: number;
+        nx: number;
+        ny: number;
+        tangentAngle: number;
+        twistAngle: number;
+        width: number;
       }
 
-      // ====================================================================
-      // LAYER 2: THE ICONIC FOREGROUND 3D TWISTED RIBBON ARCH (The Stripe Loop)
-      // ====================================================================
-      // This ribbon loops from upper right, swoops inwards, performs a 3D Möbius twist in the middle, and curves down
-      const twistSpinePts: Array<{ x: number; y: number; nx: number; ny: number; twistAngle: number; widthProfile: number }> = [];
-      const fgWidth = Math.min(width, height) * 0.36 * ribbonWidthScale;
+      const spine: SpinePoint[] = [];
+      const loopWidthBase = width * 0.26 * ribbonWidthScale;
 
-      for (let s = 0; s <= EVAL_STEPS; s++) {
-        const u = s / EVAL_STEPS;
+      // Spline Guide Nodes:
+      // P0: Top-Right (near Header) -> P1: Arch Top Crest -> P2: Middle Twist Knee -> P3: Bottom Right Column
+      const p0 = { x: width * 0.76 + Math.sin(t * 0.7) * 12, y: height * -0.12 };
+      const p1 = { x: width * 0.94 + Math.sin(t * 1.1) * 16 * ribbonTwist, y: height * 0.22 };
+      const p2 = { x: width * 0.84 + Math.cos(t * 0.9) * 18 * ribbonTwist, y: height * 0.60 };
+      const p3 = { x: width * 0.96 + Math.sin(t * 0.8) * 14, y: height * 1.15 };
+
+      for (let s = 0; s <= LOOP_STEPS; s++) {
+        const u = s / LOOP_STEPS;
         const u1 = 1 - u;
 
-        // Loop Curve: Upper Right -> Mid Center (Twist Knee) -> Lower Right
-        const p0x = width * (0.86 + Math.sin(t * 0.7) * 0.03);
-        const p0y = height * -0.10;
+        const bx = u1 * u1 * u1 * p0.x + 3 * u1 * u1 * u * p1.x + 3 * u1 * u * u * p2.x + u * u * u * p3.x;
+        const by = u1 * u1 * u1 * p0.y + 3 * u1 * u1 * u * p1.y + 3 * u1 * u * u * p2.y + u * u * u * p3.y;
 
-        const p1x = width * (0.64 + Math.sin(t * 1.2) * 0.05 * ribbonTwist);
-        const p1y = height * (0.28 + Math.cos(t * 0.9) * 0.04 * ribbonTwist);
-
-        const p2x = width * (0.72 + Math.cos(t * 1.0) * 0.05 * ribbonTwist);
-        const p2y = height * (0.68 + Math.sin(t * 1.1) * 0.04 * ribbonTwist);
-
-        const p3x = width * (0.94 + Math.sin(t * 0.8) * 0.03);
-        const p3y = height * 1.15;
-
-        const bx = u1 * u1 * u1 * p0x + 3 * u1 * u1 * u * p1x + 3 * u1 * u * u * p2x + u * u * u * p3x;
-        const by = u1 * u1 * u1 * p0y + 3 * u1 * u1 * u * p1y + 3 * u1 * u * u * p2y + u * u * u * p3y;
-
-        // Tangent & Normal
-        const dx = 3 * u1 * u1 * (p1x - p0x) + 6 * u1 * u * (p2x - p1x) + 3 * u * u * (p3x - p2x);
-        const dy = 3 * u1 * u1 * (p1y - p0y) + 6 * u1 * u * (p2y - p1y) + 3 * u * u * (p3y - p2y);
+        const dx = 3 * u1 * u1 * (p1.x - p0.x) + 6 * u1 * u * (p2.x - p1.x) + 3 * u * u * (p3.x - p2.x);
+        const dy = 3 * u1 * u1 * (p1.y - p0.y) + 6 * u1 * u * (p2.y - p1.y) + 3 * u * u * (p3.y - p2.y);
         const len = Math.hypot(dx, dy) || 1;
         const nx = -dy / len;
         const ny = dx / len;
+        const tangentAngle = Math.atan2(dy, dx);
 
-        // 3D Twist Angle: Smoothly inverts from 0 rad to PI rad across the mid-section
-        const twistCenter = 0.48 + Math.sin(t * 0.9) * 0.06;
-        const twistSigmoid = 1.0 / (1.0 + Math.exp(-12 * (u - twistCenter)));
-        const twistAngle = twistSigmoid * Math.PI + Math.sin(u * 3.5 + t * 1.5) * 0.25;
+        // 3D Spatial Twist: Localized Möbius twist through the middle section
+        const twistCenter = 0.52 + Math.sin(t * 0.8) * 0.05;
+        const twistSigmoid = 1.0 / (1.0 + Math.exp(-14 * (u - twistCenter)));
+        const twistAngle = twistSigmoid * Math.PI + Math.sin(u * 4.0 + t * 1.4) * 0.2;
 
-        // Tapered Width Profile
-        const widthProfile = Math.sin(Math.pow(u, 0.8) * Math.PI) * (0.85 + 0.15 * Math.sin(u * 4.0 - t));
+        // Smooth width profile (bulbous top/middle, sleek column bottom)
+        const wProfile = Math.sin(Math.pow(u, 0.65) * Math.PI) * loopWidthBase * (0.9 + 0.1 * Math.sin(u * 5.0 - t));
 
-        twistSpinePts.push({ x: bx, y: by, nx, ny, twistAngle, widthProfile });
+        spine.push({ x: bx, y: by, nx, ny, tangentAngle, twistAngle, width: wProfile });
       }
 
-      // 2a. Deep Soft Drop Shadow cast by the Twisted Ribbon onto the background
+      // 2b. Ambient Drop Shadow (Cast by the 3D Twisted Loop onto the background canvas)
       ctx.save();
       ctx.beginPath();
-      for (let s = 0; s <= EVAL_STEPS; s++) {
-        const pt = twistSpinePts[s];
-        const w = fgWidth * pt.widthProfile * Math.abs(Math.cos(pt.twistAngle * 0.8));
-        const sx = pt.x + pt.nx * (w * 0.5) - 25;
-        const sy = pt.y + pt.ny * (w * 0.5) + 35;
+      for (let s = 0; s <= LOOP_STEPS; s++) {
+        const pt = spine[s];
+        const sx = pt.x + pt.nx * (pt.width * 0.5) - 35;
+        const sy = pt.y + pt.ny * (pt.width * 0.5) + 35;
         if (s === 0) ctx.moveTo(sx, sy);
         else ctx.lineTo(sx, sy);
       }
-      for (let s = EVAL_STEPS; s >= 0; s--) {
-        const pt = twistSpinePts[s];
-        const w = fgWidth * pt.widthProfile * Math.abs(Math.cos(pt.twistAngle * 0.8));
-        const sx = pt.x - pt.nx * (w * 0.5) - 25;
-        const sy = pt.y - pt.ny * (w * 0.5) + 35;
+      for (let s = LOOP_STEPS; s >= 0; s--) {
+        const pt = spine[s];
+        const sx = pt.x - pt.nx * (pt.width * 0.5) - 35;
+        const sy = pt.y - pt.ny * (pt.width * 0.5) + 35;
         ctx.lineTo(sx, sy);
       }
       ctx.closePath();
-      ctx.fillStyle = 'rgba(50, 40, 70, 0.14)';
-      ctx.filter = 'blur(20px)';
+      ctx.fillStyle = 'rgba(40, 25, 60, 0.16)';
+      ctx.filter = 'blur(24px)';
       ctx.fill();
       ctx.filter = 'none';
       ctx.restore();
 
-      // 2b. Render Foreground 3D Twisted Streamlines
-      const twistLines = Math.floor(360 * streamlineDensity);
-      ctx.save();
+      // 2c. Render Inner Fluted Body of the Loop (Golden Orange to Fuchsia Streamlines)
+      const loopLines = Math.floor(280 * streamlineDensity);
 
-      for (let i = 0; i < twistLines; i++) {
-        const v = (i / (twistLines - 1) - 0.5) * 2; // -1 to 1 across ribbon
+      for (let i = 0; i < loopLines; i++) {
+        const v = (i / (loopLines - 1) - 0.5) * 2; // -1 to 1 across width
         const vNorm = (v + 1) * 0.5;
+        const flutePhase = i * 0.38;
 
-        const flutePhase = i * 0.32;
         ctx.beginPath();
+        for (let s = 0; s <= LOOP_STEPS; s++) {
+          const u = s / LOOP_STEPS;
+          const pt = spine[s];
 
-        for (let s = 0; s <= EVAL_STEPS; s++) {
-          const u = s / EVAL_STEPS;
-          const pt = twistSpinePts[s];
+          // 3D projected perspective width
+          const projCos = Math.cos(pt.twistAngle);
+          const zDepth = Math.sin(pt.twistAngle);
 
-          // 3D projected width accounting for twist rotation
-          const projectedScale = Math.cos(pt.twistAngle);
-          const zDepth = Math.sin(pt.twistAngle); // -1 (back) to +1 (front)
+          const microFlute = Math.sin(u * 16.0 + flutePhase + t * 1.8) * (2.6 * ribbonTwist);
+          const offsetDist = v * (pt.width * 0.5) * projCos + microFlute;
 
-          const rW = fgWidth * pt.widthProfile;
-          const microFlute = Math.sin(u * 16.0 + flutePhase + t * 2.0) * (2.8 * ribbonTwist);
-
-          // Position displaced along 3D rotated normal
-          const offsetDist = v * (rW * 0.5) * projectedScale + microFlute;
-
-          const px = pt.x + pt.nx * offsetDist + (zDepth * 8);
-          const py = pt.y + pt.ny * offsetDist - (zDepth * 6);
+          const px = pt.x + pt.nx * offsetDist + (zDepth * 12);
+          const py = pt.y + pt.ny * offsetDist - (zDepth * 8);
 
           if (s === 0) ctx.moveTo(px, py);
           else ctx.lineTo(px, py);
         }
 
-        // Kinetic Color Evaluation on the Twisted Arch (Golden Amber -> Hot Orange -> Magenta -> Violet)
-        const baseColorVal = 0.65 + vNorm * 0.35 + (t * 0.12 * colorShift);
-        const streamAlpha = (0.75 + 0.25 * Math.sin(vNorm * Math.PI)) * (0.8 + 0.2 * Math.sin(i * 1.3));
+        // Color interpolation on the inner loop: Warm Orange (0.75) -> Golden Amber (0.95) -> Hot Pink (0.55)
+        const cVal = 0.60 + vNorm * 0.36 + Math.sin(t * 0.8) * 0.04;
+        const alpha = (0.75 + 0.25 * Math.sin(vNorm * Math.PI)) * (0.75 + 0.25 * Math.sin(i * 1.2));
 
-        ctx.strokeStyle = getStripeColor(baseColorVal, streamAlpha);
-        ctx.lineWidth = 1.25 + (1 - Math.abs(v)) * 0.7;
+        ctx.strokeStyle = evaluateColormap(cVal, alpha * 0.85);
+        ctx.lineWidth = 1.3 + (1 - Math.abs(v)) * 0.7;
         ctx.stroke();
       }
 
-      // 2c. Glowing Specular Rim Highlights along the Crest Edge of the Twisted Arch
-      // Outer rim
+      // =========================================================================
+      // LAYER 3: THE HIGH-GLOSS TUBULAR RIM (The Glowing Peach/Coral Outer Edge)
+      // =========================================================================
+      // Look at the video: the outer rim of the twist is a bold, glowing, smooth,
+      // 3D cylinder that frames the entire right edge with peach-to-pink radiance!
+      ctx.save();
+      const rimWidth = 14 * ribbonWidthScale;
+
+      // Outer Rim Tube Path
       ctx.beginPath();
-      for (let s = 0; s <= EVAL_STEPS; s++) {
-        const u = s / EVAL_STEPS;
-        const pt = twistSpinePts[s];
-        const projectedScale = Math.cos(pt.twistAngle);
-        const rW = fgWidth * pt.widthProfile;
-        const px = pt.x + pt.nx * (rW * 0.5 * projectedScale);
-        const py = pt.y + pt.ny * (rW * 0.5 * projectedScale);
-        if (s === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
+      for (let s = 0; s <= LOOP_STEPS; s++) {
+        const u = s / LOOP_STEPS;
+        const pt = spine[s];
+        const projCos = Math.cos(pt.twistAngle);
+        const rx = pt.x + pt.nx * (pt.width * 0.5 * Math.abs(projCos) + rimWidth * 0.5);
+        const ry = pt.y + pt.ny * (pt.width * 0.5 * Math.abs(projCos) + rimWidth * 0.5);
+        if (s === 0) ctx.moveTo(rx, ry);
+        else ctx.lineTo(rx, ry);
       }
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-      ctx.lineWidth = 2.0;
+      ctx.strokeStyle = 'rgba(255, 160, 110, 0.45)';
+      ctx.lineWidth = rimWidth * 2.2;
+      ctx.filter = 'blur(8px)';
+      ctx.stroke();
+      ctx.filter = 'none';
+
+      // Crisp Multi-Stop Shaded Rim Stroke
+      ctx.beginPath();
+      for (let s = 0; s <= LOOP_STEPS; s++) {
+        const u = s / LOOP_STEPS;
+        const pt = spine[s];
+        const projCos = Math.cos(pt.twistAngle);
+        const rx = pt.x + pt.nx * (pt.width * 0.5 * Math.abs(projCos));
+        const ry = pt.y + pt.ny * (pt.width * 0.5 * Math.abs(projCos));
+        if (s === 0) ctx.moveTo(rx, ry);
+        else ctx.lineTo(rx, ry);
+      }
+      const rimGrad = ctx.createLinearGradient(width * 0.75, 0, width, height);
+      rimGrad.addColorStop(0, 'rgba(255, 235, 200, 0.95)');
+      rimGrad.addColorStop(0.35, 'rgba(255, 140, 90, 0.92)');
+      rimGrad.addColorStop(0.70, 'rgba(240, 75, 150, 0.90)');
+      rimGrad.addColorStop(1.0, 'rgba(130, 90, 240, 0.85)');
+
+      ctx.strokeStyle = rimGrad;
+      ctx.lineWidth = rimWidth;
+      ctx.lineCap = 'round';
       ctx.stroke();
 
-      // Inner crest ridge
+      // Specular Crest Highlight Wire (Thin bright light-glint along the tubular ridge)
       ctx.beginPath();
-      for (let s = 0; s <= EVAL_STEPS; s++) {
-        const u = s / EVAL_STEPS;
-        const pt = twistSpinePts[s];
-        const projectedScale = Math.cos(pt.twistAngle);
-        const rW = fgWidth * pt.widthProfile;
-        const px = pt.x - pt.nx * (rW * 0.5 * projectedScale);
-        const py = pt.y - pt.ny * (rW * 0.5 * projectedScale);
-        if (s === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
+      for (let s = 0; s <= LOOP_STEPS; s++) {
+        const u = s / LOOP_STEPS;
+        const pt = spine[s];
+        const projCos = Math.cos(pt.twistAngle);
+        const rx = pt.x + pt.nx * (pt.width * 0.5 * Math.abs(projCos) - 2.5);
+        const ry = pt.y + pt.ny * (pt.width * 0.5 * Math.abs(projCos) - 2.5);
+        if (s === 0) ctx.moveTo(rx, ry);
+        else ctx.lineTo(rx, ry);
       }
-      ctx.strokeStyle = 'rgba(255, 240, 225, 0.65)';
-      ctx.lineWidth = 1.4;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.lineWidth = 2.4;
       ctx.stroke();
 
+      // Inner Crest Fold Line (Where the 3D twist turns inside-out in the middle)
+      ctx.beginPath();
+      for (let s = Math.floor(LOOP_STEPS * 0.25); s <= Math.floor(LOOP_STEPS * 0.85); s++) {
+        const u = s / LOOP_STEPS;
+        const pt = spine[s];
+        const projCos = Math.cos(pt.twistAngle);
+        const rx = pt.x - pt.nx * (pt.width * 0.45 * projCos);
+        const ry = pt.y - pt.ny * (pt.width * 0.45 * projCos);
+        if (s === Math.floor(LOOP_STEPS * 0.25)) ctx.moveTo(rx, ry);
+        else ctx.lineTo(rx, ry);
+      }
+      ctx.strokeStyle = 'rgba(255, 240, 220, 0.85)';
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
       ctx.restore();
 
-      // 3. Floating Light Motes / Subtle Sparkle Particles
-      ctx.save();
-      for (let i = 0; i < motes.length; i++) {
-        const m = motes[i];
-        m.x = (m.x + m.vx + 1) % 1;
-        m.y = (m.y + m.vy + 1) % 1;
-
-        const mx = m.x * width;
-        const my = m.y * height;
-        const sparkle = 0.5 + 0.5 * Math.sin(t * 2.5 + m.phase);
-
-        ctx.beginPath();
-        ctx.arc(mx, my, m.size * (0.8 + sparkle * 0.5), 0, Math.PI * 2);
-        ctx.fillStyle = i % 2 === 0
-          ? `rgba(99, 102, 241, ${0.5 * sparkle})`
-          : `rgba(249, 115, 22, ${0.5 * sparkle})`;
-        ctx.fill();
-      }
       ctx.restore();
     },
   };
