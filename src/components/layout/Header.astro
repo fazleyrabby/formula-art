@@ -1,5 +1,25 @@
 ---
 import SupportButton from '../common/SupportButton.astro';
+
+// Dynamic build-time baseline fetch (with CounterAPI fallback)
+let initialCount = 41;
+try {
+  const res = await fetch('https://views.fazleyrabbi.xyz/api/get?project=formula-art&key=visitors', {
+    headers: { 'Accept': 'application/json' }
+  });
+  if (res.ok) {
+    const data = await res.json();
+    if (data.views) initialCount = Number(data.views);
+  }
+} catch (e) {
+  try {
+    const backupRes = await fetch('https://counterapi.com/api/art.fazleyrabbi.xyz/view/visitors?readOnly=true');
+    if (backupRes.ok) {
+      const bData = await backupRes.json();
+      if (bData.value) initialCount = Number(bData.value);
+    }
+  } catch (_) {}
+}
 ---
 
 <header class="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#08090d]/80 backdrop-blur-xl transition-all">
@@ -83,7 +103,7 @@ import SupportButton from '../common/SupportButton.astro';
           <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-emerald"></span>
         </span>
         <span class="text-slate-400 text-xs hidden sm:inline">Views:</span>
-        <span id="header-visitor-count" class="font-bold text-accent-cyan text-xs">41</span>
+        <span id="header-visitor-count" class="font-bold text-accent-cyan text-xs">{initialCount}</span>
       </div>
     </div>
   </div>
@@ -201,13 +221,14 @@ import SupportButton from '../common/SupportButton.astro';
     const headerCountEl = document.getElementById('header-visitor-count');
     if (!headerCountEl) return;
 
-    const COUNTER_API_BASE = 'https://views.fazleyrabbi.xyz/api';
+    const HOMELAB_API_BASE = 'https://views.fazleyrabbi.xyz/api';
+    const COUNTER_API_BACKUP = 'https://counterapi.com/api/art.fazleyrabbi.xyz/view/visitors';
     const PROJECT = 'formula-art';
     const KEY = 'visitors';
 
-    // 0. Instantly restore last known count from localStorage/sessionStorage (zero lag / offline ready)
-    const cachedCount = localStorage.getItem('formula_alltime_views') || sessionStorage.getItem('formula_last_view_count') || '41';
-    if (headerCountEl) {
+    // 0. Instantly restore last known count from localStorage/sessionStorage
+    const cachedCount = localStorage.getItem('formula_alltime_views') || sessionStorage.getItem('formula_last_view_count');
+    if (cachedCount && headerCountEl) {
       headerCountEl.textContent = Number(cachedCount).toLocaleString();
     }
 
@@ -219,7 +240,7 @@ import SupportButton from '../common/SupportButton.astro';
       }
     }
 
-    // 1. Check if client should be excluded from incrementing (owner, localhost, or already counted this session)
+    // 1. Check if client should only read without incrementing (owner, localhost, or already counted this session)
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('ignore_ip') === 'true' || urlParams.get('admin') === 'true' || urlParams.get('ignore') === 'true') {
       localStorage.setItem('formula_ignore_analytics', 'true');
@@ -230,15 +251,16 @@ import SupportButton from '../common/SupportButton.astro';
     const isAlreadyCountedInSession = sessionStorage.getItem('formula_visitor_counted') === 'true';
 
     const shouldOnlyRead = isLocalhost || isIgnoredAdmin || isAlreadyCountedInSession;
-    const endpoint = shouldOnlyRead
-      ? `${COUNTER_API_BASE}/get?project=${PROJECT}&key=${KEY}`
-      : `${COUNTER_API_BASE}/hit?project=${PROJECT}&key=${KEY}`;
+    const homelabEndpoint = shouldOnlyRead
+      ? `${HOMELAB_API_BASE}/get?project=${PROJECT}&key=${KEY}`
+      : `${HOMELAB_API_BASE}/hit?project=${PROJECT}&key=${KEY}`;
 
+    // Step 1: Try Primary Homelab API
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s timeout protection
+      const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s timeout
 
-      const res = await fetch(endpoint, {
+      const res = await fetch(homelabEndpoint, {
         signal: controller.signal,
         headers: { 'Accept': 'application/json' }
       });
@@ -252,12 +274,29 @@ import SupportButton from '../common/SupportButton.astro';
           if (!shouldOnlyRead) {
             sessionStorage.setItem('formula_visitor_counted', 'true');
           }
+          return;
         }
       }
-    } catch (e) {
-      // Quietly fall back to cached count if homelab is briefly offline/rebooting
-      if (cachedCount) {
-        setDisplayCount(Number(cachedCount));
+      throw new Error('Primary API returned non-OK status');
+    } catch (primaryErr) {
+      // Step 2: Automatic Backup Fallback to CounterAPI
+      try {
+        const backupRes = await fetch(`${COUNTER_API_BACKUP}?readOnly=true`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        if (backupRes.ok) {
+          const backupData = await backupRes.json();
+          const backupCount = Number(backupData.value || backupData.count || 0);
+          if (backupCount > 0) {
+            setDisplayCount(backupCount);
+            return;
+          }
+        }
+      } catch (backupErr) {
+        // Step 3: Keep cached count if both homelab and counterapi are unreachable
+        if (cachedCount) {
+          setDisplayCount(Number(cachedCount));
+        }
       }
     }
   }
