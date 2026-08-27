@@ -230,16 +230,18 @@ import SupportButton from '../common/SupportButton.astro';
     }
 
     try {
-      // CounterAPI consistent namespace/action/key endpoint
+      // CounterAPI endpoint: NO readOnly parameter when incrementing; ?readOnly=true when viewing only
       const endpoint = shouldIgnoreIncrement
         ? `https://counterapi.com/api/${DOMAIN}/view/visitors?readOnly=true`
-        : `https://counterapi.com/api/${DOMAIN}/view/visitors?readOnly=false`;
+        : `https://counterapi.com/api/${DOMAIN}/view/visitors`;
 
       const res = await fetch(endpoint);
       if (res.ok) {
         const data = await res.json();
-        const count = Number(data.value || data.count || 1);
-        setDisplayCount(count);
+        const count = Number(data.value || data.count || 0);
+        if (count > 0) {
+          setDisplayCount(count);
+        }
 
         if (!shouldIgnoreIncrement) {
           sessionStorage.setItem('formula_visitor_counted', 'true');
@@ -249,7 +251,10 @@ import SupportButton from '../common/SupportButton.astro';
         const fallbackRes = await fetch(`https://counterapi.com/api/${DOMAIN}/view/visitors?readOnly=true`);
         if (fallbackRes.ok) {
           const fbData = await fallbackRes.json();
-          setDisplayCount(Number(fbData.value || 1));
+          const fallbackCount = Number(fbData.value || fbData.count || 0);
+          if (fallbackCount > 0) {
+            setDisplayCount(fallbackCount);
+          }
         }
       }
     } catch (e) {
