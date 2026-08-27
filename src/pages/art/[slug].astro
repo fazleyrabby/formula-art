@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import DetailCanvas from '../../components/detail/DetailCanvas.astro';
 import FormulaViewer from '../../components/detail/FormulaViewer.astro';
 import ParameterControls from '../../components/detail/ParameterControls.astro';
+import CodeViewer from '../../components/detail/CodeViewer.astro';
 import ExportMenu from '../../components/detail/ExportMenu.astro';
 import FullscreenOverlay from '../../components/detail/FullscreenOverlay.astro';
 import Badge from '../../components/common/Badge.astro';
@@ -109,16 +110,17 @@ const artworkSchema = {
 
     <!-- Main Dual-Column Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      <!-- Left Column: Interactive Canvas & Parameters -->
+      <!-- Left Column: Interactive Canvas & Full Executable Code Under Art -->
       <div class="lg:col-span-7 flex flex-col gap-6">
         <DetailCanvas artwork={artwork} />
+        <CodeViewer artwork={artwork} />
+      </div>
+
+      <!-- Right Column: Live Parameters on the Right Side of the Art & Formula Details -->
+      <div class="lg:col-span-5 flex flex-col gap-6">
         {artwork.parameters && artwork.parameters.length > 0 && (
           <ParameterControls artwork={artwork} />
         )}
-      </div>
-
-      <!-- Right Column: Formula Inspector & Theory -->
-      <div class="lg:col-span-5 flex flex-col gap-6">
         <FormulaViewer artwork={artwork} />
 
         <!-- Mathematical Context & Tags -->

@@ -2,7 +2,6 @@
 import type { ArtworkData } from '../../types/artwork';
 import CopyButton from '../common/CopyButton.astro';
 import EquationWhiteboardModal from './EquationWhiteboardModal.astro';
-import { getPresetCode } from '../../algorithms/playground-presets';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
@@ -11,7 +10,6 @@ interface Props {
 }
 
 const { artwork } = Astro.props;
-const fullExecutableCode = getPresetCode(artwork.slug, artwork.title, artwork.category);
 
 let renderedMath = '';
 try {
@@ -33,15 +31,12 @@ try {
         ƒ
       </div>
       <h2 class="text-base font-sans font-semibold text-slate-100">
-        Mathematical Formulation & Source Code
+        Mathematical Formulation
       </h2>
     </div>
 
-    <!-- Complexity & Length Badges -->
+    <!-- Complexity Badge -->
     <div class="flex items-center gap-2 font-mono text-[11px]">
-      <span class="px-2 py-0.5 rounded bg-black/40 border border-white/10 text-slate-400">
-        {fullExecutableCode.length} chars
-      </span>
       <span class="px-2 py-0.5 rounded bg-black/40 border border-white/10 text-accent-cyan capitalize">
         {artwork.complexity}
       </span>
@@ -56,7 +51,7 @@ try {
         <button
           type="button"
           data-open-whiteboard
-          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan text-xs font-mono font-medium transition-all active:scale-95 shadow-sm"
+          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan text-xs font-mono font-medium transition-all active:scale-95 shadow-sm cursor-pointer"
           title="Open Fullscreen Math Whiteboard & Chalkboard"
         >
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -94,33 +89,5 @@ try {
     <div class="p-3.5 rounded-lg bg-[#08090d] border border-white/[0.06] overflow-x-auto font-mono text-xs text-slate-200 scrollbar-thin">
       <code>{artwork.formulaCompact}</code>
     </div>
-  </div>
-
-  <!-- Full Executable Implementation Code Block -->
-  <div class="flex flex-col gap-1.5">
-    <div class="flex items-center justify-between">
-      <span class="text-xs font-mono text-slate-400">Full Executable Algorithm Code</span>
-      <CopyButton textToCopy={fullExecutableCode} label="Copy Code" variant="ghost" />
-    </div>
-    <div class="p-3.5 rounded-lg bg-[#08090d] border border-white/[0.06] overflow-x-auto font-mono text-xs text-slate-300 scrollbar-thin max-h-80">
-      <pre><code>{fullExecutableCode}</code></pre>
-    </div>
-  </div>
-
-  <!-- Quick Action: Remix in Playground -->
-  <div class="pt-2 border-t border-white/[0.06] flex items-center justify-between">
-    <a
-      href={`/playground?preset=${artwork.slug}`}
-      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan text-xs font-mono font-medium transition-all active:scale-95 shadow-glow"
-    >
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-      </svg>
-      <span>Open in Playground</span>
-    </a>
-
-    <span class="text-[11px] font-mono text-slate-400">
-      Zero Dependencies • Standalone
-    </span>
   </div>
 </div>

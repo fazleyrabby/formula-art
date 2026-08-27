@@ -1,0 +1,66 @@
+---
+import type { ArtworkData } from '../../types/artwork';
+import CopyButton from '../common/CopyButton.astro';
+import { getPresetCode } from '../../algorithms/playground-presets';
+
+interface Props {
+  artwork: ArtworkData;
+}
+
+const { artwork } = Astro.props;
+const fullExecutableCode = getPresetCode(artwork.slug, artwork.title, artwork.category);
+const lineCount = fullExecutableCode.split('\n').length;
+---
+
+<div class="flex flex-col gap-5 p-6 rounded-2xl border border-white/10 bg-[#0c0e17] shadow-xl">
+  <!-- Section Header -->
+  <div class="flex items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
+    <div class="flex items-center gap-2.5">
+      <div class="w-6 h-6 rounded-lg bg-accent-indigo/10 border border-accent-indigo/30 flex items-center justify-center text-accent-indigo font-mono text-xs font-bold">
+        &lt;/&gt;
+      </div>
+      <div>
+        <h2 class="text-base font-sans font-semibold text-slate-100">
+          Full Executable Algorithm Code
+        </h2>
+      </div>
+    </div>
+
+    <!-- Badges & Action -->
+    <div class="flex items-center gap-2">
+      <div class="hidden sm:flex items-center gap-2 font-mono text-[11px]">
+        <span class="px-2 py-0.5 rounded bg-black/40 border border-white/10 text-slate-400">
+          {lineCount} lines
+        </span>
+        <span class="px-2 py-0.5 rounded bg-black/40 border border-white/10 text-slate-400">
+          {fullExecutableCode.length} chars
+        </span>
+      </div>
+      <CopyButton textToCopy={fullExecutableCode} label="Copy Code" variant="primary" />
+    </div>
+  </div>
+
+  <!-- Code Display Block -->
+  <div class="relative group">
+    <div class="p-4 rounded-xl bg-[#08090d] border border-white/[0.08] overflow-x-auto font-mono text-xs text-slate-300 scrollbar-thin max-h-[420px] leading-relaxed select-text">
+      <pre><code>{fullExecutableCode}</code></pre>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="pt-2 border-t border-white/[0.06] flex items-center justify-between flex-wrap gap-3">
+    <a
+      href={`/playground?preset=${artwork.slug}`}
+      class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan text-xs font-mono font-medium transition-all active:scale-95 shadow-glow"
+    >
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+      </svg>
+      <span>Edit in Interactive Playground</span>
+    </a>
+
+    <span class="text-[11px] font-mono text-slate-500">
+      Zero Dependencies • Standalone Canvas 2D
+    </span>
+  </div>
+</div>

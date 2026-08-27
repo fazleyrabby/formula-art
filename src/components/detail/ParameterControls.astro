@@ -6,71 +6,131 @@ interface Props {
 }
 
 const { artwork } = Astro.props;
+const hasParams = artwork.parameters && artwork.parameters.length > 0;
 ---
 
-<div class="flex flex-col gap-5 p-6 rounded-2xl border border-white/10 bg-[#0c0e17] shadow-xl">
-  <!-- Header -->
-  <div class="flex items-center justify-between border-b border-white/[0.06] pb-4">
-    <div class="flex items-center gap-2.5">
-      <svg class="w-4 h-4 text-accent-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-      </svg>
-      <h2 class="text-base font-sans font-semibold text-slate-100">
-        Live Parameters
-      </h2>
-    </div>
-
+{hasParams && (
+  <>
+    <!-- Mobile Floating Toggle Button (visible only on <lg) -->
     <button
       type="button"
-      id="reset-params-btn"
-      class="px-2.5 py-1 rounded text-xs font-mono text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all cursor-pointer"
+      id="mobile-params-toggle-btn"
+      class="fixed bottom-5 right-4 z-30 lg:hidden flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-[#0c0e17]/90 backdrop-blur-xl border border-accent-cyan/50 text-accent-cyan shadow-[0_0_25px_rgba(0,242,254,0.35)] active:scale-95 transition-all duration-300 cursor-pointer font-mono text-xs font-semibold hover:border-accent-cyan group"
+      aria-label="Toggle Live Parameters Panel"
+      aria-expanded="false"
+      aria-controls="live-params-panel"
     >
-      Reset Defaults
+      <svg class="w-4 h-4 text-accent-cyan transition-transform group-hover:rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+      </svg>
+      <span>Live Parameters</span>
+      <span class="px-1.5 py-0.5 rounded-full bg-accent-cyan/20 text-[10px] text-accent-cyan font-bold">
+        {artwork.parameters.length}
+      </span>
     </button>
-  </div>
 
-  <!-- Sliders List -->
-  <div class="flex flex-col gap-4">
-    {artwork.parameters.map((param) => (
-      <div class="flex flex-col gap-1.5">
-        <div class="flex items-center justify-between text-xs font-mono">
-          <label for={`param-${param.key}`} class="text-slate-300 cursor-pointer">{param.label}</label>
-          <span
-            id={`val-${param.key}`}
-            class="text-accent-cyan font-bold px-1.5 py-0.2 rounded bg-black/40 border border-white/5"
-          >
-            {param.defaultValue}
-          </span>
+    <!-- Mobile Backdrop Overlay -->
+    <div
+      id="mobile-params-backdrop"
+      class="fixed inset-0 bg-black/60 backdrop-blur-xs z-30 lg:hidden opacity-0 pointer-events-none transition-opacity duration-300"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Live Parameters Container (Floating Drawer on mobile, Static Card on desktop) -->
+    <aside
+      id="live-params-panel"
+      class="fixed inset-x-3 bottom-3 z-40 max-h-[80vh] translate-y-[120%] opacity-0 pointer-events-none lg:pointer-events-auto lg:translate-y-0 lg:opacity-100 lg:static lg:inset-auto lg:max-h-none lg:z-auto transition-all duration-300 ease-out flex flex-col gap-5 p-5 sm:p-6 rounded-2xl border border-white/15 lg:border-white/10 bg-[#0c0e17]/95 lg:bg-[#0c0e17] backdrop-blur-2xl lg:backdrop-blur-none shadow-[0_10px_40px_rgba(0,0,0,0.8)] lg:shadow-xl"
+    >
+      <!-- Mobile Pull Indicator -->
+      <div class="w-10 h-1 rounded-full bg-white/20 mx-auto -mt-1 lg:hidden"></div>
+
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 sm:pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-6 h-6 rounded-lg bg-accent-cyan/10 border border-accent-cyan/30 flex items-center justify-center text-accent-cyan">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-sm sm:text-base font-sans font-semibold text-slate-100">
+              Live Parameters
+            </h2>
+          </div>
         </div>
 
-        <input
-          type="range"
-          id={`param-${param.key}`}
-          data-param-key={param.key}
-          data-default-val={param.defaultValue}
-          min={param.min}
-          max={param.max}
-          step={param.step}
-          value={String(param.defaultValue)}
-          aria-label={param.label}
-          class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-accent-cyan focus:outline-none"
-        />
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="reset-params-btn"
+            class="px-2.5 py-1 rounded text-xs font-mono text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all active:scale-95 cursor-pointer"
+          >
+            Reset
+          </button>
 
-        {param.description && (
-          <span class="text-[11px] text-slate-400 font-sans">
-            {param.description}
-          </span>
-        )}
+          <!-- Mobile Hide Button -->
+          <button
+            type="button"
+            id="mobile-params-close-btn"
+            class="lg:hidden inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-all cursor-pointer"
+            aria-label="Hide Live Parameters"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
-    ))}
-  </div>
-</div>
+
+      <!-- Sliders List (Scrollable on mobile) -->
+      <div class="flex flex-col gap-4 overflow-y-auto max-h-[50vh] lg:max-h-none pr-1 scrollbar-thin">
+        {artwork.parameters.map((param) => (
+          <div class="flex flex-col gap-1.5 p-2 rounded-xl bg-black/20 lg:bg-transparent border border-white/[0.04] lg:border-none">
+            <div class="flex items-center justify-between text-xs font-mono">
+              <label for={`param-${param.key}`} class="text-slate-300 cursor-pointer">{param.label}</label>
+              <span
+                id={`val-${param.key}`}
+                class="text-accent-cyan font-bold px-1.5 py-0.5 rounded bg-black/50 border border-white/10 min-w-[2.5rem] text-center"
+              >
+                {param.defaultValue}
+              </span>
+            </div>
+
+            <input
+              type="range"
+              id={`param-${param.key}`}
+              data-param-key={param.key}
+              data-default-val={param.defaultValue}
+              min={param.min}
+              max={param.max}
+              step={param.step}
+              value={String(param.defaultValue)}
+              aria-label={param.label}
+              class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-accent-cyan focus:outline-none touch-none"
+            />
+
+            {param.description && (
+              <span class="text-[11px] text-slate-400 font-sans">
+                {param.description}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    </aside>
+  </>
+)}
 
 <script>
   function setupParameterSliders() {
     const sliders = document.querySelectorAll<HTMLInputElement>('input[data-param-key]');
     const resetBtn = document.getElementById('reset-params-btn');
+    const mobileToggleBtn = document.getElementById('mobile-params-toggle-btn');
+    const mobileCloseBtn = document.getElementById('mobile-params-close-btn');
+    const mobileBackdrop = document.getElementById('mobile-params-backdrop');
+    const panel = document.getElementById('live-params-panel');
 
+    // Slider inputs
     sliders.forEach((slider) => {
       const key = slider.getAttribute('data-param-key');
       if (!key) return;
@@ -88,6 +148,7 @@ const { artwork } = Astro.props;
       });
     });
 
+    // Reset button
     resetBtn?.addEventListener('click', () => {
       const defaultState: Record<string, number> = {};
 
@@ -107,6 +168,43 @@ const { artwork } = Astro.props;
         engine.setParams(defaultState);
       }
     });
+
+    // Mobile Panel Toggle logic
+    function openMobilePanel() {
+      if (!panel) return;
+      panel.classList.remove('translate-y-[120%]', 'opacity-0', 'pointer-events-none');
+      panel.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+      
+      if (mobileBackdrop) {
+        mobileBackdrop.classList.remove('opacity-0', 'pointer-events-none');
+        mobileBackdrop.classList.add('opacity-100', 'pointer-events-auto');
+      }
+
+      if (mobileToggleBtn) {
+        mobileToggleBtn.setAttribute('aria-expanded', 'true');
+        mobileToggleBtn.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+      }
+    }
+
+    function closeMobilePanel() {
+      if (!panel) return;
+      panel.classList.add('translate-y-[120%]', 'opacity-0', 'pointer-events-none');
+      panel.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+
+      if (mobileBackdrop) {
+        mobileBackdrop.classList.add('opacity-0', 'pointer-events-none');
+        mobileBackdrop.classList.remove('opacity-100', 'pointer-events-auto');
+      }
+
+      if (mobileToggleBtn) {
+        mobileToggleBtn.setAttribute('aria-expanded', 'false');
+        mobileToggleBtn.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
+      }
+    }
+
+    mobileToggleBtn?.addEventListener('click', openMobilePanel);
+    mobileCloseBtn?.addEventListener('click', closeMobilePanel);
+    mobileBackdrop?.addEventListener('click', closeMobilePanel);
   }
 
   setupParameterSliders();
