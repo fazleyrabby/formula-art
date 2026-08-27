@@ -209,19 +209,6 @@ import SupportButton from '../common/SupportButton.astro';
       headerCountEl.textContent = Number(cachedCount).toLocaleString();
     }
 
-    // 1. Check for explicit admin ignore trigger in URL (e.g. ?ignore_ip=true or ?admin=true)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('ignore_ip') === 'true' || urlParams.get('admin') === 'true' || urlParams.get('ignore') === 'true') {
-      localStorage.setItem('formula_ignore_analytics', 'true');
-    }
-
-    // 2. Determine if current client should be ignored from counting
-    const isLocalhost = ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
-    const isIgnoredAdmin = localStorage.getItem('formula_ignore_analytics') === 'true';
-    const isAlreadyCountedInSession = sessionStorage.getItem('formula_visitor_counted') === 'true';
-
-    const shouldIgnoreIncrement = isLocalhost || isIgnoredAdmin || isAlreadyCountedInSession;
-
     function setDisplayCount(num: number) {
       if (headerCountEl && num > 0) {
         headerCountEl.textContent = num.toLocaleString();
@@ -230,10 +217,8 @@ import SupportButton from '../common/SupportButton.astro';
     }
 
     try {
-      // CounterAPI endpoint: NO readOnly parameter when incrementing; ?readOnly=true when viewing only
-      const endpoint = shouldIgnoreIncrement
-        ? `https://counterapi.com/api/${DOMAIN}/view/visitors?readOnly=true`
-        : `https://counterapi.com/api/${DOMAIN}/view/visitors`;
+      // CounterAPI handles unique IP view throttling automatically on its server
+      const endpoint = `https://counterapi.com/api/${DOMAIN}/view/visitors`;
 
       const res = await fetch(endpoint);
       if (res.ok) {
@@ -242,12 +227,8 @@ import SupportButton from '../common/SupportButton.astro';
         if (count > 0) {
           setDisplayCount(count);
         }
-
-        if (!shouldIgnoreIncrement) {
-          sessionStorage.setItem('formula_visitor_counted', 'true');
-        }
       } else {
-        // Fallback read-only query
+        // Fallback query
         const fallbackRes = await fetch(`https://counterapi.com/api/${DOMAIN}/view/visitors?readOnly=true`);
         if (fallbackRes.ok) {
           const fbData = await fallbackRes.json();
