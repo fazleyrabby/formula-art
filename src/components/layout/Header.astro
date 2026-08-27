@@ -83,7 +83,7 @@ import SupportButton from '../common/SupportButton.astro';
           <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-emerald"></span>
         </span>
         <span class="text-slate-400 text-xs hidden sm:inline">Views:</span>
-        <span id="header-visitor-count" class="font-bold text-accent-cyan text-xs">1</span>
+        <span id="header-visitor-count" class="font-bold text-accent-cyan text-xs">41</span>
       </div>
     </div>
   </div>
@@ -201,46 +201,64 @@ import SupportButton from '../common/SupportButton.astro';
     const headerCountEl = document.getElementById('header-visitor-count');
     if (!headerCountEl) return;
 
-    const DOMAIN = 'art.fazleyrabbi.xyz';
+    const COUNTER_API_BASE = 'https://views.fazleyrabbi.xyz/api';
+    const PROJECT = 'formula-art';
+    const KEY = 'visitors';
 
-    // 0. Instantly restore last known count from session storage to prevent flash
-    const cachedCount = sessionStorage.getItem('formula_last_view_count');
-    if (cachedCount && headerCountEl) {
+    // 0. Instantly restore last known count from localStorage/sessionStorage (zero lag / offline ready)
+    const cachedCount = localStorage.getItem('formula_alltime_views') || sessionStorage.getItem('formula_last_view_count') || '41';
+    if (headerCountEl) {
       headerCountEl.textContent = Number(cachedCount).toLocaleString();
     }
 
     function setDisplayCount(num: number) {
       if (headerCountEl && num > 0) {
         headerCountEl.textContent = num.toLocaleString();
+        localStorage.setItem('formula_alltime_views', num.toString());
         sessionStorage.setItem('formula_last_view_count', num.toString());
       }
     }
 
-    try {
-      // CounterAPI handles unique IP view throttling automatically on its server
-      const endpoint = `https://counterapi.com/api/${DOMAIN}/view/visitors`;
+    // 1. Check if client should be excluded from incrementing (owner, localhost, or already counted this session)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('ignore_ip') === 'true' || urlParams.get('admin') === 'true' || urlParams.get('ignore') === 'true') {
+      localStorage.setItem('formula_ignore_analytics', 'true');
+    }
 
-      const res = await fetch(endpoint);
+    const isLocalhost = ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
+    const isIgnoredAdmin = localStorage.getItem('formula_ignore_analytics') === 'true';
+    const isAlreadyCountedInSession = sessionStorage.getItem('formula_visitor_counted') === 'true';
+
+    const shouldOnlyRead = isLocalhost || isIgnoredAdmin || isAlreadyCountedInSession;
+    const endpoint = shouldOnlyRead
+      ? `${COUNTER_API_BASE}/get?project=${PROJECT}&key=${KEY}`
+      : `${COUNTER_API_BASE}/hit?project=${PROJECT}&key=${KEY}`;
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s timeout protection
+
+      const res = await fetch(endpoint, {
+        signal: controller.signal,
+        headers: { 'Accept': 'application/json' }
+      });
+      clearTimeout(timeoutId);
+
       if (res.ok) {
         const data = await res.json();
-        const count = Number(data.value || data.count || 0);
+        const count = Number(data.views || data.value || 0);
         if (count > 0) {
           setDisplayCount(count);
-        }
-      } else {
-        // Fallback query
-        const fallbackRes = await fetch(`https://counterapi.com/api/${DOMAIN}/view/visitors?readOnly=true`);
-        if (fallbackRes.ok) {
-          const fbData = await fallbackRes.json();
-          const fallbackCount = Number(fbData.value || fbData.count || 0);
-          if (fallbackCount > 0) {
-            setDisplayCount(fallbackCount);
+          if (!shouldOnlyRead) {
+            sessionStorage.setItem('formula_visitor_counted', 'true');
           }
         }
       }
     } catch (e) {
-      // Keep cached count or fallback
-      if (!cachedCount) setDisplayCount(1);
+      // Quietly fall back to cached count if homelab is briefly offline/rebooting
+      if (cachedCount) {
+        setDisplayCount(Number(cachedCount));
+      }
     }
   }
 
