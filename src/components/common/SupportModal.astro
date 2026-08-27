@@ -3,17 +3,20 @@ import CopyButton from './CopyButton.astro';
 
 interface Props {
   bmcUsername?: string;
+  supportKoriUsername?: string;
   payoneerId?: string;
   payoneerEmail?: string;
 }
 
 const {
   bmcUsername = 'fazleyrabbi',
+  supportKoriUsername = 'fazleyrabbi',
   payoneerId = '24076084',
   payoneerEmail = ''
 } = Astro.props;
 
 const bmcUrl = `https://buymeacoffee.com/${bmcUsername}`;
+const supportKoriUrl = `https://www.supportkori.com/${supportKoriUsername}`;
 ---
 
 <dialog
@@ -21,9 +24,9 @@ const bmcUrl = `https://buymeacoffee.com/${bmcUsername}`;
   class="fixed inset-0 z-50 m-auto w-full max-w-md bg-transparent p-4 backdrop:bg-black/80 backdrop:backdrop-blur-md"
   aria-label="Support creator modal"
 >
-  <div class="glass-panel rounded-2xl border border-white/10 bg-[#0c0e17]/95 p-6 shadow-2xl flex flex-col gap-5 text-slate-200">
+  <div class="glass-panel rounded-2xl border border-white/10 bg-[#0c0e17]/95 p-6 shadow-2xl flex flex-col gap-4 text-slate-200">
     <!-- Header -->
-    <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
+    <div class="flex items-center justify-between border-b border-white/[0.08] pb-3.5">
       <div class="flex items-center gap-2.5">
         <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">
           ☕
@@ -40,44 +43,81 @@ const bmcUrl = `https://buymeacoffee.com/${bmcUsername}`;
       <button
         type="button"
         id="close-support-btn"
-        class="text-slate-400 hover:text-white text-xs font-mono px-2 py-1 rounded hover:bg-white/5 cursor-pointer"
+        class="text-slate-400 hover:text-white text-xs font-mono px-2 py-1 rounded hover:bg-white/5 cursor-pointer transition-colors"
         aria-label="Close support dialog"
       >
         ✕
       </button>
     </div>
 
-    <!-- 1. Primary: Buy Me a Coffee (Cards, Apple Pay, Google Pay) -->
-    <a
-      href={bmcUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="p-4 rounded-xl bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 border border-amber-500/30 hover:border-amber-400/60 transition-all flex items-center justify-between group hover:shadow-[0_0_24px_rgba(251,191,36,0.15)] active:scale-[0.99] cursor-pointer"
-    >
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 font-bold text-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-          ☕
-        </div>
-        <div class="flex flex-col">
-          <span class="text-sm font-semibold text-white group-hover:text-amber-300 transition-colors flex items-center gap-1.5">
-            Buy Me a Coffee
-            <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
-              FAST
+    <!-- Options Container (Dynamic Order based on Region) -->
+    <div id="support-options-list" class="flex flex-col gap-3">
+      <!-- 1. SupportKori (Bangladesh: bKash / Nagad / Rocket) -->
+      <a
+        id="supportkori-option"
+        href={supportKoriUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="p-3.5 rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 border border-emerald-500/30 hover:border-emerald-400/60 transition-all flex items-center justify-between group hover:shadow-[0_0_24px_rgba(16,185,129,0.15)] active:scale-[0.99] cursor-pointer"
+      >
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold text-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+            🇧🇩
+          </div>
+          <div class="flex flex-col">
+            <span class="text-sm font-semibold text-white group-hover:text-emerald-300 transition-colors flex items-center gap-1.5 flex-wrap">
+              SupportKori
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
+                bKash • Nagad
+              </span>
             </span>
-          </span>
-          <span class="text-[11px] text-slate-400">
-            Card, Apple Pay, Google Pay
-          </span>
+            <span class="text-[11px] text-slate-400">
+              For Bangladesh users (BDT ৳)
+            </span>
+          </div>
         </div>
-      </div>
 
-      <span class="px-3.5 py-1.5 rounded-lg bg-amber-400 text-slate-950 font-mono text-xs font-bold flex items-center gap-1.5 shadow group-hover:bg-amber-300 transition-all">
-        <span>Donate $3</span>
-        <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-        </svg>
-      </span>
-    </a>
+        <span class="px-3 py-1.5 rounded-lg bg-emerald-400 text-slate-950 font-mono text-xs font-bold flex items-center gap-1.5 shadow group-hover:bg-emerald-300 transition-all shrink-0">
+          <span>Support ৳</span>
+          <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </span>
+      </a>
+
+      <!-- 2. Buy Me a Coffee (International: Cards, Apple Pay, Google Pay) -->
+      <a
+        id="bmc-option"
+        href={bmcUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="p-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 border border-amber-500/30 hover:border-amber-400/60 transition-all flex items-center justify-between group hover:shadow-[0_0_24px_rgba(251,191,36,0.15)] active:scale-[0.99] cursor-pointer"
+      >
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 font-bold text-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+            ☕
+          </div>
+          <div class="flex flex-col">
+            <span class="text-sm font-semibold text-white group-hover:text-amber-300 transition-colors flex items-center gap-1.5 flex-wrap">
+              Buy Me a Coffee
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                GLOBAL
+              </span>
+            </span>
+            <span class="text-[11px] text-slate-400">
+              Card, Apple Pay, Google Pay ($)
+            </span>
+          </div>
+        </div>
+
+        <span class="px-3 py-1.5 rounded-lg bg-amber-400 text-slate-950 font-mono text-xs font-bold flex items-center gap-1.5 shadow group-hover:bg-amber-300 transition-all shrink-0">
+          <span>Donate $3</span>
+          <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </span>
+      </a>
+    </div>
 
     <!-- Divider -->
     <div class="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-slate-500">
@@ -86,13 +126,13 @@ const bmcUrl = `https://buymeacoffee.com/${bmcUsername}`;
       <div class="h-px flex-1 bg-white/[0.08]"></div>
     </div>
 
-    <!-- 2. Payoneer Direct Transfer Box -->
-    <div class="p-4 rounded-xl bg-[#08090d] border border-white/[0.08] flex flex-col gap-3 relative overflow-hidden">
+    <!-- 3. Payoneer Direct Transfer Box -->
+    <div class="p-3.5 rounded-xl bg-[#08090d] border border-white/[0.08] flex flex-col gap-2.5 relative overflow-hidden">
       <!-- Customer ID Field -->
       <div class="flex flex-col gap-1.5">
         <div class="flex items-center justify-between text-[11px] font-mono">
           <span class="text-slate-400">Payoneer Customer ID:</span>
-          <span class="text-[10px] text-accent-emerald font-bold">$0 Fee Direct</span>
+          <span class="text-[10px] text-emerald-400 font-bold">$0 Fee Direct</span>
         </div>
         <div class="flex items-center justify-between p-2.5 rounded-lg bg-black/60 border border-white/10 font-mono text-xs text-amber-300">
           <span class="font-bold tracking-wider select-all">{payoneerId}</span>
@@ -119,7 +159,7 @@ const bmcUrl = `https://buymeacoffee.com/${bmcUsername}`;
     </div>
 
     <!-- Footer Note -->
-    <div class="pt-2 border-t border-white/[0.06] text-center">
+    <div class="pt-1 border-t border-white/[0.06] text-center">
       <p class="text-[11px] text-slate-400 font-sans">
         Thank you for supporting generative mathematical animations! ✨
       </p>
@@ -132,6 +172,21 @@ const bmcUrl = `https://buymeacoffee.com/${bmcUsername}`;
     const dialog = document.getElementById('support-dialog') as HTMLDialogElement;
     const closeBtn = document.getElementById('close-support-btn');
     const openBtns = document.querySelectorAll('.open-support-btn');
+    const optionsList = document.getElementById('support-options-list');
+    const supportKoriOpt = document.getElementById('supportkori-option');
+    const bmcOpt = document.getElementById('bmc-option');
+
+    // Smart regional prioritization: If user timezone is Asia/Dhaka, prioritize SupportKori at the top
+    try {
+      const isBD = Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Dhaka';
+      if (isBD && optionsList && supportKoriOpt && bmcOpt) {
+        optionsList.prepend(supportKoriOpt);
+      } else if (!isBD && optionsList && supportKoriOpt && bmcOpt) {
+        optionsList.prepend(bmcOpt);
+      }
+    } catch {
+      // Fallback keeps default SSR order
+    }
 
     openBtns.forEach((btn) => {
       btn.addEventListener('click', () => dialog?.showModal());
