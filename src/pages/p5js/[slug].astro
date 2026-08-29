@@ -30,7 +30,7 @@ const { artwork } = Astro.props;
         <span>Back to p5.js Gallery</span>
       </a>
       <div class="flex items-center gap-2">
-        <Badge variant={artwork.category}>{artwork.category}</Badge>
+        <Badge variant={artwork.category as any}>{artwork.category}</Badge>
         <span class="text-xs font-mono text-slate-400">#{artwork.id}</span>
       </div>
     </nav>
@@ -100,7 +100,7 @@ const { artwork } = Astro.props;
 
       <div class="lg:col-span-5 flex flex-col gap-6">
         {artwork.parameters && artwork.parameters.length > 0 && (
-          <ParameterControls artwork={artwork} />
+          <ParameterControls artwork={artwork as any} />
         )}
         
         <div class="p-6 rounded-2xl border border-white/10 bg-[#0c0e17] shadow-xl flex flex-col gap-4">
