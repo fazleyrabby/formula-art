@@ -1,0 +1,123 @@
+---
+import GraphicsCard from './GraphicsCard.astro';
+
+interface Props {
+  artworks: any[];
+}
+
+const { artworks } = Astro.props;
+---
+
+<div
+  class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 sm:gap-6"
+>
+  {artworks.map((artwork, idx) => (
+    <GraphicsCard data={artwork} type="p5js" index={idx} />
+  ))}
+</div>
+
+<script>
+  import { P5Engine } from '../../engine/P5Engine';
+  import { getAlgorithm } from '../../algorithms/p5js/registry';
+
+  let observer: IntersectionObserver | null = null;
+  let engineMap = new WeakMap<Element, P5Engine>();
+  const activeEngines: P5Engine[] = [];
+  let isTabVisible = true;
+
+  function handleVisibilityChange() {
+    isTabVisible = !document.hidden;
+    activeEngines.forEach((engine) => {
+      if (!isTabVisible) {
+        engine.stop();
+      } else {
+        engine.start();
+      }
+    });
+  }
+
+  function initGridObserver() {
+    cleanupGridCanvases();
+
+    isTabVisible = !document.hidden;
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    const cards = document.querySelectorAll<HTMLElement>('.art-card-container[data-algorithm]');
+    if (cards.length === 0) return;
+
+    if (!('IntersectionObserver' in window)) return;
+
+    observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(async (entry) => {
+          const card = entry.target as HTMLElement;
+          const container = card.querySelector<HTMLElement>('.p5-container');
+          if (!container) return;
+
+          if (entry.isIntersecting) {
+            let engine = engineMap.get(card);
+
+            if (!engine) {
+              const algorithmKey = container.getAttribute('data-algorithm') || '';
+              const paramsJson = container.getAttribute('data-params') || '{}';
+              let params = {};
+              try {
+                params = JSON.parse(paramsJson);
+              } catch (e) {}
+
+              const data = getAlgorithm(algorithmKey);
+              if (!data) return;
+
+              if (!card.isConnected) return;
+
+              engine = new P5Engine({
+                container,
+                sketch: data.sketch,
+                initialParams: params,
+              });
+
+              engineMap.set(card, engine);
+              activeEngines.push(engine);
+
+              if (isTabVisible) {
+                engine.start();
+              }
+            } else {
+              if (isTabVisible) {
+                engine.start();
+              }
+            }
+          } else {
+            const engine = engineMap.get(card);
+            if (engine) {
+              engine.stop();
+            }
+          }
+        });
+      },
+      {
+        rootMargin: '200px 0px',
+        threshold: 0.01,
+      }
+    );
+
+    cards.forEach((card) => observer!.observe(card));
+  }
+
+  function cleanupGridCanvases() {
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
+    activeEngines.forEach((engine) => engine.destroy());
+    activeEngines.length = 0;
+    engineMap = new WeakMap();
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }
+
+   
+  initGridObserver();
+  document.addEventListener('astro:page-load', initGridObserver);
+  document.addEventListener('astro:before-swap', cleanupGridCanvases);
+</script>

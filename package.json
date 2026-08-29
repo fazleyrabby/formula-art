@@ -2,6 +2,7 @@
   "name": "math-art",
   "type": "module",
   "version": "1.0.0",
+  "description": "Math Art — 100+ Generative WebGPU, Shaders, & Math Algorithms",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@types/katex": "^0.16.8",
     "@types/node": "^22.13.4",
-    "@types/prismjs": "^1.26.5"
+    "@types/prismjs": "^1.26.5",
+    "@webgpu/types": "^0.1.72"
   }
 }

@@ -1,0 +1,38 @@
+{
+  "id": "103",
+  "slug": "caustics-webgpu",
+  "title": "Abyssal Caustics",
+  "subtitle": "MetalForge inspired fluid light",
+  "category": "materials",
+  "description": "A high-performance WebGPU caustics simulation layering multiple Voronoi noise fields.",
+  "algorithmKey": "caustics-webgpu",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "speed",
+      "label": "Speed",
+      "type": "range",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "defaultValue": 1.0
+    },
+    {
+      "key": "scale",
+      "label": "Scale",
+      "type": "range",
+      "min": 1,
+      "max": 10,
+      "step": 0.5,
+      "defaultValue": 4.0
+    }
+  ],
+  "tags": ["webgpu", "caustics", "metalforge", "fluid"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "wgslCode": "struct Uniforms { resolution: vec2f, time: f32, padding: f32, mouse: vec2f, speed: f32, scale: f32, }\n@group(0) @binding(0) var<uniform> u: Uniforms;\n\n@vertex\nfn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4f {\n  let pos = array(vec2f(-1.0, -1.0), vec2f( 3.0, -1.0), vec2f(-1.0,  3.0));\n  return vec4f(pos[vertexIndex], 0.0, 1.0);\n}\n\nfn hash22(p: vec2f) -> vec2f {\n  var p3 = fract(vec3f(p.xyx) * vec3f(0.1031, 0.1030, 0.0973));\n  p3 = p3 + dot(p3, p3.yzx + 33.33);\n  return fract((p3.xx + p3.yz) * p3.zy);\n}\n\nfn voronoi(x: vec2f, time: f32) -> vec2f {\n  let n = floor(x);\n  let f = fract(x);\n  var m = vec2f(8.0);\n  for(var j = -1; j <= 1; j++) {\n    for(var i = -1; i <= 1; i++) {\n      let g = vec2f(f32(i), f32(j));\n      let o = hash22(n + g);\n      let pos = 0.5 + 0.5 * sin(time + 6.2831 * o);\n      let d = length(g - f + pos);\n      if(d < m.x) { m.x = d; m.y = o.x; }\n    }\n  }\n  return m;\n}\n\n@fragment\nfn fs_main(@builtin(position) fragCoord: vec4f) -> @location(0) vec4f {\n  let uv = fragCoord.xy / u.resolution;\n  let t = u.time * u.speed * 0.5;\n  let mouseOffset = (u.mouse - 0.5) * 2.0;\n  var p = (uv - 0.5) * u.scale + mouseOffset;\n  p.x *= u.resolution.x / u.resolution.y;\n  \n  var v1 = voronoi(p * 2.0 + t, t);\n  var v2 = voronoi(p * 4.0 - t * 1.5, t * 1.2);\n  var v3 = voronoi(p * 8.0 + vec2f(sin(t), cos(t)), t * 0.8);\n  \n  let caustics = pow(1.0 - v1.x, 3.0) + pow(1.0 - v2.x, 2.0) * 0.5 + pow(1.0 - v3.x, 2.0) * 0.25;\n  let baseColor = vec3f(0.05, 0.1, 0.2);\n  let lightColor = vec3f(0.3, 0.7, 1.0) * caustics;\n  let finalColor = baseColor + lightColor;\n  \n  return vec4f(finalColor, 1.0);\n}"
+}

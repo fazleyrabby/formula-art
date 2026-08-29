@@ -1,0 +1,179 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Badge from '../../components/common/Badge.astro';
+import CopyButton from '../../components/common/CopyButton.astro';
+import ParameterControls from '../../components/detail/ParameterControls.astro';
+import FullscreenOverlay from '../../components/detail/FullscreenOverlay.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const artworks = await getCollection('p5js');
+  return artworks.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { artwork: entry.data },
+  }));
+}
+
+const { artwork } = Astro.props;
+---
+
+<Layout
+  title={`${artwork.title} — p5.js Art`}
+  description={artwork.description}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col gap-8">
+    <nav class="flex items-center justify-between">
+      <a href="/p5js" class="inline-flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-accent-cyan transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Back to p5.js Gallery</span>
+      </a>
+      <div class="flex items-center gap-2">
+        <Badge variant={artwork.category}>{artwork.category}</Badge>
+        <span class="text-xs font-mono text-slate-400">#{artwork.id}</span>
+      </div>
+    </nav>
+
+    <section class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/[0.06]">
+      <div class="flex flex-col gap-2">
+        <h1 class="text-3xl sm:text-4xl font-sans font-bold text-white tracking-tight">
+          {artwork.title}
+        </h1>
+        <p class="text-slate-400 text-sm font-sans max-w-2xl leading-relaxed">
+          {artwork.description}
+        </p>
+      </div>
+      <div class="flex items-center gap-2.5 shrink-0">
+        <CopyButton textToCopy={artwork.sketchCode} label="Copy Sketch" variant="primary" />
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div class="lg:col-span-7 flex flex-col gap-6">
+        <div class="relative w-full aspect-square bg-[#050608] rounded-2xl border border-white/10 overflow-hidden shadow-2xl group">
+          <div id="detail-p5-container" class="w-full h-full block cursor-crosshair" data-params={JSON.stringify(artwork.parameters.reduce((acc: any, p: any) => ({ ...acc, [p.key]: p.defaultValue }), {}))}></div>
+          
+          <div class="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[11px] font-mono pointer-events-auto">
+              <span class="w-2 h-2 rounded-full bg-accent-emerald animate-pulse"></span>
+              <span id="fps-display" class="text-slate-200">60 FPS</span>
+              <span class="text-slate-600">•</span>
+              <span class="text-slate-400">p5.js</span>
+            </div>
+        
+            <div class="flex items-center gap-2 pointer-events-auto">
+              <button
+                type="button"
+                id="pause-toggle-btn"
+                class="p-2 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-slate-300 hover:text-white hover:border-white/20 transition-all active:scale-95 cursor-pointer"
+                title="Pause / Resume Animation (Space)"
+              >
+                <svg id="pause-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <svg id="play-icon" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+        
+              <button
+                type="button"
+                id="fullscreen-trigger-btn"
+                class="p-2 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-slate-300 hover:text-white hover:border-white/20 transition-all active:scale-95 cursor-pointer"
+                title="Fullscreen Mode (F)"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6 rounded-2xl border border-white/10 bg-[#0c0e17] shadow-xl overflow-x-auto">
+          <h3 class="text-xs font-mono font-bold text-slate-200 uppercase tracking-wider mb-4">p5.js Sketch Code</h3>
+          <pre><code class="text-xs font-mono text-slate-300">{artwork.sketchCode}</code></pre>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 flex flex-col gap-6">
+        {artwork.parameters && artwork.parameters.length > 0 && (
+          <ParameterControls artwork={artwork} />
+        )}
+        
+        <div class="p-6 rounded-2xl border border-white/10 bg-[#0c0e17] shadow-xl flex flex-col gap-4">
+          <h3 class="text-xs font-mono font-bold text-slate-200 uppercase tracking-wider">Properties</h3>
+          <div class="flex flex-wrap gap-2">
+            {artwork.tags.map((tag: string) => (
+              <span class="px-2.5 py-1 rounded-md bg-black/40 border border-white/5 text-xs font-mono text-slate-400">#{tag}</span>
+            ))}
+          </div>
+          <div class="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono text-slate-400">
+            <span>Author: {artwork.author.name}</span>
+            <span>Target: {artwork.defaultFps} FPS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { P5Engine } from '../../engine/P5Engine';
+    import { getAlgorithm } from '../../algorithms/p5js/registry';
+
+    document.addEventListener('astro:page-load', () => {
+      const container = document.getElementById('detail-p5-container');
+      if (!container) return;
+      
+      const urlParts = window.location.pathname.split('/');
+      const slug = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
+      
+      const paramsJson = container.getAttribute('data-params') || '{}';
+      let params = {};
+      try { params = JSON.parse(paramsJson); } catch (e) {}
+
+      const data = getAlgorithm(slug); 
+      if (data) {
+        const engine = new P5Engine({
+          container,
+          sketch: data.sketch,
+          initialParams: params,
+          onFpsUpdate: (fps) => {
+            const display = document.getElementById('fps-display');
+            if (display) display.textContent = `${fps} FPS`;
+          }
+        });
+        
+        engine.start();
+        (window as any).__MATH_ART_ENGINE__ = engine;
+        
+        let isPaused = false;
+        const pauseBtn = document.getElementById('pause-toggle-btn');
+        const pauseIcon = document.getElementById('pause-icon');
+        const playIcon = document.getElementById('play-icon');
+        
+        if (pauseBtn) {
+          pauseBtn.onclick = () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+              engine.stop();
+              pauseIcon?.classList.add('hidden');
+              playIcon?.classList.remove('hidden');
+            } else {
+              engine.start();
+              pauseIcon?.classList.remove('hidden');
+              playIcon?.classList.add('hidden');
+            }
+          };
+        }
+        
+        document.addEventListener('astro:before-swap', () => {
+          engine.destroy();
+        }, { once: true });
+      }
+    });
+  </script>
+  <FullscreenOverlay />
+</Layout>

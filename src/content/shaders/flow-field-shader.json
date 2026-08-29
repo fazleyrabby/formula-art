@@ -1,0 +1,23 @@
+{
+  "id": "436",
+  "slug": "flow-field-shader",
+  "title": "Warped Flow Field",
+  "subtitle": "Liquid contour lines",
+  "category": "fluids",
+  "description": "A 2D liquid-like flow field running purely on the GPU fragment shader.",
+  "algorithmKey": "flow-field-shader",
+  "complexity": "high",
+  "parameters": [],
+  "tags": [
+    "glsl",
+    "flow-field",
+    "organic"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "fragmentShader": "#version 300 es\nprecision highp float; uniform vec2 u_resolution; uniform vec2 u_mouse; uniform float u_time; out vec4 f;\nvec2 hash(vec2 p) { p=vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))); return -1.+2.*fract(sin(p)*43758.5453123); }\nfloat noise(vec2 p) {\n    vec2 i = floor(p), f = fract(p), u = f*f*(3.-2.*f);\n    return mix(mix(dot(hash(i+vec2(0,0)),f-vec2(0,0)),dot(hash(i+vec2(1,0)),f-vec2(1,0)),u.x),\n               mix(dot(hash(i+vec2(0,1)),f-vec2(0,1)),dot(hash(i+vec2(1,1)),f-vec2(1,1)),u.x),u.y);\n}\nvoid main() {\n    vec2 uv = gl_FragCoord.xy/u_resolution.y;\n    vec2 m = u_mouse;\n    vec2 p = uv * 3.0;\n    for(int i=0; i<4; i++) {\n        p += vec2(noise(p + u_time*0.1), noise(p.yx - u_time*0.1)) * 0.5;\n    }\n    float lines = sin(p.x * 20.0 + m.x*10.) * sin(p.y * 20.0 + m.y*10.);\n    f = vec4(vec3(smoothstep(0.0, 0.1, abs(lines))), 1.0);\n}"
+}

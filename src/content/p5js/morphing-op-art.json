@@ -1,0 +1,29 @@
+{
+  "id": "105",
+  "slug": "morphing-op-art",
+  "title": "Morphing Op Art",
+  "subtitle": "Seamless primitive transition",
+  "category": "op-art",
+  "description": "Inspired by Genuary op-art and seamless morphing, this p5.js sketch smoothly transitions between lines, ellipses, and rectangles.",
+  "algorithmKey": "morphing-op-art",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "gridSize",
+      "label": "Grid Size",
+      "type": "range",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "defaultValue": 30
+    }
+  ],
+  "tags": ["p5js", "op-art", "morphing", "genuary"],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "sketchCode": "p.setup = () => {\n  p.createCanvas(p.windowWidth > 400 ? 400 : p.windowWidth, 400);\n  p.rectMode(p.CENTER);\n  p.noStroke();\n};\np.draw = () => {\n  p.background(10, 14, 23);\n  let gridSize = p.params?.gridSize || 30;\n  let t = p.millis() * 0.001;\n  \n  for(let x = gridSize/2; x < p.width; x += gridSize) {\n    for(let y = gridSize/2; y < p.height; y += gridSize) {\n      let d = p.dist(x, y, p.width/2, p.height/2);\n      let offset = d * 0.05;\n      let wave = p.sin(t * 2.0 - offset);\n      \n      p.push();\n      p.translate(x, y);\n      p.rotate(wave * p.PI);\n      \n      p.fill(255, p.map(wave, -1, 1, 100, 255));\n      \n      let size = p.map(wave, -1, 1, gridSize*0.2, gridSize*0.8);\n      if (wave > 0.5) {\n        p.rect(0, 0, size, size, 4);\n      } else if (wave > -0.5) {\n        p.ellipse(0, 0, size, size);\n      } else {\n        p.rect(0, 0, size, size*0.1);\n      }\n      p.pop();\n    }\n  }\n};"
+}

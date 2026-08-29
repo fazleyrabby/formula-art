@@ -20,12 +20,16 @@ interface Props {
 }
 
 const {
-  title = 'Math Art — 78+ Generative Mathematical Animations & Formulas',
-  description = 'A gallery and live playground for mathematical generative animations rendered on HTML5 Canvas. Inspect pure formulas, remix in real-time, and copy clean code.',
+  title = 'Math Art — 100+ Generative WebGPU, Shaders, & Math Algorithms',
+  description = 'A gallery and live playground for computational generative art. Explore real-time WebGPU particle systems, WGSL compute simulations, WebGL shaders, p5.js sketches, and pure 2D Math Canvas algorithms.',
   image = '/og-image.png',
   keywords = [
     'math art',
     'generative art',
+    'webgpu shaders',
+    'wgsl compute',
+    'webgl shaders',
+    'p5.js sketches',
     'mathematical animations',
     'creative coding',
     'html5 canvas',
@@ -40,8 +44,19 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://art.fazleyrabbi.xyz');
-const allArtworks = await getCollection('artworks');
-const artworksData = allArtworks.map(a => a.data);
+const [allArtworks, allWebGPU, allShaders, allP5js] = await Promise.all([
+  getCollection('artworks'),
+  getCollection('webgpu'),
+  getCollection('shaders'),
+  getCollection('p5js')
+]);
+
+const artworksData = [
+  ...allArtworks.map(a => ({ ...a.data, route: 'art' })),
+  ...allWebGPU.map(a => ({ ...a.data, route: 'webgpu' })),
+  ...allShaders.map(a => ({ ...a.data, route: 'shaders' })),
+  ...allP5js.map(a => ({ ...a.data, route: 'p5js' }))
+];
 
 const defaultSchema = {
   '@context': 'https://schema.org',

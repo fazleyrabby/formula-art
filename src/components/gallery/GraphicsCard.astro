@@ -1,62 +1,69 @@
 ---
-import type { ArtworkData } from '../../types/artwork';
 import Badge from '../common/Badge.astro';
 import CopyButton from '../common/CopyButton.astro';
 
 interface Props {
-  artwork: ArtworkData;
+  data: any; // Using any for flexibility since we have different schemas
+  type: 'webgpu' | 'shaders' | 'p5js';
   index?: number;
 }
 
-const { artwork, index = 0 } = Astro.props;
+const { data, type, index = 0 } = Astro.props;
 const isBelowTheFold = index >= 8;
+
+let snippet = '';
+if (type === 'webgpu') snippet = data.wgslCode?.substring(0, 50) + '...';
+if (type === 'shaders') snippet = data.fragmentShader?.substring(0, 50) + '...';
+if (type === 'p5js') snippet = data.sketchCode?.substring(0, 50) + '...';
 ---
 
 <article
   class="art-card-container group relative flex flex-col rounded-xl border border-white/[0.08] bg-[#0c0e17] overflow-hidden transition-all duration-300 hover:border-accent-cyan/40 hover:shadow-[0_8px_30px_rgba(0,0,0,0.6),0_0_20px_rgba(56,189,248,0.12)] hover:-translate-y-1"
-  data-slug={artwork.slug}
-  data-algorithm={artwork.algorithmKey}
-  data-category={artwork.category}
+  data-slug={data.slug}
+  data-algorithm={data.algorithmKey}
+  data-category={data.category}
   style={isBelowTheFold ? 'content-visibility: auto; contain-intrinsic-size: auto 340px;' : ''}
 >
   <!-- Canvas Preview Wrapper -->
   <a
-    href={`/art/${artwork.slug}`}
+    href={`/${type}/${data.slug}`}
     class="canvas-wrapper relative aspect-square w-full bg-[#050608] block overflow-hidden cursor-pointer"
-    aria-label={`View artwork: ${artwork.title}`}
+    aria-label={`View artwork: ${data.title}`}
   >
-    <canvas
-      class="art-canvas w-full h-full block"
-      data-card-canvas
-      data-type="math"
-      data-algorithm={artwork.algorithmKey}
-      data-params={JSON.stringify(
-        artwork.parameters.reduce((acc, p) => ({ ...acc, [p.key]: p.defaultValue }), {})
-      )}
-      aria-hidden="true"
-    ></canvas>
+    {type === 'p5js' ? (
+      <div
+        class="art-canvas w-full h-full block p5-container"
+        data-card-p5
+        data-algorithm={data.algorithmKey}
+        data-params={JSON.stringify(
+          data.parameters.reduce((acc: any, p: any) => ({ ...acc, [p.key]: p.defaultValue }), {})
+        )}
+        aria-hidden="true"
+      ></div>
+    ) : (
+      <canvas
+        class="art-canvas w-full h-full block"
+        data-card-canvas
+        data-type={type}
+        data-algorithm={data.algorithmKey}
+        data-params={JSON.stringify(
+          data.parameters.reduce((acc: any, p: any) => ({ ...acc, [p.key]: p.defaultValue }), {})
+        )}
+        aria-hidden="true"
+      ></canvas>
+    )}
 
     <!-- Top Right Category Badge -->
     <div class="absolute top-3 right-3 z-10 pointer-events-none">
-      <Badge variant={artwork.category}>
-        {artwork.category}
+      <Badge variant={data.category}>
+        {data.category}
       </Badge>
     </div>
 
     <!-- Top Left ID -->
     <div class="absolute top-3 left-3 z-10 pointer-events-none">
       <span class="px-2 py-0.5 rounded bg-black/60 backdrop-blur-md text-[11px] font-mono text-slate-400 border border-white/10">
-        #{artwork.id}
-      </span>
-    </div>
-
-    <!-- Quick Action Hover Overlay -->
-    <div class="absolute inset-0 bg-gradient-to-t from-[#08090d]/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end p-4 z-10 pointer-events-none">
-      <span class="text-xs font-mono text-accent-cyan flex items-center gap-1">
-        Inspect Formula
-        <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-        </svg>
+        #{data.id}
       </span>
     </div>
   </a>
@@ -66,24 +73,24 @@ const isBelowTheFold = index >= 8;
     <div>
       <div class="flex items-start justify-between gap-2">
         <h3 class="font-sans font-semibold text-slate-100 text-base leading-tight group-hover:text-accent-cyan transition-colors">
-          <a href={`/art/${artwork.slug}`}>
-            {artwork.title}
+          <a href={`/${type}/${data.slug}`}>
+            {data.title}
           </a>
         </h3>
       </div>
       <p class="text-xs text-slate-400 line-clamp-1 mt-1 font-sans">
-        {artwork.subtitle || artwork.description}
+        {data.subtitle || data.description}
       </p>
     </div>
 
-    <!-- Compact Formula Snippet & Copy Action -->
+    <!-- Snippet & Copy Action -->
     <div class="pt-2 border-t border-white/[0.04] flex items-center justify-between gap-2">
-      <div class="overflow-hidden flex-1" title={artwork.formulaCompact}>
+      <div class="overflow-hidden flex-1" title={snippet}>
         <code class="text-[11px] font-mono text-slate-400 truncate block bg-black/40 px-2 py-1 rounded border border-white/5">
-          {artwork.formulaCompact}
+          {snippet}
         </code>
       </div>
-      <CopyButton textToCopy={artwork.formulaCompact} label="Copy" variant="ghost" />
+      <CopyButton textToCopy={snippet} label="Copy" variant="ghost" />
     </div>
   </div>
 </article>

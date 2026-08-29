@@ -1,101 +1,100 @@
 ---
 ---
 
-<div
-  id="fullscreen-overlay"
-  class="fixed inset-0 z-50 bg-[#050608] hidden flex-col items-center justify-center"
->
-  <canvas id="fullscreen-canvas" class="w-full h-full block cursor-none"></canvas>
-
-  <!-- Auto-hiding HUD -->
-  <div id="fs-hud" class="absolute top-6 right-6 z-20 flex items-center gap-3 transition-opacity duration-300">
-    <span class="px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-xs font-mono text-slate-300">
-      Press <kbd class="font-bold text-accent-cyan">ESC</kbd> or <kbd class="font-bold text-accent-cyan">F</kbd> to exit
-    </span>
-    <button
-      type="button"
-      id="close-fullscreen-btn"
-      class="p-2 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-slate-300 hover:text-white transition-all cursor-pointer"
-      aria-label="Exit fullscreen"
-    >
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </button>
-  </div>
+<div id="fs-hud" class="fixed top-6 right-6 z-[10000] hidden items-center gap-3 transition-opacity duration-300 pointer-events-none">
+  <span class="px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-xs font-mono text-slate-300">
+    Press <kbd class="font-bold text-accent-cyan">ESC</kbd> or <kbd class="font-bold text-accent-cyan">F</kbd> to exit
+  </span>
+  <button
+    type="button"
+    id="close-fullscreen-btn"
+    class="p-2 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-slate-300 hover:text-white transition-all cursor-pointer pointer-events-auto"
+    aria-label="Exit fullscreen"
+  >
+    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
 </div>
 
+<style is:global>
+  .fs-active {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    z-index: 9999 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    aspect-ratio: auto !important;
+  }
+  .fs-active.cursor-idle * {
+    cursor: none !important;
+  }
+</style>
+
 <script>
-  import { CanvasEngine } from '../../engine/CanvasEngine';
-  import { getAlgorithmRenderer } from '../../algorithms/registry';
-
-  let fsEngine: CanvasEngine | null = null;
   let hudTimeout: any = null;
+  let isFullscreen = false;
 
-  function setupFullscreen() {
-    const overlay = document.getElementById('fullscreen-overlay');
+  function setupUniversalFullscreen() {
     const trigger = document.getElementById('fullscreen-trigger-btn');
     const closeBtn = document.getElementById('close-fullscreen-btn');
-    const fsCanvas = document.getElementById('fullscreen-canvas') as HTMLCanvasElement;
-    const detailCanvas = document.getElementById('detail-canvas') as HTMLCanvasElement;
     const hud = document.getElementById('fs-hud');
+    
+    // Find the wrapper by going up from the trigger button
+    const wrapper = trigger?.closest('.aspect-square');
+    if (!trigger || !wrapper || !hud) return;
 
-    if (!overlay || !fsCanvas || !detailCanvas) return;
-
-    async function openFullscreen() {
-      overlay?.classList.remove('hidden');
-      overlay?.classList.add('flex');
-
-      const algorithmKey = detailCanvas.getAttribute('data-algorithm') || 'organic-wave';
-      const mainEngine = (window as any).__MATH_ART_ENGINE__;
-      const params = mainEngine ? mainEngine.getParams() : {};
-
-      const renderer = await getAlgorithmRenderer(algorithmKey);
-      if (overlay?.classList.contains('hidden')) return;
-
-      fsEngine = new CanvasEngine({
-        canvas: fsCanvas,
-        renderer,
-        initialParams: params,
-        interactive: true,
-      });
-
-      fsEngine.start();
+    function openFullscreen() {
+      isFullscreen = true;
+      wrapper!.classList.add('fs-active');
+      hud!.classList.remove('hidden');
+      hud!.classList.add('flex');
       resetHudTimeout();
     }
 
     function closeFullscreen() {
-      overlay?.classList.add('hidden');
-      overlay?.classList.remove('flex');
-      if (fsEngine) {
-        fsEngine.destroy();
-        fsEngine = null;
-      }
+      isFullscreen = false;
+      wrapper!.classList.remove('fs-active');
+      wrapper!.classList.remove('cursor-idle');
+      hud!.classList.add('hidden');
+      hud!.classList.remove('flex');
     }
 
     function resetHudTimeout() {
-      if (hud) hud.style.opacity = '1';
+      if (!isFullscreen) return;
+      hud!.style.opacity = '1';
+      wrapper!.classList.remove('cursor-idle');
+      
       clearTimeout(hudTimeout);
       hudTimeout = setTimeout(() => {
-        if (hud) hud.style.opacity = '0';
-      }, 3000);
+        if (!isFullscreen) return;
+        hud!.style.opacity = '0';
+        wrapper!.classList.add('cursor-idle');
+      }, 2500);
     }
 
-    trigger?.addEventListener('click', openFullscreen);
+    trigger.addEventListener('click', openFullscreen);
     closeBtn?.addEventListener('click', closeFullscreen);
 
-    overlay?.addEventListener('mousemove', resetHudTimeout);
+    // Track mouse movement to hide cursor/HUD
+    wrapper.addEventListener('mousemove', resetHudTimeout);
 
     window.addEventListener('keydown', (e) => {
+      // Don't trigger if typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      
       if (e.key === 'f' || e.key === 'F') {
-        if (overlay?.classList.contains('hidden')) openFullscreen();
+        if (!isFullscreen) openFullscreen();
         else closeFullscreen();
-      } else if (e.key === 'Escape' && !overlay?.classList.contains('hidden')) {
+      } else if (e.key === 'Escape' && isFullscreen) {
         closeFullscreen();
       }
     });
   }
 
-  setupFullscreen();
-  document.addEventListener('astro:page-load', setupFullscreen);
+  setupUniversalFullscreen();
+  document.addEventListener('astro:page-load', setupUniversalFullscreen);
 </script>

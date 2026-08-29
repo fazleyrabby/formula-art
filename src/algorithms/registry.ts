@@ -25,6 +25,7 @@ export const algorithmLoaders: Record<string, AlgorithmModuleLoader> = {
   'boids-flocking': () => import('./particles/boids-flocking'),
 
   // Geometry
+  'digit-tunnel': () => import('./math/digit-tunnel'),
   'hyperbolic-tessellation': () => import('./geometry/hyperbolic-tessellation'),
   'sacred-mandala': () => import('./geometry/sacred-mandala'),
   'moire-interference': () => import('./geometry/moire-interference'),

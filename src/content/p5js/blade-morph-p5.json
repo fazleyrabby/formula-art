@@ -1,0 +1,23 @@
+{
+  "id": "219",
+  "slug": "blade-morph-p5",
+  "title": "Prime Blade Morph",
+  "subtitle": "Advanced geometric rotation",
+  "category": "op-art",
+  "description": "Advanced geometric rotation where shapes morph seamlessly.",
+  "algorithmKey": "blade-morph-p5",
+  "complexity": "high",
+  "parameters": [],
+  "tags": [
+    "p5js",
+    "morphing",
+    "geometry"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "sketchCode": "p.setup = () => {\n  p.createCanvas(p.container.clientWidth, p.container.clientHeight);\n  p.rectMode(p.CENTER);\n  p.noFill();\n  p.stroke(255);\n};\np.draw = () => {\n  p.background(0, 20);\n  p.translate(p.width/2, p.height/2);\n  let n = 20;\n  for(let i=0; i<n; i++) {\n    p.push();\n    p.rotate(p.frameCount*0.01 + i*0.1 + (p.mouseX*0.01));\n    p.scale(p.map(i, 0, n, 0.1, 2.0));\n    let t = (p.sin(p.frameCount*0.02 + i*0.2)+1)/2;\n    p.rect(0, 0, 100 + t*50, 100 - t*50, t*50);\n    p.pop();\n  }\n};\np.windowResized = () => { if(p.container) p.resizeCanvas(p.container.clientWidth, p.container.clientHeight); };"
+}

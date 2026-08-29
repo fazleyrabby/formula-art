@@ -1,0 +1,62 @@
+{
+  "id": "105",
+  "slug": "poseidon-ocean",
+  "title": "Poseidon Ocean",
+  "subtitle": "Deep-water raymarched fractal waves",
+  "category": "fluid",
+  "description": "A high-performance WebGPU ocean simulation using raymarched fractional brownian motion. Features deep-water scattering, specular sun glitter, and dynamic choppy waves.",
+  "algorithmKey": "poseidon-ocean",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "waveHeight",
+      "label": "Wave Height",
+      "type": "range",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "defaultValue": 1
+    },
+    {
+      "key": "choppiness",
+      "label": "Choppiness",
+      "type": "range",
+      "min": 0.5,
+      "max": 3,
+      "step": 0.1,
+      "defaultValue": 1.5
+    },
+    {
+      "key": "windSpeed",
+      "label": "Wind Speed",
+      "type": "range",
+      "min": 0.1,
+      "max": 5,
+      "step": 0.1,
+      "defaultValue": 1
+    },
+    {
+      "key": "sunElevation",
+      "label": "Sun Elevation",
+      "type": "range",
+      "min": -0.2,
+      "max": 1,
+      "step": 0.05,
+      "defaultValue": 0.2
+    }
+  ],
+  "tags": [
+    "webgpu",
+    "ocean",
+    "raymarching",
+    "fluid",
+    "poseidon"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "16:9",
+  "defaultFps": 60,
+  "wgslCode": "struct Uniforms { resolution: vec2f, time: f32, padding: f32, mouse: vec2f, waveHeight: f32, choppiness: f32, windSpeed: f32, sunElevation: f32, pad1: f32, pad2: f32, }\n@group(0) @binding(0) var<uniform> u: Uniforms;\n\n@vertex \nfn vs_main(@builtin(vertex_index) vi: u32) -> @builtin(position) vec4f {\n  let pos = array(vec2f(-1.0,-1.0), vec2f(3.0,-1.0), vec2f(-1.0,3.0)); \n  return vec4f(pos[vi], 0.0, 1.0);\n}\n\nfn hash21(p: vec2f) -> f32 {\n  var p3 = fract(vec3f(p.xyx) * 0.1031);\n  p3 += dot(p3, p3.yzx + 33.33);\n  return fract((p3.x + p3.y) * p3.z);\n}\n\nfn noise(p: vec2f) -> f32 {\n  let i = floor(p);\n  let f = fract(p);\n  let u_smooth = f * f * (3.0 - 2.0 * f);\n  return mix(\n    mix(hash21(i + vec2f(0.0, 0.0)), hash21(i + vec2f(1.0, 0.0)), u_smooth.x),\n    mix(hash21(i + vec2f(0.0, 1.0)), hash21(i + vec2f(1.0, 1.0)), u_smooth.x),\n    u_smooth.y\n  );\n}\n\nfn sea_octave(uv_in: vec2f, choppy: f32) -> f32 {\n  let n = vec2f(noise(uv_in), noise(uv_in + vec2f(1.2, 3.4)));\n  var uv = uv_in + n;\n  var wv = 1.0 - abs(sin(uv));\n  var swv = abs(cos(uv));\n  wv = mix(wv, swv, wv);\n  return pow(1.0 - pow(wv.x * wv.y, 0.65), choppy);\n}\n\nfn map(p: vec3f) -> f32 {\n  var freq = 0.16;\n  var amp = u.waveHeight * 0.8;\n  var choppy = 4.0 * u.choppiness;\n  var uv = p.xz;\n  var h = 0.0;\n  \n  let t = u.time * u.windSpeed * 0.8;\n  let octMat = mat2x2f(1.6, 1.2, -1.2, 1.6);\n  \n  for (var i = 0; i < 4; i++) {\n    var d = sea_octave((uv + vec2f(t)) * freq, choppy);\n    d += sea_octave((uv - vec2f(t)) * freq, choppy);\n    h += d * amp;\n    uv = octMat * uv;\n    freq *= 1.9;\n    amp *= 0.22;\n    choppy = mix(choppy, 1.0, 0.2);\n  }\n  return p.y - h;\n}\n\nfn map_detailed(p: vec3f) -> f32 {\n  var freq = 0.16;\n  var amp = u.waveHeight * 0.8;\n  var choppy = 4.0 * u.choppiness;\n  var uv = p.xz;\n  var h = 0.0;\n  \n  let t = u.time * u.windSpeed * 0.8;\n  let octMat = mat2x2f(1.6, 1.2, -1.2, 1.6);\n  \n  for (var i = 0; i < 7; i++) {\n    var d = sea_octave((uv + vec2f(t)) * freq, choppy);\n    d += sea_octave((uv - vec2f(t)) * freq, choppy);\n    h += d * amp;\n    uv = octMat * uv;\n    freq *= 1.9;\n    amp *= 0.22;\n    choppy = mix(choppy, 1.0, 0.2);\n  }\n  return p.y - h;\n}\n\nfn getNormal(p: vec3f, eps: f32) -> vec3f {\n  let e = vec2f(eps, 0.0);\n  return normalize(vec3f(\n    map_detailed(p + e.xyy) - map_detailed(p - e.xyy),\n    map_detailed(p + e.yxy) - map_detailed(p - e.yxy),\n    map_detailed(p + e.yyx) - map_detailed(p - e.yyx)\n  ));\n}\n\nfn getSkyColor(rd: vec3f, sunDir: vec3f) -> vec3f {\n  let sunDot = max(dot(rd, sunDir), 0.0);\n  var sky = vec3f(0.35, 0.6, 0.85) - rd.y * 0.3;\n  let horizonHaze = pow(1.0 - max(rd.y, 0.0), 3.0);\n  sky = mix(sky, vec3f(0.75, 0.82, 0.92), horizonHaze * 0.8);\n  // Sun bloom\n  sky += vec3f(1.0, 0.85, 0.6) * pow(sunDot, 500.0) * 3.0;\n  sky += vec3f(0.8, 0.6, 0.4) * pow(sunDot, 20.0) * 0.5;\n  return max(sky, vec3f(0.0));\n}\n\n@fragment \nfn fs_main(@builtin(position) fc: vec4f) -> @location(0) vec4f {\n  var uv = (fc.xy - 0.5 * u.resolution) / u.resolution.y;\n  uv.y = -uv.y;\n  \n  let mouseOffset = (u.mouse - 0.5) * 2.0;\n  var ro = vec3f(0.0, 4.5, u.time * 2.0 * u.windSpeed);\n  var rd = normalize(vec3f(uv.x, uv.y - 0.3 + mouseOffset.y * 0.4, 1.2));\n  \n  let mx = mouseOffset.x * 0.5;\n  let cx = cos(mx); let sx = sin(mx);\n  rd = vec3f(rd.x * cx - rd.z * sx, rd.y, rd.x * sx + rd.z * cx);\n  \n  let sunElevation = clamp(u.sunElevation, 0.05, 0.95);\n  let sunDir = normalize(vec3f(0.0, sunElevation, 1.0));\n  let skyCol = getSkyColor(rd, sunDir);\n  var col = skyCol;\n  \n  // Raymarch\n  var t = 0.0;\n  var p = vec3f(0.0);\n  for (var i = 0; i < 90; i++) {\n    p = ro + rd * t;\n    let d = map(p);\n    if (d < 0.005 || t > 140.0) { break; }\n    t += d * 0.4;\n  }\n  \n  if (t < 140.0) {\n    let n = getNormal(p, 0.003 + t * 0.0008);\n    let viewDir = -rd;\n    let refl = reflect(rd, n);\n    \n    // Fresnel\n    let fresnel = 0.02 + 0.98 * pow(1.0 - max(dot(n, viewDir), 0.0), 5.0);\n    \n    // Water scattering\n    let deepSea = vec3f(0.03, 0.09, 0.18);\n    let waveCrestColor = vec3f(0.08, 0.45, 0.55);\n    \n    // SSS (Translucent wave ridges)\n    let sss = pow(max(dot(viewDir, -sunDir + n * 0.5), 0.0), 2.5) * pow(clamp(1.0 - n.y, 0.0, 1.0), 2.0);\n    let waterColor = mix(deepSea, waveCrestColor, sss * 0.9 + 0.15 * n.y);\n    \n    // Sky reflection\n    let refSky = getSkyColor(refl, sunDir);\n    \n    // Sun specular glints\n    let halfVec = normalize(viewDir + sunDir);\n    let NdotH = max(dot(n, halfVec), 0.0);\n    let specular = pow(NdotH, 400.0) * 3.5 + pow(NdotH, 40.0) * 0.4;\n    let sunSpecular = vec3f(1.0, 0.95, 0.85) * specular;\n    \n    // White foam on sharp peaks\n    let foam = smoothstep(0.6 * u.waveHeight, 1.1 * u.waveHeight, p.y) * smoothstep(0.55, 0.85, 1.0 - n.y);\n    let foamColor = vec3f(0.9, 0.95, 1.0) * foam * 0.8;\n    \n    col = mix(waterColor, refSky, fresnel) + sunSpecular + foamColor;\n    \n    // Distance fog fade\n    let fog = exp(-pow(t * 0.012, 1.4));\n    col = mix(skyCol, col, fog);\n  }\n  \n  // Filmic curve\n  col = (col * (2.51 * col + vec3f(0.03))) / (col * (2.43 * col + vec3f(0.59)) + vec3f(0.14));\n  col = clamp(col, vec3f(0.0), vec3f(1.0));\n  \n  let vignette = 1.0 - smoothstep(0.6, 1.5, length(uv));\n  col = col * vignette;\n  \n  return vec4f(col, 1.0);\n}"
+}

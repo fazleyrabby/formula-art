@@ -1,0 +1,23 @@
+{
+  "id": "239",
+  "slug": "harmonograph-p5",
+  "title": "Harmonograph Trails",
+  "subtitle": "Complex looping trails",
+  "category": "flow-fields",
+  "description": "Emulating mechanical pendulums to draw incredibly complex, looping geometric trails.",
+  "algorithmKey": "harmonograph-p5",
+  "complexity": "high",
+  "parameters": [],
+  "tags": [
+    "p5js",
+    "harmonograph",
+    "math"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "sketchCode": "p.setup = () => {\n  p.createCanvas(p.container.clientWidth, p.container.clientHeight);\n  p.background(10);\n};\nlet t = 0;\np.draw = () => {\n  p.translate(p.width/2, p.height/2);\n  p.stroke(255, 100);\n  let f1 = p.map(p.mouseX, 0, p.width, 1, 5) || 2;\n  let f2 = p.map(p.mouseY, 0, p.height, 1, 5) || 3;\n  let x = p.sin(t * f1) * p.exp(-0.001*t) * 150;\n  let y = p.sin(t * f2 + p.PI/2) * p.exp(-0.001*t) * 150;\n  p.point(x, y);\n  t += 0.1;\n  if (t > 1000) { t=0; p.background(10); }\n};\np.windowResized = () => { if(p.container) p.resizeCanvas(p.container.clientWidth, p.container.clientHeight); };"
+}

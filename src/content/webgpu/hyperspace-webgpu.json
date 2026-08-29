@@ -1,0 +1,33 @@
+{
+  "id": "645",
+  "slug": "hyperspace-webgpu",
+  "title": "Hyperspace Jump",
+  "subtitle": "Warp speed streaks",
+  "category": "particles",
+  "description": "Fast-moving radial streaks creating a classic sci-fi hyperspace effect.",
+  "algorithmKey": "hyperspace-webgpu",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "speed",
+      "label": "Warp Speed",
+      "type": "range",
+      "min": 0.1,
+      "max": 5,
+      "step": 0.1,
+      "defaultValue": 2
+    }
+  ],
+  "tags": [
+    "webgpu",
+    "hyperspace",
+    "sci-fi"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "wgslCode": "struct Uniforms { resolution: vec2f, time: f32, padding: f32, mouse: vec2f, speed: f32, }\n@group(0) @binding(0) var<uniform> u: Uniforms;\n@vertex fn vs_main(@builtin(vertex_index) vi: u32) -> @builtin(position) vec4f {\n  let pos = array(vec2f(-1.0,-1.0), vec2f(3.0,-1.0), vec2f(-1.0,3.0)); return vec4f(pos[vi], 0.0, 1.0);\n}\n@fragment fn fs_main(@builtin(position) fc: vec4f) -> @location(0) vec4f {\n  let uv = (fc.xy - 0.5*u.resolution) / u.resolution.y + (u.mouse-0.5)*0.2;\n  let r = length(uv);\n  let a = atan2(uv.y, uv.x);\n  let t = u.time * u.speed;\n  let streak = sin(a * 20.0 + sin(a*5.0)) * sin(a * 43.0);\n  let z = fract(1.0/r + t + streak);\n  let col = vec3f(0.5, 0.8, 1.0) * smoothstep(0.9, 1.0, z) * r;\n  return vec4f(col, 1.0);\n}"
+}

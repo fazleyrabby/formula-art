@@ -6,6 +6,7 @@
     "moduleResolution": "bundler",
     "strict": true,
     "baseUrl": ".",
+    "types": ["@webgpu/types"],
     "paths": {
       "@/*": ["src/*"]
     }

@@ -1,0 +1,23 @@
+{
+  "id": "780",
+  "slug": "voronoi-crystals-webgpu",
+  "title": "Voronoi Crystals",
+  "subtitle": "Moving gemstone facets",
+  "category": "materials",
+  "description": "A 3D layered voronoi structure that shifts based on time and mouse position.",
+  "algorithmKey": "voronoi-crystals-webgpu",
+  "complexity": "high",
+  "parameters": [],
+  "tags": [
+    "webgpu",
+    "voronoi",
+    "crystals"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "wgslCode": "struct Uniforms { resolution: vec2f, time: f32, padding: f32, mouse: vec2f, }\n@group(0) @binding(0) var<uniform> u: Uniforms;\n@vertex fn vs_main(@builtin(vertex_index) vi: u32) -> @builtin(position) vec4f {\n  let pos = array(vec2f(-1.0,-1.0), vec2f(3.0,-1.0), vec2f(-1.0,3.0)); return vec4f(pos[vi], 0.0, 1.0);\n}\nfn hash2(p: vec2f) -> vec2f {\n  var q = vec2f(dot(p, vec2f(127.1,311.7)), dot(p, vec2f(269.5,183.3)));\n  return fract(sin(q)*43758.5453);\n}\n@fragment fn fs_main(@builtin(position) fc: vec4f) -> @location(0) vec4f {\n  var uv = (fc.xy - 0.5*u.resolution) / u.resolution.y;\n  uv = uv * 5.0 + u.mouse * 2.0;\n  var m = 1.0;\n  for(var j=-1; j<=1; j++) {\n    for(var i=-1; i<=1; i++) {\n      let g = vec2f(f32(i), f32(j));\n      let o = hash2(floor(uv) + g);\n      let p = g + 0.5 + 0.5*sin(u.time + 6.2831*o) - fract(uv);\n      let d = dot(p,p);\n      if(d < m) { m = d; }\n    }\n  }\n  let c = sqrt(m);\n  return vec4f(c*0.4, c*0.8, c*1.2, 1.0);\n}"
+}

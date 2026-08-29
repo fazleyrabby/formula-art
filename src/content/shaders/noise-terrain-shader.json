@@ -1,0 +1,23 @@
+{
+  "id": "986",
+  "slug": "noise-terrain-shader",
+  "title": "Organic Noise Terrain",
+  "subtitle": "Dynamic simplex lighting",
+  "category": "fluids",
+  "description": "Top-down view of generating terrain dynamically lit by the mouse.",
+  "algorithmKey": "noise-terrain-shader",
+  "complexity": "high",
+  "parameters": [],
+  "tags": [
+    "glsl",
+    "terrain",
+    "noise"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "fragmentShader": "#version 300 es\nprecision highp float; uniform vec2 u_resolution; uniform vec2 u_mouse; uniform float u_time; out vec4 f;\nfloat hash(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}\nfloat noise(vec2 p){vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);}\nfloat fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p*=2.;a*=.5;}return v;}\nvoid main(){\n    vec2 uv = gl_FragCoord.xy/u_resolution.y;\n    float h = fbm(uv*5.0 + u_time*0.2);\n    vec2 e = vec2(0.01,0);\n    vec3 n = normalize(vec3(fbm(uv*5.+e.xy)-h, fbm(uv*5.+e.yx)-h, 0.05));\n    vec3 l = normalize(vec3(u_mouse - gl_FragCoord.xy/u_resolution.xy, 0.5));\n    float diff = max(dot(n,l), 0.0);\n    f = vec4(vec3(0.2,0.6,0.3)*h + vec3(diff*0.5), 1.0);\n}"
+}

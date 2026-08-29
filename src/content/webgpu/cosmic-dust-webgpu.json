@@ -1,0 +1,33 @@
+{
+  "id": "616",
+  "slug": "cosmic-dust-webgpu",
+  "title": "Cosmic Dust",
+  "subtitle": "Particle nebula",
+  "category": "particles",
+  "description": "High-density procedural starfield using complex noise functions to create nebulae.",
+  "algorithmKey": "cosmic-dust-webgpu",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "density",
+      "label": "Density",
+      "type": "range",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "defaultValue": 5
+    }
+  ],
+  "tags": [
+    "webgpu",
+    "particles",
+    "space"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "wgslCode": "struct Uniforms { resolution: vec2f, time: f32, padding: f32, mouse: vec2f, density: f32, }\n@group(0) @binding(0) var<uniform> u: Uniforms;\n@vertex fn vs_main(@builtin(vertex_index) vi: u32) -> @builtin(position) vec4f {\n  let pos = array(vec2f(-1.0,-1.0), vec2f(3.0,-1.0), vec2f(-1.0,3.0));\n  return vec4f(pos[vi], 0.0, 1.0);\n}\nfn hash3(p: vec3f) -> f32 {\n  var p3 = fract(p * 0.1031);\n  p3 = p3 + dot(p3, p3.zyx + 31.32);\n  return fract((p3.x + p3.y) * p3.z);\n}\n@fragment fn fs_main(@builtin(position) fc: vec4f) -> @location(0) vec4f {\n  var uv = (fc.xy - 0.5*u.resolution) / u.resolution.y;\n  uv = uv + (u.mouse - 0.5)*0.5;\n  var col = vec3f(0.0);\n  for(var i=0.0; i<60.0; i+=1.0) {\n    let z = fract(i/60.0 - u.time*0.1);\n    let size = mix(15.0, 0.1, z);\n    let fade = smoothstep(0.0, 0.1, z) * smoothstep(1.0, 0.8, z);\n    var p = uv * size;\n    let h = hash3(vec3f(floor(p), i));\n    if (h > (1.0 - u.density*0.01)) {\n      let d = length(fract(p) - 0.5);\n      col = col + vec3f(0.5+0.5*sin(i), 0.6+0.4*cos(i*2.0), 1.0) * smoothstep(0.3, 0.0, d) * fade;\n    }\n  }\n  return vec4f(col, 1.0);\n}"
+}

@@ -23,7 +23,7 @@ const { artworks } = Astro.props;
   import { getAlgorithmRenderer } from '../../algorithms/registry';
 
   let observer: IntersectionObserver | null = null;
-  const engineMap = new WeakMap<Element, CanvasEngine>();
+  let engineMap = new WeakMap<Element, CanvasEngine>();
   const activeEngines: CanvasEngine[] = [];
   let isTabVisible = true;
   let prefersReducedMotion = false;
@@ -61,7 +61,7 @@ const { artworks } = Astro.props;
       (entries) => {
         entries.forEach(async (entry) => {
           const card = entry.target as HTMLElement;
-          const canvas = card.querySelector<HTMLCanvasElement>('canvas[data-card-canvas]');
+          const canvas = card.querySelector<HTMLCanvasElement>('canvas[data-card-canvas][data-type="math"]');
           if (!canvas) return;
 
           if (entry.isIntersecting) {
@@ -131,10 +131,12 @@ const { artworks } = Astro.props;
     }
     activeEngines.forEach((engine) => engine.destroy());
     activeEngines.length = 0;
+    engineMap = new WeakMap();
     document.removeEventListener('visibilitychange', handleVisibilityChange);
   }
 
   // Setup on initial mount and Astro view transitions
+   
   initGridObserver();
   document.addEventListener('astro:page-load', initGridObserver);
   document.addEventListener('astro:before-swap', cleanupGridCanvases);

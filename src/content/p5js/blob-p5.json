@@ -1,0 +1,23 @@
+{
+  "id": "804",
+  "slug": "blob-p5",
+  "title": "Blob within a Blob",
+  "subtitle": "Perlin noise organism",
+  "category": "organic",
+  "description": "A pulsing, living organism made of thousands of tiny dots that follow Perlin noise contours.",
+  "algorithmKey": "blob-p5",
+  "complexity": "high",
+  "parameters": [],
+  "tags": [
+    "p5js",
+    "blob",
+    "organic"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "sketchCode": "p.setup = () => {\n  p.createCanvas(p.container.clientWidth, p.container.clientHeight);\n};\np.draw = () => {\n  p.background(15, 20, 30, 50);\n  p.translate(p.width/2, p.height/2);\n  let mx = (p.mouseX - p.width/2) * 0.1;\n  let my = (p.mouseY - p.height/2) * 0.1;\n  p.noStroke(); p.fill(100, 200, 255, 150);\n  p.beginShape();\n  for(let a=0; a<p.TWO_PI; a+=0.1) {\n    let r = 150 + p.noise(p.cos(a)+p.frameCount*0.01 + mx, p.sin(a)+p.frameCount*0.01 + my) * 100;\n    p.vertex(r*p.cos(a), r*p.sin(a));\n  }\n  p.endShape(p.CLOSE);\n};\np.windowResized = () => { if(p.container) p.resizeCanvas(p.container.clientWidth, p.container.clientHeight); };"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "856",
+  "slug": "maze-automata-p5",
+  "title": "Maze Automata",
+  "subtitle": "Generative cellular paths",
+  "category": "flow-fields",
+  "description": "A generative maze that builds itself in real-time.",
+  "algorithmKey": "maze-automata-p5",
+  "complexity": "high",
+  "parameters": [],
+  "tags": [
+    "p5js",
+    "maze",
+    "automata"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "sketchCode": "p.setup = () => {\n  p.createCanvas(p.container.clientWidth, p.container.clientHeight);\n  p.background(20);\n  p.stroke(255);\n};\nlet x = 0, y = 0, spacing = 20;\np.draw = () => {\n  if (p.random(1) < 0.5) p.line(x, y, x + spacing, y + spacing);\n  else p.line(x, y + spacing, x + spacing, y);\n  x += spacing;\n  if (x > p.width) { x = 0; y += spacing; }\n  if (y > p.height) { p.background(20); x = 0; y = 0; }\n};\np.windowResized = () => { if(p.container) p.resizeCanvas(p.container.clientWidth, p.container.clientHeight); };"
+}

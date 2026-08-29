@@ -2,21 +2,22 @@
 import type { ArtworkData } from '../../types/artwork';
 
 interface Props {
-  artworks: ArtworkData[];
+  artworks: any[];
 }
 
 const { artworks } = Astro.props;
 
 // Pre-serialized search index
-const searchIndex = artworks.map((a) => ({
+const searchIndex = artworks.map((a: any) => ({
   id: a.id,
   slug: a.slug,
   title: a.title,
   subtitle: a.subtitle || '',
   category: a.category,
-  formulaCompact: a.formulaCompact,
-  tags: a.tags.join(' '),
-  description: a.description
+  formulaCompact: a.formulaCompact || '',
+  tags: a.tags ? a.tags.join(' ') : '',
+  description: a.description || '',
+  route: a.route || 'art'
 }));
 ---
 
@@ -103,7 +104,7 @@ const searchIndex = artworks.map((a) => ({
 
       results.forEach((item, idx) => {
         const itemEl = document.createElement('a');
-        itemEl.href = `/art/${item.slug}`;
+        itemEl.href = `/${item.route}/${item.slug}`;
         itemEl.className = `search-item flex items-center justify-between p-3 rounded-lg border border-transparent transition-all cursor-pointer ${
           idx === 0 ? 'bg-white/[0.06] border-white/10 text-white' : 'hover:bg-white/[0.04] text-slate-300'
         }`;
@@ -173,12 +174,18 @@ const searchIndex = artworks.map((a) => ({
       }
 
       const filtered = searchIndex.filter((item) => {
+        const t = String(item.title || '').toLowerCase();
+        const c = String(item.category || '').toLowerCase();
+        const f = String(item.formulaCompact || '').toLowerCase();
+        const tg = String(item.tags || '').toLowerCase();
+        const d = String(item.description || '').toLowerCase();
+        
         return (
-          item.title.toLowerCase().includes(query) ||
-          item.category.toLowerCase().includes(query) ||
-          item.formulaCompact.toLowerCase().includes(query) ||
-          item.tags.toLowerCase().includes(query) ||
-          item.description.toLowerCase().includes(query)
+          t.includes(query) ||
+          c.includes(query) ||
+          f.includes(query) ||
+          tg.includes(query) ||
+          d.includes(query)
         );
       });
 

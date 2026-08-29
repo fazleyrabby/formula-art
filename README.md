@@ -1,6 +1,6 @@
 # Formula Art — Generative Mathematical Art Studio
 
-> A high-performance, zero-allocation generative art platform powered by pure mathematical formulas, Astro 5, HTML5 Canvas 2D, and an interactive Visual Studio.
+> A high-performance, generative art platform powered by WebGPU compute shaders, WebGL Raymarching, p5.js sketches, and pure mathematical formulas on HTML5 Canvas 2D.
 
 [![Astro](https://img.shields.io/badge/Astro-5.3+-BC52EE.svg)](https://astro.build)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-3178C6.svg)](https://www.typescriptlang.org/)
@@ -11,7 +11,7 @@
 
 ## ✨ Features
 
-- **61 Curated Mathematical Algorithms**: Featuring a deep-sea collection of 17 underwater/abyssal creatures, physics & mathematical study visualizations, fluid mechanics, weather systems, human biology, fractal geometry, and astrophysics.
+- **100+ Curated Algorithms**: Featuring real-time WebGPU fluid simulations, WGSL particle systems, WebGL raymarched fractals, p5.js creative coding sketches, and 2D math algorithms.
 - **Interactive Visual Studio (`/playground`)**: Sculpt generative art in real time using draggable radial rotary knobs, micro-sliders, archetype selectors, and style toggles.
 - **Zero-Allocation Canvas Engine**: Pre-allocated typed arrays (`Float32Array`) and primitive registers running smooth 60 FPS animations with zero garbage collection spikes.
 - **Visibility & Power Management**: Two-tier lifecycle pausing offscreen canvases via `content-visibility: auto` and `IntersectionObserver` to keep idle CPU usage at 0%.

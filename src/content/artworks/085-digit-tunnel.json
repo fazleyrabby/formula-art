@@ -1,0 +1,73 @@
+{
+  "id": "085",
+  "slug": "digit-tunnel",
+  "title": "Digit Tunnel 3D",
+  "subtitle": "Infinite spiraling character matrix",
+  "category": "experimental",
+  "description": "An infinite, twisted 3D tunnel mapped with procedural characters. It uses a 3D-to-2D perspective projection with Painter's Algorithm sorting to render thousands of digits in real-time, creating a mesmerizing vertigo effect.",
+  "algorithmKey": "digit-tunnel",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "speed",
+      "label": "Forward Speed",
+      "type": "range",
+      "min": 0,
+      "max": 5,
+      "step": 0.1,
+      "defaultValue": 1.0
+    },
+    {
+      "key": "curve",
+      "label": "Curve Intensity",
+      "type": "range",
+      "min": 0,
+      "max": 3,
+      "step": 0.1,
+      "defaultValue": 1.0
+    },
+    {
+      "key": "rotation",
+      "label": "Rotation Speed",
+      "type": "range",
+      "min": -2,
+      "max": 2,
+      "step": 0.1,
+      "defaultValue": 0.5
+    },
+    {
+      "key": "density",
+      "label": "Tunnel Density",
+      "type": "range",
+      "min": 0.5,
+      "max": 3,
+      "step": 0.1,
+      "defaultValue": 1.0
+    },
+    {
+      "key": "charset",
+      "label": "Character Set",
+      "type": "range",
+      "min": 0,
+      "max": 2,
+      "step": 1,
+      "defaultValue": 0
+    }
+  ],
+  "tags": [
+    "3d",
+    "tunnel",
+    "typography",
+    "projection",
+    "matrix"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Math Art Core"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "mathNotation": "f(z) = \\begin{bmatrix} R \\cos(\\theta + \\rho) \\\\ R \\sin(\\theta + \\rho) \\end{bmatrix} \\frac{fov}{z}",
+  "formulaCompact": "f(z) = [R cos(θ + ρ), R sin(θ + ρ)] * fov / z",
+  "formulaFull": "x = R * cos(a + ringRot) + curveX, y = R * sin(a + ringRot) + curveY"
+}
