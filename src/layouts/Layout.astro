@@ -5,6 +5,7 @@ import Footer from '../components/layout/Footer.astro';
 import SearchModal from '../components/gallery/SearchModal.astro';
 import SupportModal from '../components/common/SupportModal.astro';
 import SupportButton from '../components/common/SupportButton.astro';
+import CreatorLink from '../components/common/CreatorLink.astro';
 import { getCollection } from 'astro:content';
 import '../styles/global.css';
 import '../styles/canvas.css';
@@ -138,6 +139,7 @@ const finalSchema = schema || defaultSchema;
     <Footer />
     <SearchModal artworks={artworksData} />
     <SupportButton variant="floating" />
+    <CreatorLink />
     <SupportModal
       bmcUsername="fazleyrabbi"
       supportKoriUsername="fazleyrabbi"
