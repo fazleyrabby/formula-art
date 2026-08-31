@@ -1,10 +1,12 @@
-import type { ParameterState, TimeState } from '../types/engine';
+import type { ParameterState } from '../types/engine';
+import { getSharedWebGPUDevice } from './WebGPUContext';
 
 export interface WebGPUEngineOptions {
   canvas: HTMLCanvasElement;
   wgslCode: string;
   initialParams?: ParameterState;
   onFpsUpdate?: (fps: number) => void;
+  maxDpr?: number;
 }
 
 export class WebGPUEngine {
@@ -12,7 +14,6 @@ export class WebGPUEngine {
   private wgslCode: string;
   private params: ParameterState;
   
-  private adapter: GPUAdapter | null = null;
   private device: GPUDevice | null = null;
   private context: GPUCanvasContext | null = null;
   private pipeline: GPURenderPipeline | null = null;
@@ -25,24 +26,28 @@ export class WebGPUEngine {
   
   private startTime = 0;
   private frameCount = 0;
+  private lastFrameTime = 0;
   private fpsBuffer: number[] = [];
   private onFpsUpdate?: (fps: number) => void;
   
   private width = 400;
   private height = 400;
   private dpr = 1;
+  private maxDpr: number;
   private resizeObserver: ResizeObserver | null = null;
   
   private mouseX = 0;
   private mouseY = 0;
 
   private errorDiv: HTMLDivElement | null = null;
+  private uniformData = new Float32Array(64);
 
   constructor(options: WebGPUEngineOptions) {
     this.canvas = options.canvas;
     this.wgslCode = options.wgslCode;
     this.params = { ...options.initialParams };
     this.onFpsUpdate = options.onFpsUpdate;
+    this.maxDpr = options.maxDpr ?? 2;
 
     // Create an error overlay
     this.errorDiv = document.createElement('div');
@@ -82,10 +87,11 @@ export class WebGPUEngine {
       return;
     }
     
-    this.adapter = await navigator.gpu.requestAdapter();
-    if (!this.adapter) return;
-    
-    this.device = await this.adapter.requestDevice();
+    this.device = await getSharedWebGPUDevice();
+    if (!this.device) {
+      this.showError('WebGPU could not initialize on this device.');
+      return;
+    }
     this.context = this.canvas.getContext('webgpu');
     if (!this.context) return;
     
@@ -149,26 +155,37 @@ export class WebGPUEngine {
     this.setupMouseEvents();
   }
 
+  private showError(text: string) {
+    if (this.errorDiv) {
+      this.errorDiv.style.display = 'block';
+      this.errorDiv.textContent = text;
+    }
+  }
+
   private setupMouseEvents() {
-    this.canvas.addEventListener('mousemove', (e) => {
+    this.canvas.addEventListener('mousemove', this.handleMouseMove);
+    this.canvas.addEventListener('touchmove', this.handleTouchMove, { passive: true });
+  }
+
+  private handleMouseMove = (e: MouseEvent) => {
       const rect = this.canvas.getBoundingClientRect();
       this.mouseX = (e.clientX - rect.left) / rect.width;
       this.mouseY = 1.0 - ((e.clientY - rect.top) / rect.height);
-    });
-    this.canvas.addEventListener('touchmove', (e) => {
+  };
+
+  private handleTouchMove = (e: TouchEvent) => {
       if (e.touches.length > 0) {
         const rect = this.canvas.getBoundingClientRect();
         this.mouseX = (e.touches[0].clientX - rect.left) / rect.width;
         this.mouseY = 1.0 - ((e.touches[0].clientY - rect.top) / rect.height);
       }
-    }, { passive: true });
-  }
+  };
 
   private updateDimensions() {
     const rect = this.canvas.getBoundingClientRect();
     this.width = Math.max(10, Math.floor(rect.width));
     this.height = Math.max(10, Math.floor(rect.height));
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.dpr = Math.min(window.devicePixelRatio || 1, this.maxDpr);
     
     this.canvas.width = Math.floor(this.width * this.dpr);
     this.canvas.height = Math.floor(this.height * this.dpr);
@@ -210,10 +227,17 @@ export class WebGPUEngine {
     this.frameCount++;
     
     // FPS tracking
-    const fps = 60; // rough placeholder if not accurately measured
+    const delta = now - (this.lastFrameTime || now);
+    this.lastFrameTime = now;
+    const fps = delta > 0 ? Math.round(1000 / delta) : 60;
+    this.fpsBuffer.push(fps);
+    if (this.fpsBuffer.length > 20) this.fpsBuffer.shift();
+    const averageFps = Math.round(this.fpsBuffer.reduce((sum, value) => sum + value, 0) / this.fpsBuffer.length);
+    if (this.onFpsUpdate && this.frameCount % 10 === 0) this.onFpsUpdate(averageFps);
     
     // Update Uniforms (vec2 resolution, f32 time, f32 padding, vec2 mouse, f32 params...)
-    const uniformData = new Float32Array(64);
+    const uniformData = this.uniformData;
+    uniformData.fill(0);
     uniformData[0] = this.canvas.width;
     uniformData[1] = this.canvas.height;
     uniformData[2] = elapsedTime;
@@ -264,6 +288,15 @@ export class WebGPUEngine {
       this.resizeObserver.disconnect();
     }
     window.removeEventListener('unhandledrejection', this.handleError);
+    this.canvas.removeEventListener('mousemove', this.handleMouseMove);
+    this.canvas.removeEventListener('touchmove', this.handleTouchMove);
+    this.uniformBindGroup = null;
+    this.uniformBuffer?.destroy();
+    this.uniformBuffer = null;
+    this.pipeline = null;
+    this.context?.unconfigure();
+    this.context = null;
+    this.device = null;
     if (this.errorDiv && this.errorDiv.parentElement) {
       this.errorDiv.parentElement.removeChild(this.errorDiv);
     }

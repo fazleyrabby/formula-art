@@ -1,0 +1,76 @@
+<div class="algorithm-workbench" data-algorithm-workbench>
+  <div class="workbench-toolbar">
+    <div class="toolbar-group">
+      <button class="control-button control-primary" data-action="play" type="button" aria-label="Play visualization">Play</button>
+      <button class="control-button" data-action="step" type="button">Step</button>
+      <button class="control-button" data-action="reset" type="button">Reset</button>
+    </div>
+    <label class="speed-control">Speed <input data-speed type="range" min="1" max="10" value="5" /></label>
+  </div>
+  <div class="canvas-frame">
+    <canvas data-visualizer-canvas aria-label="Algorithm visualization"></canvas>
+    <div class="canvas-status"><span class="status-dot"></span><span data-message>Ready to run</span></div>
+  </div>
+  <div class="workbench-stats" aria-live="polite">
+    <div><span>Step</span><strong data-step>0 / 0</strong></div>
+    <div><span>Comparisons</span><strong data-comparisons>0</strong></div>
+    <div><span>Writes</span><strong data-writes>0</strong></div>
+    <div><span>Complexity</span><strong data-complexity>—</strong></div>
+  </div>
+</div>
+
+<script>
+  import { algorithmDefinitions, createSnapshots } from '../../algorithms/visualizations/algorithms';
+
+  const workbench = document.querySelector('[data-algorithm-workbench]') as HTMLElement;
+  const canvas = workbench?.querySelector('[data-visualizer-canvas]') as HTMLCanvasElement;
+  const ctx = canvas?.getContext('2d');
+  const select = document.querySelector('[data-algorithm-select]') as HTMLSelectElement;
+  const message = workbench?.querySelector('[data-message]') as HTMLElement;
+  const stepLabel = workbench?.querySelector('[data-step]') as HTMLElement;
+  const comparisonsLabel = workbench?.querySelector('[data-comparisons]') as HTMLElement;
+  const writesLabel = workbench?.querySelector('[data-writes]') as HTMLElement;
+  const complexityLabel = workbench?.querySelector('[data-complexity]') as HTMLElement;
+  const playButton = workbench?.querySelector('[data-action="play"]') as HTMLButtonElement;
+  const speedInput = workbench?.querySelector('[data-speed]') as HTMLInputElement;
+  let snapshots = createSnapshots('bubble-sort');
+  let index = 0;
+  let playing = false;
+  let lastTick = 0;
+
+  function resize() { if (!canvas || !ctx) return; const rect = canvas.getBoundingClientRect(); const dpr = Math.min(window.devicePixelRatio || 1, 2); canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); draw(); }
+  function nodePositions(width: number, height: number) { return Array.from({length: 6}, (_, i) => ({ x: width * (i % 3 === 0 ? .18 : i % 3 === 1 ? .5 : .82), y: height * (i < 3 ? .3 : .7) })); }
+  function draw() {
+    if (!ctx || !canvas) return; const state = snapshots[index]; const width = canvas.clientWidth; const height = canvas.clientHeight; ctx.clearRect(0, 0, width, height); ctx.fillStyle = '#0b0e15'; ctx.fillRect(0, 0, width, height);
+    if (state.values.length) { const gap = Math.max(5, Math.min(14, width / state.values.length / 4)); const barWidth = (width - gap * (state.values.length + 1)) / state.values.length; const max = Math.max(...state.values); state.values.forEach((value, i) => { const barHeight = (height - 90) * value / max; const x = gap + i * (barWidth + gap); const y = height - 38 - barHeight; const active = state.active.includes(i); const compared = state.compared.includes(i); const sorted = state.sorted.includes(i); ctx.fillStyle = active ? '#f8fafc' : compared ? '#38bdf8' : sorted ? '#34d399' : '#818cf8'; ctx.beginPath(); ctx.roundRect(x, y, barWidth, barHeight, 5); ctx.fill(); ctx.fillStyle = '#94a3b8'; ctx.font = '11px Geist Mono, monospace'; ctx.textAlign = 'center'; ctx.fillText(String(value), x + barWidth / 2, y - 9); }); ctx.fillStyle = '#475569'; ctx.font = '11px Geist Mono, monospace'; ctx.textAlign = 'left'; ctx.fillText('INDEX', gap, height - 14); }
+    else { const points = nodePositions(width, height - 20); state.edges.forEach(([a,b,isTree]) => { const from = points[a], to = points[b]; const inPath = state.path.includes(a) && state.path.includes(b); ctx.strokeStyle = isTree ? '#34d399' : inPath ? '#fbbf24' : '#273449'; ctx.lineWidth = isTree || inPath ? 3 : 1.5; ctx.beginPath(); ctx.moveTo(from.x, from.y); ctx.lineTo(to.x, to.y); ctx.stroke(); }); points.forEach((point, i) => { const active = state.currentNode === i; const visited = state.visited.includes(i); const frontier = state.frontier.includes(i); ctx.fillStyle = active ? '#f8fafc' : frontier ? '#38bdf8' : visited ? '#34d399' : '#1e293b'; ctx.strokeStyle = active ? '#f8fafc' : '#64748b'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(point.x, point.y, active ? 19 : 16, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.fillStyle = active ? '#0b0e15' : '#e2e8f0'; ctx.font = '600 12px Geist Mono, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i + 1), point.x, point.y); }); }
+    if (message) message.textContent = state.message; if (stepLabel) stepLabel.textContent = `${index} / ${snapshots.length - 1}`; if (comparisonsLabel) comparisonsLabel.textContent = String(state.comparisons); if (writesLabel) writesLabel.textContent = String(state.writes); const definition = algorithmDefinitions.find(item => item.id === select?.value); if (complexityLabel) complexityLabel.textContent = definition?.complexity ?? '—';
+  }
+  function load(id: string) { snapshots = createSnapshots(id); index = 0; playing = false; playButton.textContent = 'Play'; resize(); }
+  function tick(now: number) { if (!playing) return; const interval = 720 - Number(speedInput.value) * 65; if (now - lastTick > interval) { lastTick = now; if (index < snapshots.length - 1) index++; else { playing = false; playButton.textContent = 'Replay'; } draw(); } requestAnimationFrame(tick); }
+  playButton?.addEventListener('click', () => { if (index >= snapshots.length - 1) index = 0; playing = !playing; playButton.textContent = playing ? 'Pause' : 'Play'; if (playing) requestAnimationFrame(tick); });
+  workbench?.querySelector('[data-action="step"]')?.addEventListener('click', () => { playing = false; playButton.textContent = 'Play'; index = Math.min(index + 1, snapshots.length - 1); draw(); });
+  workbench?.querySelector('[data-action="reset"]')?.addEventListener('click', () => load(select?.value || 'bubble-sort'));
+  select?.addEventListener('change', () => load(select.value));
+  window.addEventListener('resize', resize); resize();
+</script>
+
+<style>
+  .algorithm-workbench { display: grid; gap: 12px; }
+  .workbench-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .toolbar-group { display: flex; gap: 8px; }
+  .control-button { border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: #cbd5e1; border-radius: 8px; padding: 8px 14px; font: 600 12px 'Geist Mono', monospace; cursor: pointer; transition: .2s ease; }
+  .control-button:hover, .control-button:focus-visible { border-color: rgba(56,189,248,.5); color: #fff; outline: none; }
+  .control-primary { background: rgba(56,189,248,.14); color: #67e8f9; border-color: rgba(56,189,248,.35); }
+  .speed-control { display: flex; align-items: center; gap: 10px; color: #94a3b8; font: 11px 'Geist Mono', monospace; }
+  .speed-control input { accent-color: #38bdf8; width: 110px; }
+  .canvas-frame { height: min(54vw, 520px); min-height: 300px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,.08); border-radius: 14px; background: #0b0e15; }
+  canvas { display: block; width: 100%; height: 100%; }
+  .canvas-status { position: absolute; left: 14px; bottom: 12px; display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid rgba(255,255,255,.08); border-radius: 7px; background: rgba(8,9,13,.82); color: #94a3b8; font: 11px 'Geist Mono', monospace; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #34d399; box-shadow: 0 0 12px rgba(52,211,153,.65); }
+  .workbench-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; overflow: hidden; }
+  .workbench-stats div { padding: 12px 14px; background: #10131c; display: grid; gap: 5px; }
+  .workbench-stats span { color: #64748b; font: 10px 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: .08em; }
+  .workbench-stats strong { color: #e2e8f0; font: 600 13px 'Geist Mono', monospace; }
+  @media (max-width: 600px) { .canvas-frame { min-height: 260px; } .workbench-stats { grid-template-columns: repeat(2, 1fr); } }
+</style>

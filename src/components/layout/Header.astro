@@ -73,11 +73,34 @@ try {
           <span>Playground</span>
           <span class="px-1.5 py-0.2 rounded text-[10px] font-mono bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20">LIVE</span>
         </a>
+        <a
+          href="/algorithms"
+          class="px-3 py-1.5 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-white/[0.04] transition-colors"
+        >
+          Algorithms
+        </a>
       </nav>
     </div>
 
     <!-- Right: Search, Random, Support, and Views (Right Aligned) -->
     <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+      <!-- Mobile Navigation Toggle -->
+      <button
+        type="button"
+        id="mobile-menu-toggle"
+        class="md:hidden h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-slate-300 hover:text-white hover:border-white/[0.15] transition-all"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="mobile-navigation"
+      >
+        <svg id="mobile-menu-open-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <svg id="mobile-menu-close-icon" class="hidden w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
       <!-- Search Trigger Button -->
       <button
         type="button"
@@ -125,7 +148,25 @@ try {
       </div>
     </div>
   </div>
+
+  <nav id="mobile-navigation" class="hidden md:hidden border-t border-white/[0.06] bg-[#08090d]/95 px-4 py-3" aria-label="Mobile navigation">
+    <div class="grid gap-1">
+      <a href="/" class="mobile-nav-link">2D Math <span>01</span></a>
+      <a href="/webgpu" class="mobile-nav-link">WebGPU <span>02</span></a>
+      <a href="/shaders" class="mobile-nav-link">Shaders <span>03</span></a>
+      <a href="/p5js" class="mobile-nav-link">p5.js <span>04</span></a>
+      <a href="/playground" class="mobile-nav-link">Playground <span class="mobile-live-mark">LIVE</span></a>
+      <a href="/algorithms" class="mobile-nav-link">Algorithms <span>06</span></a>
+    </div>
+  </nav>
 </header>
+
+<style>
+  .mobile-nav-link { display: flex; align-items: center; justify-content: space-between; padding: 11px 10px; border: 1px solid transparent; border-radius: 8px; color: #cbd5e1; font: 500 13px Geist, sans-serif; }
+  .mobile-nav-link:hover, .mobile-nav-link:focus-visible { border-color: rgba(56,189,248,.2); background: rgba(56,189,248,.06); color: #fff; outline: none; }
+  .mobile-nav-link span { color: #64748b; font: 10px 'Geist Mono', monospace; }
+  .mobile-nav-link .mobile-live-mark { color: #38bdf8; }
+</style>
 
 <script>
   // All slugs for random navigation
@@ -235,6 +276,31 @@ try {
     });
   }
 
+  function setupMobileMenu() {
+    const toggle = document.getElementById('mobile-menu-toggle');
+    const navigation = document.getElementById('mobile-navigation');
+    const openIcon = document.getElementById('mobile-menu-open-icon');
+    const closeIcon = document.getElementById('mobile-menu-close-icon');
+    if (!toggle || !navigation || toggle.dataset.initialized) return;
+    toggle.dataset.initialized = 'true';
+
+    toggle.addEventListener('click', () => {
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!isOpen));
+      toggle.setAttribute('aria-label', isOpen ? 'Open navigation menu' : 'Close navigation menu');
+      navigation.classList.toggle('hidden', isOpen);
+      openIcon?.classList.toggle('hidden', !isOpen);
+      closeIcon?.classList.toggle('hidden', isOpen);
+    });
+
+    navigation.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+      toggle.setAttribute('aria-expanded', 'false');
+      navigation.classList.add('hidden');
+      openIcon?.classList.remove('hidden');
+      closeIcon?.classList.add('hidden');
+    }));
+  }
+
   async function initVisitorCounter() {
     const headerCountEl = document.getElementById('header-visitor-count');
     if (!headerCountEl) return;
@@ -321,6 +387,7 @@ try {
 
   function initHeader() {
     setupRandomButton();
+    setupMobileMenu();
     if ('requestIdleCallback' in window) {
       (window as any).requestIdleCallback(() => initVisitorCounter(), { timeout: 2000 });
     } else {
