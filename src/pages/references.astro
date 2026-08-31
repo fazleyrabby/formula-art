@@ -1,0 +1,77 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const visualReferences = [
+  ['Taylor Sntx', 'https://x.com/taylor_sntx'],
+  ['Maxime Heckel', 'https://x.com/MaximeHeckel'],
+  ['flornkm', 'https://x.com/flornkm'],
+  ['MetalForge', 'https://metalforge.xyz/'],
+  ['Jaenam', 'https://x.com/Jaenam97'],
+  ['Juhani Halkomäki', 'https://x.com/JuhaniHalkomaki'],
+  ['Juhani Halkomäki — selected study', 'https://x.com/JuhaniHalkomaki/status/1558413027208208384'],
+  ['Juhani Halkomäki — selected study', 'https://x.com/JuhaniHalkomaki/status/1890688491232604163'],
+  ['Nat Sarkissian — selected study', 'https://x.com/_NatSarkissian/status/1882311808893276343'],
+  ['youtoy — selected study', 'https://x.com/youtoy/status/1966682917989740600'],
+  ['kickingkeys — selected study', 'https://x.com/kickingkeys/status/1881073292066636020'],
+  ['KAZOOOps — selected study', 'https://x.com/KAZOOOps/status/2093112240283275509'],
+  ['okazz_ — selected study', 'https://x.com/okazz_/status/1977275891136053565'],
+  ['mwiederrecht — selected study', 'https://x.com/mwiederrecht/status/1610628566613377027'],
+  ['basit_designs — selected study', 'https://x.com/basit_designs/status/2090427863988355450'],
+  ['xbh_artist — selected study', 'https://x.com/xbh_artist/status/2057426589932236948'],
+  ['The Math Flow — selected study', 'https://x.com/TheMathFlow/status/2091040722766164075'],
+  ['Taylor Sntx — selected study', 'https://x.com/taylor_sntx/status/2093455288154071069'],
+  ['zozuar', 'https://x.com/zozuar'],
+  ['zozuar — selected study', 'https://x.com/zozuar/status/2093410384975696042'],
+];
+
+const technicalReferences = [
+  ['The Book of Shaders', 'https://thebookofshaders.com/'],
+  ['MDN WebGPU API', 'https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API'],
+  ['WebGPU Fundamentals', 'https://webgpufundamentals.org/'],
+  ['WebGPU specification', 'https://gpuweb.github.io/gpuweb/'],
+  ['p5.js Reference', 'https://p5js.org/reference/'],
+  ['Shadertoy', 'https://www.shadertoy.com/'],
+];
+---
+
+<Layout title="References — Math Art" description="Visual and technical references informing Math Art.">
+  <main class="references-page">
+    <section class="references-intro">
+      <p class="references-kicker">Attribution / reference desk</p>
+      <h1>Built from study, shaped by code.</h1>
+      <p>Math Art is an original implementation and presentation. The visual language, shader techniques, creative-coding ideas, and experiments are informed by the people and resources below. This page is an acknowledgement, not a claim that every idea originated here.</p>
+    </section>
+
+    <div class="references-grid">
+      <section class="reference-section">
+        <div class="section-heading"><h2>Visual references</h2><span>{visualReferences.length} links</span></div>
+        <div class="reference-list">
+          {visualReferences.map(([label, url]) => <a href={url} target="_blank" rel="noreferrer">{label}<span>↗</span></a>)}
+        </div>
+      </section>
+      <section class="reference-section">
+        <div class="section-heading"><h2>Technical references</h2><span>{technicalReferences.length} links</span></div>
+        <div class="reference-list">
+          {technicalReferences.map(([label, url]) => <a href={url} target="_blank" rel="noreferrer">{label}<span>↗</span></a>)}
+        </div>
+      </section>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .references-page { max-width: 1100px; margin: 0 auto; padding: 72px 24px 110px; }
+  .references-intro { max-width: 760px; padding-bottom: 42px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .references-kicker { margin: 0 0 14px; color: #38bdf8; font: 11px 'Geist Mono', monospace; letter-spacing: .12em; text-transform: uppercase; }
+  h1 { margin: 0; color: #f8fafc; font: 700 clamp(2.5rem, 7vw, 5.5rem)/.96 Geist, sans-serif; letter-spacing: -.065em; }
+  .references-intro > p:last-child { max-width: 650px; margin: 22px 0 0; color: #94a3b8; font: 16px/1.7 Geist, sans-serif; }
+  .references-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 64px; padding-top: 42px; }
+  .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; padding-bottom: 13px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  h2 { margin: 0; color: #e2e8f0; font: 600 15px Geist, sans-serif; }
+  .section-heading span { color: #64748b; font: 10px 'Geist Mono', monospace; text-transform: uppercase; }
+  .reference-list { display: grid; }
+  .reference-list a { display: flex; justify-content: space-between; gap: 16px; padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,.05); color: #94a3b8; font: 12px/1.4 'Geist Mono', monospace; text-decoration: none; transition: color .2s ease, transform .2s ease; }
+  .reference-list a:hover, .reference-list a:focus-visible { transform: translateX(6px); color: #67e8f9; outline: none; }
+  .reference-list a span { color: #475569; }
+  @media (max-width: 750px) { .references-page { padding: 48px 18px 80px; } .references-grid { grid-template-columns: 1fr; gap: 48px; } }
+</style>
