@@ -22,7 +22,7 @@
 
 ---
 
-## 🎨 Algorithm Catalog (61 Production Artworks)
+## 🎨 Algorithm Catalog (101 Production Studies)
 
 | Category | Count | Algorithms |
 | :--- | :--- | :--- |

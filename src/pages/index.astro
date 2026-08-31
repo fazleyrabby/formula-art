@@ -4,15 +4,21 @@ import CategoryNav from '../components/gallery/CategoryNav.astro';
 import ArtGrid from '../components/gallery/ArtGrid.astro';
 import { getCollection } from 'astro:content';
 
-const allArtworks = await getCollection('artworks');
+const [allArtworks, allWebGPU, allShaders, allP5js] = await Promise.all([
+  getCollection('artworks'),
+  getCollection('webgpu'),
+  getCollection('shaders'),
+  getCollection('p5js')
+]);
 // Sort by ID
 allArtworks.sort((a, b) => a.data.id.localeCompare(b.data.id));
 const artworksData = allArtworks.map((a) => a.data);
+const totalStudies = allArtworks.length + allWebGPU.length + allShaders.length + allP5js.length;
 ---
 
 <Layout
-  title="Math Art — 100+ Generative WebGPU, Shaders, & Math Algorithms"
-  description="Explore 100+ self-contained mathematical generative animations. Interactive 60 FPS HTML5 algorithms across WebGPU particle systems, WebGL raymarching shaders, p5.js sketches, and pure 2D Canvas math."
+  title={`Math Art — ${totalStudies} Generative WebGPU, Shaders, & Math Studies`}
+  description={`Explore ${totalStudies} self-contained mathematical generative animations across WebGPU particle systems, WebGL raymarching shaders, p5.js sketches, and pure 2D Canvas math.`}
   keywords={[
     'math art',
     'generative animations',
@@ -41,8 +47,8 @@ const artworksData = allArtworks.map((a) => a.data);
       <!-- Quick Metrics Matrix -->
       <div class="flex items-center gap-4 sm:gap-6 font-mono text-xs text-slate-400 shrink-0">
         <div class="flex flex-col">
-          <span class="text-lg font-bold text-slate-100">{artworksData.length}</span>
-          <span class="text-[11px] text-slate-400">Artworks</span>
+          <span class="text-lg font-bold text-slate-100">{totalStudies}</span>
+          <span class="text-[11px] text-slate-400">Studies</span>
         </div>
         <div class="h-8 w-px bg-white/[0.08]"></div>
         <div class="flex flex-col">
