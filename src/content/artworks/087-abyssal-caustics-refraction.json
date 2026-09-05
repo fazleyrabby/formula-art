@@ -1,0 +1,82 @@
+{
+  "id": "087",
+  "slug": "abyssal-caustics-refraction",
+  "title": "Abyssal Caustics Refraction",
+  "subtitle": "Volumetric oceanic caustic web with chromatic dispersion",
+  "category": "fluid",
+  "description": "Inspired by Kelly Milligan (@kellymilligannz). Simulates real-time multi-harmonic underwater caustics with optical chromatic dispersion, volumetric sunbeams piercing the oceanic abyss, and drifting bioluminescent marine snow motes suspended in fluid micro-eddies.",
+  "algorithmKey": "abyssal-caustics-refraction",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "waterTurbulence",
+      "label": "Water Turbulence",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Current flow rate and caustic oscillation frequency"
+    },
+    {
+      "key": "causticIntensity",
+      "label": "Caustic Intensity",
+      "type": "range",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.4,
+      "description": "Luminance and geometric displacement of the caustic network"
+    },
+    {
+      "key": "chromaticDispersion",
+      "label": "Chromatic Dispersion",
+      "type": "range",
+      "min": 0.0,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Spectral wavelength separation across caustic edges"
+    },
+    {
+      "key": "depthGlow",
+      "label": "Volumetric Depth Glow",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Intensity of slanted crepuscular sunbeams in water column"
+    },
+    {
+      "key": "moteCount",
+      "label": "Marine Snow Count",
+      "type": "range",
+      "min": 30,
+      "max": 250,
+      "step": 10,
+      "defaultValue": 140,
+      "description": "Quantity of bioluminescent phytoplankton motes"
+    }
+  ],
+  "tags": [
+    "caustics",
+    "fluid",
+    "volumetric",
+    "ocean",
+    "refraction",
+    "kellymilligannz"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Kelly Milligan (@kellymilligannz) Tribute",
+    "url": "https://x.com/kellymilligannz",
+    "twitter": "@kellymilligannz"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "mathNotation": "I_{caustic}(x, y, \\lambda) = \\sum_{i=1}^4 \\sin\\left(\\vec{k}_i \\cdot \\vec{x} + \\omega_i t + \\delta(\\lambda)\\right)",
+  "formulaCompact": "I = sum(sin(k_i · x + ω_i * t + δ(λ)))",
+  "formulaFull": "w1 = sin(u*1.8 + v*0.9 + t), w2 = cos(u*1.1 - v*2.2 - t); curve = (w1 + w2) * amp",
+  "renderMode": "canvas-2d"
+}

@@ -23,27 +23,17 @@ const { artworks } = Astro.props;
   let observer: IntersectionObserver | null = null;
   let engineMap = new WeakMap<Element, WebGPUEngine>();
   const activeEngines: WebGPUEngine[] = [];
-  const visibleCards = new Set<Element>();
   let isTabVisible = true;
-
-  function resumeVisibleEngines() {
-    if (!isTabVisible) return;
-    let resumed = 0;
-    visibleCards.forEach((card) => {
-      const engine = engineMap.get(card);
-      if (engine && resumed < 2) {
-        engine.start();
-        resumed++;
-      } else if (engine) {
-        engine.stop();
-      }
-    });
-  }
 
   function handleVisibilityChange() {
     isTabVisible = !document.hidden;
-    if (!isTabVisible) activeEngines.forEach((engine) => engine.stop());
-    else resumeVisibleEngines();
+    activeEngines.forEach((engine) => {
+      if (!isTabVisible) {
+        engine.stop();
+      } else {
+        engine.start();
+      }
+    });
   }
 
   function initGridObserver() {
@@ -66,7 +56,6 @@ const { artworks } = Astro.props;
           if (!canvas) return;
 
           if (entry.isIntersecting) {
-            visibleCards.add(card);
             let engine = engineMap.get(card);
 
             if (!engine) {
@@ -92,15 +81,19 @@ const { artworks } = Astro.props;
               engineMap.set(card, engine);
               activeEngines.push(engine);
 
+              if (isTabVisible) {
+                engine.start();
+              }
+            } else {
+              if (isTabVisible) {
+                engine.start();
+              }
             }
-            resumeVisibleEngines();
           } else {
-            visibleCards.delete(card);
             const engine = engineMap.get(card);
             if (engine) {
               engine.stop();
             }
-            resumeVisibleEngines();
           }
         });
       },
@@ -110,7 +103,15 @@ const { artworks } = Astro.props;
       }
     );
 
-    cards.forEach((card) => observer!.observe(card));
+    cards.forEach((card) => {
+      observer!.observe(card);
+      card.addEventListener('pointerenter', () => {
+        const engine = engineMap.get(card);
+        if (engine && isTabVisible) {
+          engine.start();
+        }
+      });
+    });
   }
 
   function cleanupGridCanvases() {
@@ -120,7 +121,6 @@ const { artworks } = Astro.props;
     }
     activeEngines.forEach((engine) => engine.destroy());
     activeEngines.length = 0;
-    visibleCards.clear();
     engineMap = new WeakMap();
     document.removeEventListener('visibilitychange', handleVisibilityChange);
   }

@@ -153,6 +153,52 @@ export class WebGPUEngine {
 
     this.setupResizeObserver();
     this.setupMouseEvents();
+
+    // Immediately render an initial frame so the canvas is never black
+    this.renderSingleFrame(1.0);
+  }
+
+  public renderSingleFrame(time = 1.0) {
+    if (!this.device || !this.context || !this.pipeline || !this.uniformBuffer || !this.uniformBindGroup) {
+      return;
+    }
+
+    const uniformData = this.uniformData;
+    uniformData.fill(0);
+    uniformData[0] = this.canvas.width;
+    uniformData[1] = this.canvas.height;
+    uniformData[2] = time;
+    uniformData[3] = 0;
+    uniformData[4] = this.mouseX;
+    uniformData[5] = this.mouseY;
+
+    const paramValues = Object.values(this.params).map((v) => Number(v) || 0);
+    for (let i = 0; i < paramValues.length; i++) {
+      uniformData[6 + i] = paramValues[i];
+    }
+
+    this.device.queue.writeBuffer(this.uniformBuffer, 0, uniformData);
+
+    const commandEncoder = this.device.createCommandEncoder();
+    const textureView = this.context.getCurrentTexture().createView();
+
+    const renderPass = commandEncoder.beginRenderPass({
+      colorAttachments: [
+        {
+          view: textureView,
+          clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
+    });
+
+    renderPass.setPipeline(this.pipeline);
+    renderPass.setBindGroup(0, this.uniformBindGroup);
+    renderPass.draw(3);
+    renderPass.end();
+
+    this.device.queue.submit([commandEncoder.finish()]);
   }
 
   private showError(text: string) {

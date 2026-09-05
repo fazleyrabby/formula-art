@@ -1,0 +1,83 @@
+{
+  "id": "091",
+  "slug": "endless-descent",
+  "title": "No Land (Endless Void)",
+  "subtitle": "Terminal velocity descent on twin light rails",
+  "category": "experimental",
+  "description": "Inspired by A. L. Crego (@ALCrego_ / \"· No land ·\"). A glowing human figure plummets endlessly through a deep vertical abyss, suspended by two razor-sharp rails of light while thousands of cosmic particulate streaks rush upward at blinding terminal velocity.",
+  "algorithmKey": "endless-descent",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "fallSpeed",
+      "label": "Descent Velocity",
+      "type": "range",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Speed of upward rushing cosmic particle streaks"
+    },
+    {
+      "key": "trenchWidth",
+      "label": "Void Trench Width",
+      "type": "range",
+      "min": 35,
+      "max": 120,
+      "step": 5,
+      "defaultValue": 55,
+      "description": "Half-width of the dark vertical chasm"
+    },
+    {
+      "key": "beamGlow",
+      "label": "Light Rail Radiance",
+      "type": "range",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.5,
+      "description": "Bloom intensity of the twin parallel light cables and figure aura"
+    },
+    {
+      "key": "particleDensity",
+      "label": "Star Streak Density",
+      "type": "range",
+      "min": 400,
+      "max": 2400,
+      "step": 100,
+      "defaultValue": 1400,
+      "description": "Count of high-speed cosmic particulate streaks"
+    },
+    {
+      "key": "windTurbulence",
+      "label": "Wind Turbulence",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Aerodynamic flutter of the figure's body and limbs"
+    }
+  ],
+  "tags": [
+    "void",
+    "abyss",
+    "ALCrego",
+    "monochrome",
+    "terminal-velocity",
+    "light-rails",
+    "loop"
+  ],
+  "featured": true,
+  "author": {
+    "name": "A. L. Crego (@ALCrego_) Tribute",
+    "url": "https://x.com/ALCrego_/status/2093880922797953382",
+    "twitter": "@ALCrego_"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "mathNotation": "x(side, u) = x_c \\pm \\left(w_{\\text{void}} + (W - w_{\\text{void}}) u^{2.2}\\right), \\quad y(t) = (y_0 - v_{\\text{terminal}} t) \\bmod H",
+  "formulaCompact": "x = xc ± (w_void + dist * u^2.2), y -= v * dt",
+  "formulaFull": "streakLen = len * speedMult; ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y + streakLen);",
+  "renderMode": "canvas-2d"
+}

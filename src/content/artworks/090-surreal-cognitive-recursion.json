@@ -1,0 +1,72 @@
+{
+  "id": "090",
+  "slug": "surreal-cognitive-recursion",
+  "title": "Surreal Cognitive Recursion",
+  "subtitle": "Monochrome optical thought loop and impossible Escher staircase",
+  "category": "experimental",
+  "description": "Inspired by A. L. Crego (@ALCrego_). A stark monochrome optical surrealism study featuring recursive contemplation silhouettes, an impossible perpetual Escher staircase, rotating thought cogs with optical moiré line hatching, and cascading philosophical spheres in eternal harmonic motion.",
+  "algorithmKey": "surreal-cognitive-recursion",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "recursionSpeed",
+      "label": "Recursion Velocity",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 0.8,
+      "description": "Speed of perpetual descent through the impossible staircase"
+    },
+    {
+      "key": "moireDensity",
+      "label": "Moiré Hatching Density",
+      "type": "range",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Frequency of optical interference line patterns on steps and gears"
+    },
+    {
+      "key": "stairCycles",
+      "label": "Staircase Subdivisions",
+      "type": "range",
+      "min": 6,
+      "max": 20,
+      "step": 2,
+      "defaultValue": 12,
+      "description": "Number of architectural treads along the spiral descent"
+    },
+    {
+      "key": "cogRotation",
+      "label": "Clockwork Gear Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Rotational velocity of interlocking cranial thought gears"
+    }
+  ],
+  "tags": [
+    "monochrome",
+    "surrealism",
+    "optical-illusion",
+    "loop",
+    "escher",
+    "ALCrego"
+  ],
+  "featured": true,
+  "author": {
+    "name": "A. L. Crego (@ALCrego_) Tribute",
+    "url": "https://x.com/ALCrego_",
+    "twitter": "@ALCrego_"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "mathNotation": "r(\\theta, s) = R \\cdot \\left[\\left(\\frac{s}{N} + \\frac{t}{T}\\right) \\bmod 1\\right]^{1.6}, \\quad \\theta_s = 4\\pi \\cdot \\text{norm}(s)",
+  "formulaCompact": "r(s, t) = R * ((s/N + t/T) % 1)^1.6, θ = 4π * norm",
+  "formulaFull": "rInner = R * normStep^1.6, rOuter = R * min(1, normStep + 1/N)^1.6, angle = normStep * 4*PI",
+  "renderMode": "canvas-2d"
+}

@@ -1,0 +1,72 @@
+{
+  "id": "089",
+  "slug": "topological-semantic-constellation",
+  "title": "Topological Semantic Constellation",
+  "subtitle": "Force-directed semantic network with data packet propagation",
+  "category": "particles",
+  "description": "Inspired by Dominikus Baur (@dominikus). A dynamic self-organizing force-directed network graph driven by Coulomb repulsion, Hooke spring tension, curved edge bundling, real-time luminous data packet routing, and interactive cursor perturbation physics.",
+  "algorithmKey": "topological-semantic-constellation",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "clusterCount",
+      "label": "Semantic Clusters",
+      "type": "range",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "defaultValue": 5,
+      "description": "Number of semantic centroid hubs in the constellation"
+    },
+    {
+      "key": "springTension",
+      "label": "Spring Tension",
+      "type": "range",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Hooke elasticity restoring edge equilibrium lengths"
+    },
+    {
+      "key": "packetFlowSpeed",
+      "label": "Data Packet Velocity",
+      "type": "range",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Transit velocity of luminous information packets"
+    },
+    {
+      "key": "interactionRadius",
+      "label": "Cursor Interaction Radius",
+      "type": "range",
+      "min": 60,
+      "max": 280,
+      "step": 10,
+      "defaultValue": 160,
+      "description": "Spatial radius of mouse gravitational perturbation"
+    }
+  ],
+  "tags": [
+    "network",
+    "graph",
+    "force-directed",
+    "data-vis",
+    "interactive",
+    "dominikus"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Dominikus Baur (@dominikus) Tribute",
+    "url": "https://x.com/dominikus",
+    "twitter": "@dominikus"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "mathNotation": "\\vec{F}_i = \\sum_{j \\neq i} \\frac{k_r}{\\|\\vec{r}_{ij}\\|^2} \\hat{r}_{ij} - \\sum_{j \\in E_i} k_s (\\|\\vec{r}_{ij}\\| - d_0) \\hat{r}_{ij} - \\mu \\vec{v}_i",
+  "formulaCompact": "F_i = sum(k_r / d^2) - sum(k_s * (d - d0)) - μ * v",
+  "formulaFull": "F_rep = (dx / dist) * (k_r / dist^2); F_spring = (dx / dist) * (dist - L) * k_s",
+  "renderMode": "canvas-2d"
+}

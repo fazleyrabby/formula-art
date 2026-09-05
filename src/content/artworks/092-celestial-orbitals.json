@@ -1,0 +1,91 @@
+{
+  "id": "092",
+  "slug": "celestial-orbitals",
+  "title": "Orbitals",
+  "subtitle": "Homage to Dominikus Baur (@dominikus)",
+  "category": "geometry",
+  "description": "Generative fine-art homage to Dominikus Baur (@dominikus). A dense cluster of 3D-entangled beaded toroidal filaments coils around a hollow core, framed by high-contrast black and white slicing orbital tracks, floating eccentric satellite orbs, architectural ribbon wings with isoline cross-hatching, and an astrolabe dial on warm archival paper.",
+  "algorithmKey": "celestial-orbitals",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "speed",
+      "label": "Orbital Speed",
+      "type": "range",
+      "min": 0.1,
+      "max": 2.5,
+      "step": 0.05,
+      "defaultValue": 1.0,
+      "description": "Rate of toroidal filament rotation and satellite orbital progression"
+    },
+    {
+      "key": "wormCount",
+      "label": "Filament Core Density",
+      "type": "range",
+      "min": 18,
+      "max": 72,
+      "step": 2,
+      "defaultValue": 54,
+      "description": "Number of entangled 3D tubular filament strands"
+    },
+    {
+      "key": "orbitalRadius",
+      "label": "Astrolabe Dial Scale",
+      "type": "range",
+      "min": 0.6,
+      "max": 1.4,
+      "step": 0.05,
+      "defaultValue": 1.0,
+      "description": "Overall scaling of the astrolabe coordinate ring and tracks"
+    },
+    {
+      "key": "triangulationDensity",
+      "label": "Web Triangulation",
+      "type": "range",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Connection threshold distance for the constellation geometric mesh"
+    },
+    {
+      "key": "ribbonSpread",
+      "label": "Architectural Wing Span",
+      "type": "range",
+      "min": 0.5,
+      "max": 1.6,
+      "step": 0.05,
+      "defaultValue": 1.0,
+      "description": "Radial reach and curvature amplitude of the parametric ribbon shells"
+    },
+    {
+      "key": "darkMode",
+      "label": "Obsidian Ink Mode",
+      "type": "boolean",
+      "defaultValue": false,
+      "description": "Toggle between warm archival paper and luminous dark obsidian"
+    }
+  ],
+  "tags": [
+    "orbitals",
+    "astrolabe",
+    "dominikus",
+    "generative-art",
+    "torus-knot",
+    "monochrome",
+    "celestial",
+    "wireframe"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Dominikus Baur Tribute",
+    "url": "https://x.com/dominikus/status/2094847121052647706",
+    "twitter": "@dominikus"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "mathNotation": "\\mathbf{r}(u,v) = \\begin{pmatrix} (R + r\\cos v)\\cos u \\\\ (R + r\\cos v)\\sin u \\\\ r\\sin v + \\delta_z \\end{pmatrix}, \\quad \\theta_k(t) = \\omega_k t + \\phi_k",
+  "formulaCompact": "r(u,v) = ((R + r cos v)cos u, (R + r cos v)sin u, r sin v)",
+  "formulaFull": "const tx = (R + r * Math.cos(v)) * Math.cos(u); const ty = (R + r * Math.cos(v)) * Math.sin(u); const tz = r * Math.sin(v) + Math.sin(u * 3 + t) * 14;",
+  "renderMode": "canvas-2d"
+}

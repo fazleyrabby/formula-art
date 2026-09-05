@@ -362,3 +362,4 @@ fn fs_main(@builtin(position) fc: vec4f) -> @location(0) vec4f {
 
   return null;
 }
+

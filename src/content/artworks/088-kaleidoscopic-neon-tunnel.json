@@ -1,0 +1,82 @@
+{
+  "id": "088",
+  "slug": "kaleidoscopic-neon-tunnel",
+  "title": "Kaleidoscopic Neon Tunnel",
+  "subtitle": "Infinite psychedelic sacred geometry hyperspace",
+  "category": "geometry",
+  "description": "Inspired by Hexeosis (@hexeosis). An infinite psychedelic hyperspace tunnel pulsating with recursive sacred geometric star polyhedra, multi-order kaleidoscopic rosettes, and electric synthwave neon glow racing toward a central singularity.",
+  "algorithmKey": "kaleidoscopic-neon-tunnel",
+  "complexity": "high",
+  "parameters": [
+    {
+      "key": "zoomSpeed",
+      "label": "Tunnel Flight Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Velocity of camera descent through infinite geometric rings"
+    },
+    {
+      "key": "symmetryFolds",
+      "label": "Symmetry Folds",
+      "type": "range",
+      "min": 4,
+      "max": 16,
+      "step": 1,
+      "defaultValue": 8,
+      "description": "Rotational kaleidoscopic symmetry order of star polygons"
+    },
+    {
+      "key": "tunnelRings",
+      "label": "Tunnel Ring Count",
+      "type": "range",
+      "min": 16,
+      "max": 50,
+      "step": 2,
+      "defaultValue": 30,
+      "description": "Density of concentric geometric layers in depth"
+    },
+    {
+      "key": "neonPulse",
+      "label": "Neon Glow Intensity",
+      "type": "range",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.5,
+      "description": "Bloom and additive vibrance of spectral line emissions"
+    },
+    {
+      "key": "colorCycle",
+      "label": "Chromatic Cycle Rate",
+      "type": "range",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Speed of electric synthwave color rotation"
+    }
+  ],
+  "tags": [
+    "tunnel",
+    "psychedelic",
+    "sacred-geometry",
+    "neon",
+    "kaleidoscope",
+    "hexeosis"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Hexeosis (@hexeosis) Tribute",
+    "url": "https://x.com/hexeosis",
+    "twitter": "@hexeosis"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "mathNotation": "r(\\theta, z) = R \\cdot z^{2.2} \\left(1 + \\alpha \\cos(N\\theta) + \\gamma \\cos(2N\\theta + \\phi)\\right)",
+  "formulaCompact": "r = R * z^2.2 * (1 + α*cos(N*θ))",
+  "formulaFull": "zNorm = ((r / ringCount) + (t * 0.2)) % 1; radius = (zNorm ^ 2.2) * maxR",
+  "renderMode": "canvas-2d"
+}

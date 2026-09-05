@@ -1,0 +1,33 @@
+{
+  "id": "258",
+  "slug": "tsubuyaki-fractal-shader",
+  "title": "Folding Torus Fractal",
+  "subtitle": "Homage to Yohei Nishitsuji (@YoheiNishitsuji)",
+  "category": "micro-shaders",
+  "description": "Volumetric raymarched recursive folding fractal (#つぶやきGLSL) homage to Yohei Nishitsuji (@YoheiNishitsuji). Features a 7-iteration 3D axis-angle rotation with kaleidoscopic absolute folding and exponential glow accumulation.",
+  "algorithmKey": "tsubuyaki-fractal-shader",
+  "complexity": "high",
+  "parameters": [],
+  "tags": [
+    "glsl",
+    "tsubuyakiGLSL",
+    "yohei",
+    "fractal",
+    "raymarching",
+    "volumetric",
+    "folding",
+    "mandelbox"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Yohei Nishitsuji (@YoheiNishitsuji) Tribute",
+    "url": "https://x.com/YoheiNishitsuji",
+    "twitter": "@YoheiNishitsuji"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "mathNotation": "p_{k+1} = |2 \\mathbf{R}_{\\theta,\\mathbf{v}} p_k| - 2, \\quad \\mathbf{v} = \\begin{pmatrix} 1 \\\\ 1.5\\operatorname{smoothstep}(-1,1,\\sin 0.4t) - 0.5 \\\\ 0 \\end{pmatrix}",
+  "formulaCompact": "p = abs(rotate3D(1.57, v) * 2p) - 2",
+  "formulaFull": "for (int j=0; j<7; j++) { p = rotMat * p; p = abs(p + p) - 2.0; } e = (length(vec2(length(p.xz)-2.0, (p.y-p.x)*0.7)) - 0.6) / 800.0; o += exp(-e * 2000.0) / 40.0;",
+  "fragmentShader": "#version 300 es\nprecision highp float;\n\nuniform vec2 u_resolution;\nuniform vec2 u_mouse;\nuniform float u_time;\nout vec4 fragColor;\n\nmat2 rotate2D(float a) {\n    float c = cos(a), s = sin(a);\n    return mat2(c, -s, s, c);\n}\n\nmat3 rotate3D(float angle, vec3 axis) {\n    vec3 a = normalize(axis);\n    float s = sin(angle);\n    float c = cos(angle);\n    float oc = 1.0 - c;\n    \n    return mat3(\n        oc * a.x * a.x + c,        oc * a.x * a.y - a.z * s,  oc * a.z * a.x + a.y * s,\n        oc * a.x * a.y + a.z * s,  oc * a.y * a.y + c,        oc * a.y * a.z - a.x * s,\n        oc * a.z * a.x - a.y * s,  oc * a.y * a.z + a.x * s,  oc * a.z * a.z + c\n    );\n}\n\nvoid main() {\n    vec2 r = u_resolution.xy;\n    vec2 FC = gl_FragCoord.xy;\n    float t = u_time;\n    vec4 o = vec4(0.0);\n    \n    vec2 m = (u_mouse - 0.5) * 2.0;\n    vec3 rotAxis = vec3(1.0, 1.5 * smoothstep(-1.0, 1.0, sin(t * 0.4)) - 0.5, 0.0);\n    mat3 rotMat = rotate3D(1.5707963, rotAxis);\n    mat2 rotZY = rotate2D(t * 0.2 + m.y * 1.2);\n    mat2 rotXZ = rotate2D(m.x * 1.5);\n\n    float g = 0.0;\n    for (int i = 0; i < 45; i++) {\n        vec3 p = vec3((FC - r * 0.5) / r.y * g, g - 4.3);\n        p.zy *= rotZY;\n        p.xz *= rotXZ;\n        \n        for (int j = 0; j < 6; j++) {\n            p = rotMat * p;\n            p = abs(p + p) - 2.0;\n        }\n        \n        float e = (length(vec2(length(p.xz) - 2.0, (p.y - p.x) * 0.7)) - 0.6) / 800.0;\n        g += max(e, 0.02);\n        if (g > 10.0) break;\n        \n        float glow = exp(-max(e, 0.0) * 1800.0) / 35.0;\n        vec3 tint = vec3(\n            0.5 + 0.5 * cos(6.28318 * (0.0 + glow * 1.2 + t * 0.05)),\n            0.5 + 0.5 * cos(6.28318 * (0.33 + glow * 1.2 + t * 0.05)),\n            0.5 + 0.5 * cos(6.28318 * (0.67 + glow * 1.2 + t * 0.05))\n        );\n        o.rgb += glow * (vec3(0.8, 0.9, 1.2) + tint * 0.4);\n    }\n    \n    vec2 uv = (FC - 0.5 * r) / r.y;\n    o.rgb *= 1.0 - 0.22 * dot(uv, uv);\n    o.rgb = o.rgb / (1.0 + o.rgb);\n    o.a = 1.0;\n    \n    fragColor = o;\n}"
+}

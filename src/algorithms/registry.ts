@@ -17,12 +17,14 @@ export const algorithmLoaders: Record<string, AlgorithmModuleLoader> = {
   'atmospheric-tornado': () => import('./fluid/atmospheric-tornado'),
   'water-splash': () => import('./fluid/water-splash'),
   'rain-effect': () => import('./fluid/rain-effect'),
+  'abyssal-caustics-refraction': () => import('./fluid/abyssal-caustics-refraction'),
 
   // Particles
   'gravitational-swarm': () => import('./particles/gravitational-swarm'),
   'lissajous-web': () => import('./particles/lissajous-web'),
   'brownian-constellation': () => import('./particles/brownian-constellation'),
   'boids-flocking': () => import('./particles/boids-flocking'),
+  'topological-semantic-constellation': () => import('./particles/topological-semantic-constellation'),
 
   // Geometry
   'digit-tunnel': () => import('./math/digit-tunnel'),
@@ -34,6 +36,9 @@ export const algorithmLoaders: Record<string, AlgorithmModuleLoader> = {
   'baroque-filigrane': () => import('./geometry/baroque-filigrane'),
   'guilloche-filigrane': () => import('./geometry/guilloche-filigrane'),
   'damascene-filigrane': () => import('./geometry/damascene-filigrane'),
+  'harmonic-cube-wave': () => import('./geometry/harmonic-cube-wave'),
+  'kaleidoscopic-neon-tunnel': () => import('./geometry/kaleidoscopic-neon-tunnel'),
+  'celestial-orbitals': () => import('./geometry/celestial-orbitals'),
 
   // Waves
   'fourier-harmonics': () => import('./waves/fourier-harmonics'),
@@ -49,6 +54,8 @@ export const algorithmLoaders: Record<string, AlgorithmModuleLoader> = {
   // Experimental
   'continuous-cellular-automata': () => import('./experimental/continuous-cellular-automata'),
   'julia-morph': () => import('./experimental/julia-morph'),
+  'surreal-cognitive-recursion': () => import('./experimental/surreal-cognitive-recursion'),
+  'endless-descent': () => import('./experimental/endless-descent'),
 
   // Sea & Deep Sea Creatures
   'bioluminescent-jellyfish': () => import('./creatures/bioluminescent-jellyfish'),

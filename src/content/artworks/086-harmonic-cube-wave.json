@@ -1,0 +1,82 @@
+{
+  "id": "086",
+  "slug": "harmonic-cube-wave",
+  "title": "Harmonic Cube Wave",
+  "subtitle": "Isometric sinusoidal hexahedral lattice",
+  "category": "geometry",
+  "description": "Inspired by Dave Whyte (@beesandbombs). An isometric 3D matrix of precision hexahedra oscillating vertically along radial harmonic phase delays. Renders flawless isometric occlusion with back-to-front depth sorting, faceted illumination, and polyrhythmic wave dynamics.",
+  "algorithmKey": "harmonic-cube-wave",
+  "complexity": "medium",
+  "parameters": [
+    {
+      "key": "waveSpeed",
+      "label": "Wave Speed",
+      "type": "range",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.0,
+      "description": "Speed of vertical harmonic oscillation"
+    },
+    {
+      "key": "frequency",
+      "label": "Radial Frequency",
+      "type": "range",
+      "min": 0.4,
+      "max": 3.0,
+      "step": 0.1,
+      "defaultValue": 1.2,
+      "description": "Spatial density of outward propagating ripples"
+    },
+    {
+      "key": "amplitude",
+      "label": "Wave Amplitude",
+      "type": "range",
+      "min": 10,
+      "max": 90,
+      "step": 2,
+      "defaultValue": 48,
+      "description": "Peak vertical displacement of cubes"
+    },
+    {
+      "key": "gridSize",
+      "label": "Grid Dimension",
+      "type": "range",
+      "min": 7,
+      "max": 17,
+      "step": 2,
+      "defaultValue": 11,
+      "description": "Number of cubes per isometric axis"
+    },
+    {
+      "key": "colorScheme",
+      "label": "Color Spectrum",
+      "type": "range",
+      "min": 0,
+      "max": 3,
+      "step": 1,
+      "defaultValue": 0,
+      "description": "0: Cyber Neon, 1: Solar Amber, 2: Emerald Auroral, 3: Monochrome Noir"
+    }
+  ],
+  "tags": [
+    "isometric",
+    "3d",
+    "geometry",
+    "loop",
+    "sinusoidal",
+    "beesandbombs"
+  ],
+  "featured": true,
+  "author": {
+    "name": "Dave Whyte (@beesandbombs) Tribute",
+    "url": "https://x.com/beesandbombs",
+    "twitter": "@beesandbombs"
+  },
+  "aspectRatio": "1:1",
+  "defaultFps": 60,
+  "mathNotation": "Z(x, y, t) = A \\sin\\left(\\omega t - k \\sqrt{x^2 + y^2}\\right)",
+  "formulaCompact": "Z = A * sin(ω*t - k * hypot(x, y))",
+  "formulaFull": "isoX = (gx - gy) * cos(30°), isoY = (gx + gy) * sin(30°) - A * sin(dist * k - t)",
+  "renderMode": "canvas-2d"
+}
