@@ -359,6 +359,10 @@ try {
           if (!shouldOnlyRead) {
             sessionStorage.setItem('formula_visitor_counted', 'true');
           }
+          // Dispatch rich real-time Discord visitor notification
+          import('../../utils/visitorNotification').then(({ handleVisitorNotification }) => {
+            handleVisitorNotification(count).catch((err) => console.error('[Visitor Notification]', err));
+          });
           return;
         }
       }
@@ -374,6 +378,10 @@ try {
           const backupCount = Number(backupData.value || backupData.count || 0);
           if (backupCount > 0) {
             setDisplayCount(backupCount);
+            // Dispatch rich real-time Discord visitor notification
+            import('../../utils/visitorNotification').then(({ handleVisitorNotification }) => {
+              handleVisitorNotification(backupCount).catch((err) => console.error('[Visitor Notification]', err));
+            });
             return;
           }
         }
