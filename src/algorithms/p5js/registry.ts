@@ -516,19 +516,28 @@ p.windowResized = () => { if(p.container) p.resizeCanvas(p.container.clientWidth
   if (slug === "rain-ripples-p5") {
     return {
       sketch: (p: any) => {
-        // Rain Ripples — colorful raindrops & expanding water ripples
+        // Rain Ripples — colorful raindrops on a water surface, viewed at an angle
         // Inspired by Okazz (@okazz_) — https://x.com/okazz_/status/2100938132002914437
         // Original p5.js implementation for Math Art.
 
         let drops: any[] = [];
         let ripples: any[] = [];
-        let dots: Array<{ x: number; y: number }> = [];
-        let cols = 0;
-        let rows = 0;
-        let curGrid = 16;
+        let dots: Array<{ x: number; y: number; s: number; t: number }> = [];
+        let W = 0;
+        let H = 0;
+        let cx = 0;
+        let horizonY = 0;
+        let bottomY = 0;
+        let sNear = 1;
+        let worldHalf = 8;
+        let Zmax = 40;
+        let P = 1.2;
         let spawnAcc = 0;
-        let baseHue = 0;
-        const MAX_RIPPLES = 48;
+        let U = 1;
+        let curView = 0;
+        let curSpacing = 0;
+        const MAX_RIPPLES = 60;
+        const MARGIN = 60;
 
         function param(key: string, fallback: number): number {
           const pr = p.getParams ? p.getParams() : null;
@@ -536,38 +545,83 @@ p.windowResized = () => { if(p.container) p.resizeCanvas(p.container.clientWidth
           return typeof v === "number" ? v : fallback;
         }
 
-        function buildGrid(g: number) {
-          curGrid = g;
-          cols = Math.ceil(p.width / g) + 2;
-          rows = Math.ceil(p.height / g) + 2;
+        function tFromZ(z: number) {
+          return Math.max(0, Math.min(1, z / Zmax));
+        }
+        function yAtT(t: number) {
+          return horizonY + (bottomY - horizonY) * (1 - t) / (1 + P * t);
+        }
+        function scaleAtT(t: number) {
+          return sNear * (1 - 0.68 * t);
+        }
+        function fprimeAtT(t: number) {
+          return (bottomY - horizonY) * (1 + P) / (Zmax * Math.pow(1 + P * t, 2));
+        }
+        function projectGround(x: number, z: number) {
+          const t = tFromZ(z);
+          return { x: cx + x * scaleAtT(t), y: yAtT(t), s: scaleAtT(t), fp: fprimeAtT(t), t: t };
+        }
+
+        function buildScene() {
+          W = p.width;
+          H = p.height;
+          U = H / 800;
+          cx = W * 0.5;
+          horizonY = H * 0.2;
+          bottomY = H * 1.03;
+          const spacing = Math.max(12, Math.round(param("gridSize", 22)));
+          const view = param("viewAngle", 40);
+          curSpacing = spacing;
+          curView = view;
+          const k0 = p.map(view, 15, 70, 0.4, 0.92);
+          sNear = (W * 0.5 + MARGIN) / worldHalf;
+          Zmax = (bottomY - horizonY) * (1 + P) * worldHalf / ((W * 0.5 + MARGIN) * k0);
+          const rows = Math.max(24, Math.round((bottomY - horizonY) * (1 + P) / spacing));
           dots = [];
-          for (let j = 0; j < rows; j++) {
-            for (let i = 0; i < cols; i++) {
-              dots.push({ x: i * g, y: j * g });
+          for (let j = 0; j <= rows; j++) {
+            const t = j / rows;
+            const s = scaleAtT(t);
+            const y = yAtT(t);
+            if (y < horizonY + 1) continue;
+            const halfRow = (W * 0.5 + MARGIN) / s;
+            const step = Math.max(0.04, spacing / s);
+            for (let x = -halfRow; x <= halfRow; x += step) {
+              dots.push({ x: cx + x * s, y: y, s: s, t: t });
             }
           }
         }
 
         function spawnDrop() {
-          const hue = (baseHue + p.random(-45, 45) + 360) % 360;
+          const x = p.random(-worldHalf * 0.85, worldHalf * 0.85);
+          const z = p.random(Zmax * 0.03, Zmax * 0.72);
+          const target = projectGround(x, z);
+          const duration = p.random(0.55, 1.15);
           drops.push({
-            x: p.random(p.width),
-            y: p.random(-140, -20),
-            vy: p.random(5, 9) * Math.max(0.7, p.height / 800),
-            len: p.random(12, 34),
-            target: p.random(p.height * 0.1, p.height * 0.98),
-            hue: hue,
+            wx: x,
+            wz: z,
+            tx: target.x,
+            ty: target.y,
+            x: target.x + p.random(-16, 16),
+            y: p.random(-170, -30),
+            vy: (target.y + 80) / duration,
+            len: p.random(14, 40) * U,
+            hue: p.random(360),
           });
         }
 
-        function spawnRipple(x: number, y: number, hue: number) {
-          const reach = param("rippleReach", 220);
+        function spawnRipple(x: number, z: number, hue: number) {
+          const reach = param("rippleReach", 220) / 100;
+          const pt = projectGround(x, z);
           ripples.push({
-            x: x,
-            y: y,
+            wx: x,
+            wz: z,
+            cx: pt.x,
+            cy: pt.y,
+            s: pt.s,
+            fp: pt.fp,
             r: 0,
             life: 1,
-            maxR: p.random(reach * 0.55, reach),
+            maxR: p.random(reach * 0.45, reach),
             hue: hue,
           });
           if (ripples.length > MAX_RIPPLES) ripples.shift();
@@ -579,21 +633,28 @@ p.windowResized = () => { if(p.container) p.resizeCanvas(p.container.clientWidth
           p.createCanvas(w, h);
           p.colorMode(p.HSB, 360, 100, 100, 100);
           p.noStroke();
-          buildGrid(param("gridSize", 16));
+          buildScene();
         };
 
         p.draw = () => {
-          const speed = param("rippleSpeed", 90);
+          const spacing = Math.max(12, Math.round(param("gridSize", 22)));
+          const view = param("viewAngle", 40);
+          if (spacing !== curSpacing || view !== curView) buildScene();
+
+          const speed = param("rippleSpeed", 90) / 100;
           const density = param("rainDensity", 9);
           const shift = param("colorShift", 0);
-          const g = Math.max(8, Math.round(param("gridSize", 16)));
-
-          if (g !== curGrid) buildGrid(g);
-
-          baseHue = (baseHue + 0.35) % 360;
           const dt = Math.min(1 / 30, p.deltaTime / 1000);
 
-          p.background(228, 55, 6);
+          // Smooth deep-water backdrop with a faint horizon sheen
+          const grad = p.drawingContext.createLinearGradient(0, 0, 0, H);
+          grad.addColorStop(0, 'rgb(7,9,20)');
+          grad.addColorStop(0.18, 'rgb(20,32,52)');
+          grad.addColorStop(0.205, 'rgb(9,16,30)');
+          grad.addColorStop(0.6, 'rgb(7,12,24)');
+          grad.addColorStop(1, 'rgb(5,8,16)');
+          p.drawingContext.fillStyle = grad;
+          p.drawingContext.fillRect(0, 0, W, H);
           p.noStroke();
 
           // Spawn raindrops
@@ -603,18 +664,19 @@ p.windowResized = () => { if(p.container) p.resizeCanvas(p.container.clientWidth
             spawnDrop();
           }
 
-          // Falling raindrop streaks
-          p.strokeWeight(1.4);
-          p.stroke(200, 25, 96, 42);
+          // Falling streaks
+          p.strokeWeight(1.4 * U);
+          p.stroke(200, 22, 98, 42);
           for (let i = drops.length - 1; i >= 0; i--) {
             const d = drops[i];
-            d.y += d.vy;
-            if (d.y >= d.target) {
-              spawnRipple(d.x, d.target, d.hue);
+            d.y += d.vy * dt;
+            if (d.y >= d.ty) {
+              spawnRipple(d.wx, d.wz, d.hue);
               drops.splice(i, 1);
               continue;
             }
-            p.line(d.x, d.y, d.x, d.y - d.len);
+            const x = p.lerp(d.tx, d.x, p.constrain((d.ty - d.y) / (d.ty + 80), 0, 1));
+            p.line(x, d.y, x, d.y - d.len);
           }
           p.noStroke();
 
@@ -627,46 +689,54 @@ p.windowResized = () => { if(p.container) p.resizeCanvas(p.container.clientWidth
           }
 
           // Dot field lit by passing ripple rings
-          const band = curGrid * 1.9;
           for (let k = 0; k < dots.length; k++) {
             const dot = dots[k];
             let best = 0;
             let hue = 0;
-
             for (let i = 0; i < ripples.length; i++) {
               const rp = ripples[i];
-              const dx = dot.x - rp.x;
-              const dy = dot.y - rp.y;
-              const dist2 = dx * dx + dy * dy;
-              const inner = rp.r - band;
-              const outer = rp.r + band;
-              if (dist2 > outer * outer) continue;
-              if (inner > 0 && dist2 < inner * inner) continue;
-              const dist = Math.sqrt(dist2);
-              const k2 = (1 - Math.abs(dist - rp.r) / band) * rp.life;
-              if (k2 > best) {
-                best = k2;
-                hue = (rp.hue + dist * 0.7 + shift) % 360;
+              const dx = (dot.x - rp.cx) / rp.s;
+              const dy = (dot.y - rp.cy) / rp.fp;
+              const D = Math.sqrt(dx * dx + dy * dy);
+              const band = 1.1 * spacing / rp.s;
+              const diff = Math.abs(D - rp.r);
+              if (diff > band) continue;
+              const w = (1 - diff / band) * rp.life;
+              if (w > best) {
+                best = w;
+                hue = (rp.hue + D * 22 + shift) % 360;
               }
             }
-
+            const depthFade = 1 - dot.t * 0.7;
             if (best <= 0.02) {
-              p.fill(220, 30, 13, 100);
-              p.circle(dot.x, dot.y, Math.max(1.1, curGrid * 0.12));
+              p.fill(212, 40, p.lerp(9, 22, depthFade), 100);
+              p.circle(dot.x, dot.y, Math.max(1.2, dot.s * 0.04));
             } else {
-              p.fill(hue, 85, 100, 100);
-              p.circle(dot.x, dot.y, curGrid * (0.16 + best * 0.66));
+              p.fill(hue, 82, 100, 100 * p.lerp(0.5, 1, depthFade));
+              p.circle(dot.x, dot.y, dot.s * (0.04 + best * 0.17));
             }
           }
 
-          // Additive glow band for each ripple
+          // Additive ripple rings, projected so they read as ellipses on the plane
           p.blendMode(p.ADD);
           p.noFill();
-          p.strokeWeight(curGrid * 0.8);
+          const SEG = 48;
           for (let i = 0; i < ripples.length; i++) {
             const rp = ripples[i];
-            p.stroke((rp.hue + shift + 360) % 360, 55, 100, 9 * rp.life);
-            p.circle(rp.x, rp.y, rp.r * 2);
+            for (let ring = 0; ring < 3; ring++) {
+              const R = rp.r * (1 - ring * 0.22);
+              p.strokeWeight((2.0 + ring * 1.4) * (0.55 + 0.45 * rp.life));
+              p.stroke((rp.hue + shift + ring * 34 + 360) % 360, 62, 100, (20 - ring * 5) * rp.life);
+              p.beginShape();
+              for (let a = 0; a <= SEG; a++) {
+                const ang = (a / SEG) * p.TWO_PI;
+                const wx = rp.wx + R * Math.cos(ang);
+                const wz = Math.max(0.05, Math.min(Zmax, rp.wz + R * Math.sin(ang)));
+                const t = tFromZ(wz);
+                p.vertex(cx + wx * scaleAtT(t), yAtT(t));
+              }
+              p.endShape();
+            }
           }
           p.noStroke();
           p.blendMode(p.BLEND);
@@ -675,13 +745,12 @@ p.windowResized = () => { if(p.container) p.resizeCanvas(p.container.clientWidth
         p.windowResized = () => {
           if (p.container) {
             p.resizeCanvas(p.container.clientWidth, p.container.clientHeight);
-            buildGrid(curGrid);
+            buildScene();
           }
         };
       },
     };
   }
-
   return null;
 }
 

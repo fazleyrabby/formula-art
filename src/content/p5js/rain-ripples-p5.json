@@ -2,12 +2,22 @@
   "id": "417",
   "slug": "rain-ripples-p5",
   "title": "Rain Ripples",
-  "subtitle": "Colorful raindrops & expanding water ripples",
+  "subtitle": "Angled view of colorful raindrops on water",
   "category": "waves",
-  "description": "Raindrops fall onto a dark water surface and burst into expanding rainbow rings. A lattice of dots lights up in shifting hues as each ripple passes through it, with additive glow bands tracing every wavefront. Inspired by Okazz's #p5js raindrop study.",
+  "description": "Raindrops strike an angled water surface and burst into expanding rainbow ripples. A lattice of dots recedes toward the horizon, lighting up in shifting hues as each elliptical wavefront sweeps through it, with additive glow rings tracing the surface. Inspired by Okazz's #p5js raindrop study.",
   "algorithmKey": "rain-ripples-p5",
   "complexity": "medium",
   "parameters": [
+    {
+      "key": "viewAngle",
+      "label": "View Angle",
+      "type": "range",
+      "min": 15,
+      "max": 70,
+      "step": 1,
+      "defaultValue": 40,
+      "description": "Tilt of the camera above the water surface (lower = more oblique)"
+    },
     {
       "key": "rainDensity",
       "label": "Rainfall",
@@ -15,7 +25,7 @@
       "min": 1,
       "max": 24,
       "step": 1,
-      "defaultValue": 9,
+      "defaultValue": 10,
       "description": "Number of raindrops striking the surface per second"
     },
     {
@@ -42,11 +52,11 @@
       "key": "gridSize",
       "label": "Dot Spacing",
       "type": "range",
-      "min": 10,
-      "max": 30,
+      "min": 12,
+      "max": 32,
       "step": 1,
-      "defaultValue": 16,
-      "description": "Spacing of the dot lattice (smaller = denser field)"
+      "defaultValue": 22,
+      "description": "Screen spacing of the water dot lattice"
     },
     {
       "key": "colorShift",
@@ -56,7 +66,7 @@
       "max": 360,
       "step": 1,
       "defaultValue": 0,
-      "description": "Rotates the entire rainbow palette around the color wheel"
+      "description": "Rotates the rainbow palette around the color wheel"
     }
   ],
   "tags": [
@@ -67,6 +77,7 @@
     "colorful",
     "okazz",
     "water",
+    "isometric",
     "generative-art"
   ],
   "featured": true,
@@ -77,5 +88,5 @@
   },
   "aspectRatio": "1:1",
   "defaultFps": 60,
-  "sketchCode": "// Rain Ripples — colorful raindrops & expanding water ripples\n// Inspired by Okazz (@okazz_) — https://x.com/okazz_/status/2100938132002914437\n// Original p5.js implementation for Math Art.\n\nlet drops: any[] = [];\nlet ripples: any[] = [];\nlet dots: Array<{ x: number; y: number }> = [];\nlet cols = 0;\nlet rows = 0;\nlet curGrid = 16;\nlet spawnAcc = 0;\nlet baseHue = 0;\nconst MAX_RIPPLES = 48;\n\nfunction param(key: string, fallback: number): number {\n  const pr = p.getParams ? p.getParams() : null;\n  const v = pr ? pr[key] : undefined;\n  return typeof v === \"number\" ? v : fallback;\n}\n\nfunction buildGrid(g: number) {\n  curGrid = g;\n  cols = Math.ceil(p.width / g) + 2;\n  rows = Math.ceil(p.height / g) + 2;\n  dots = [];\n  for (let j = 0; j < rows; j++) {\n    for (let i = 0; i < cols; i++) {\n      dots.push({ x: i * g, y: j * g });\n    }\n  }\n}\n\nfunction spawnDrop() {\n  const hue = (baseHue + p.random(-45, 45) + 360) % 360;\n  drops.push({\n    x: p.random(p.width),\n    y: p.random(-140, -20),\n    vy: p.random(5, 9) * Math.max(0.7, p.height / 800),\n    len: p.random(12, 34),\n    target: p.random(p.height * 0.1, p.height * 0.98),\n    hue: hue,\n  });\n}\n\nfunction spawnRipple(x: number, y: number, hue: number) {\n  const reach = param(\"rippleReach\", 220);\n  ripples.push({\n    x: x,\n    y: y,\n    r: 0,\n    life: 1,\n    maxR: p.random(reach * 0.55, reach),\n    hue: hue,\n  });\n  if (ripples.length > MAX_RIPPLES) ripples.shift();\n}\n\np.setup = () => {\n  const w = p.container ? p.container.clientWidth : 800;\n  const h = p.container ? p.container.clientHeight : 800;\n  p.createCanvas(w, h);\n  p.colorMode(p.HSB, 360, 100, 100, 100);\n  p.noStroke();\n  buildGrid(param(\"gridSize\", 16));\n};\n\np.draw = () => {\n  const speed = param(\"rippleSpeed\", 90);\n  const density = param(\"rainDensity\", 9);\n  const shift = param(\"colorShift\", 0);\n  const g = Math.max(8, Math.round(param(\"gridSize\", 16)));\n\n  if (g !== curGrid) buildGrid(g);\n\n  baseHue = (baseHue + 0.35) % 360;\n  const dt = Math.min(1 / 30, p.deltaTime / 1000);\n\n  p.background(228, 55, 6);\n  p.noStroke();\n\n  // Spawn raindrops\n  spawnAcc += density * dt;\n  while (spawnAcc >= 1) {\n    spawnAcc -= 1;\n    spawnDrop();\n  }\n\n  // Falling raindrop streaks\n  p.strokeWeight(1.4);\n  p.stroke(200, 25, 96, 42);\n  for (let i = drops.length - 1; i >= 0; i--) {\n    const d = drops[i];\n    d.y += d.vy;\n    if (d.y >= d.target) {\n      spawnRipple(d.x, d.target, d.hue);\n      drops.splice(i, 1);\n      continue;\n    }\n    p.line(d.x, d.y, d.x, d.y - d.len);\n  }\n  p.noStroke();\n\n  // Expand ripples\n  for (let i = ripples.length - 1; i >= 0; i--) {\n    const rp = ripples[i];\n    rp.r += speed * dt;\n    rp.life = Math.max(0, 1 - rp.r / rp.maxR);\n    if (rp.r >= rp.maxR) ripples.splice(i, 1);\n  }\n\n  // Dot field lit by passing ripple rings\n  const band = curGrid * 1.9;\n  for (let k = 0; k < dots.length; k++) {\n    const dot = dots[k];\n    let best = 0;\n    let hue = 0;\n\n    for (let i = 0; i < ripples.length; i++) {\n      const rp = ripples[i];\n      const dx = dot.x - rp.x;\n      const dy = dot.y - rp.y;\n      const dist2 = dx * dx + dy * dy;\n      const inner = rp.r - band;\n      const outer = rp.r + band;\n      if (dist2 > outer * outer) continue;\n      if (inner > 0 && dist2 < inner * inner) continue;\n      const dist = Math.sqrt(dist2);\n      const k2 = (1 - Math.abs(dist - rp.r) / band) * rp.life;\n      if (k2 > best) {\n        best = k2;\n        hue = (rp.hue + dist * 0.7 + shift) % 360;\n      }\n    }\n\n    if (best <= 0.02) {\n      p.fill(220, 30, 13, 100);\n      p.circle(dot.x, dot.y, Math.max(1.1, curGrid * 0.12));\n    } else {\n      p.fill(hue, 85, 100, 100);\n      p.circle(dot.x, dot.y, curGrid * (0.16 + best * 0.66));\n    }\n  }\n\n  // Additive glow band for each ripple\n  p.blendMode(p.ADD);\n  p.noFill();\n  p.strokeWeight(curGrid * 0.8);\n  for (let i = 0; i < ripples.length; i++) {\n    const rp = ripples[i];\n    p.stroke((rp.hue + shift + 360) % 360, 55, 100, 9 * rp.life);\n    p.circle(rp.x, rp.y, rp.r * 2);\n  }\n  p.noStroke();\n  p.blendMode(p.BLEND);\n};\n\np.windowResized = () => {\n  if (p.container) {\n    p.resizeCanvas(p.container.clientWidth, p.container.clientHeight);\n    buildGrid(curGrid);\n  }\n};"
+  "sketchCode": "// Rain Ripples — colorful raindrops on a water surface, viewed at an angle\n// Inspired by Okazz (@okazz_) — https://x.com/okazz_/status/2100938132002914437\n// Original p5.js implementation for Math Art.\n\nlet drops = [];\nlet ripples = [];\nlet dots = [];\nlet W = 0;\nlet H = 0;\nlet cx = 0;\nlet horizonY = 0;\nlet bottomY = 0;\nlet sNear = 1;\nlet worldHalf = 8;\nlet Zmax = 40;\nlet P = 1.2;\nlet spawnAcc = 0;\nlet U = 1;\nlet curView = 0;\nlet curSpacing = 0;\nconst MAX_RIPPLES = 60;\nconst MARGIN = 60;\n\nfunction param(key, fallback) {\n  const pr = p.getParams ? p.getParams() : null;\n  const v = pr ? pr[key] : undefined;\n  return typeof v === \"number\" ? v : fallback;\n}\n\nfunction tFromZ(z) {\n  return Math.max(0, Math.min(1, z / Zmax));\n}\nfunction yAtT(t) {\n  return horizonY + (bottomY - horizonY) * (1 - t) / (1 + P * t);\n}\nfunction scaleAtT(t) {\n  return sNear * (1 - 0.68 * t);\n}\nfunction fprimeAtT(t) {\n  return (bottomY - horizonY) * (1 + P) / (Zmax * Math.pow(1 + P * t, 2));\n}\nfunction projectGround(x, z) {\n  const t = tFromZ(z);\n  return { x: cx + x * scaleAtT(t), y: yAtT(t), s: scaleAtT(t), fp: fprimeAtT(t), t: t };\n}\n\nfunction buildScene() {\n  W = p.width;\n  H = p.height;\n  U = H / 800;\n  cx = W * 0.5;\n  horizonY = H * 0.2;\n  bottomY = H * 1.03;\n  const spacing = Math.max(12, Math.round(param(\"gridSize\", 22)));\n  const view = param(\"viewAngle\", 40);\n  curSpacing = spacing;\n  curView = view;\n  const k0 = p.map(view, 15, 70, 0.4, 0.92);\n  sNear = (W * 0.5 + MARGIN) / worldHalf;\n  Zmax = (bottomY - horizonY) * (1 + P) * worldHalf / ((W * 0.5 + MARGIN) * k0);\n  const rows = Math.max(24, Math.round((bottomY - horizonY) * (1 + P) / spacing));\n  dots = [];\n  for (let j = 0; j <= rows; j++) {\n    const t = j / rows;\n    const s = scaleAtT(t);\n    const y = yAtT(t);\n    if (y < horizonY + 1) continue;\n    const halfRow = (W * 0.5 + MARGIN) / s;\n    const step = Math.max(0.04, spacing / s);\n    for (let x = -halfRow; x <= halfRow; x += step) {\n      dots.push({ x: cx + x * s, y: y, s: s, t: t });\n    }\n  }\n}\n\nfunction spawnDrop() {\n  const x = p.random(-worldHalf * 0.85, worldHalf * 0.85);\n  const z = p.random(Zmax * 0.03, Zmax * 0.72);\n  const target = projectGround(x, z);\n  const duration = p.random(0.55, 1.15);\n  drops.push({\n    wx: x,\n    wz: z,\n    tx: target.x,\n    ty: target.y,\n    x: target.x + p.random(-16, 16),\n    y: p.random(-170, -30),\n    vy: (target.y + 80) / duration,\n    len: p.random(14, 40) * U,\n    hue: p.random(360),\n  });\n}\n\nfunction spawnRipple(x, z, hue) {\n  const reach = param(\"rippleReach\", 220) / 100;\n  const pt = projectGround(x, z);\n  ripples.push({\n    wx: x,\n    wz: z,\n    cx: pt.x,\n    cy: pt.y,\n    s: pt.s,\n    fp: pt.fp,\n    r: 0,\n    life: 1,\n    maxR: p.random(reach * 0.45, reach),\n    hue: hue,\n  });\n  if (ripples.length > MAX_RIPPLES) ripples.shift();\n}\n\np.setup = () => {\n  const w = p.container ? p.container.clientWidth : 800;\n  const h = p.container ? p.container.clientHeight : 800;\n  p.createCanvas(w, h);\n  p.colorMode(p.HSB, 360, 100, 100, 100);\n  p.noStroke();\n  buildScene();\n};\n\np.draw = () => {\n  const spacing = Math.max(12, Math.round(param(\"gridSize\", 22)));\n  const view = param(\"viewAngle\", 40);\n  if (spacing !== curSpacing || view !== curView) buildScene();\n\n  const speed = param(\"rippleSpeed\", 90) / 100;\n  const density = param(\"rainDensity\", 9);\n  const shift = param(\"colorShift\", 0);\n  const dt = Math.min(1 / 30, p.deltaTime / 1000);\n\n  // Smooth deep-water backdrop with a faint horizon sheen\n  const grad = p.drawingContext.createLinearGradient(0, 0, 0, H);\n  grad.addColorStop(0, 'rgb(7,9,20)');\n  grad.addColorStop(0.18, 'rgb(20,32,52)');\n  grad.addColorStop(0.205, 'rgb(9,16,30)');\n  grad.addColorStop(0.6, 'rgb(7,12,24)');\n  grad.addColorStop(1, 'rgb(5,8,16)');\n  p.drawingContext.fillStyle = grad;\n  p.drawingContext.fillRect(0, 0, W, H);\n  p.noStroke();\n\n  // Spawn raindrops\n  spawnAcc += density * dt;\n  while (spawnAcc >= 1) {\n    spawnAcc -= 1;\n    spawnDrop();\n  }\n\n  // Falling streaks\n  p.strokeWeight(1.4 * U);\n  p.stroke(200, 22, 98, 42);\n  for (let i = drops.length - 1; i >= 0; i--) {\n    const d = drops[i];\n    d.y += d.vy * dt;\n    if (d.y >= d.ty) {\n      spawnRipple(d.wx, d.wz, d.hue);\n      drops.splice(i, 1);\n      continue;\n    }\n    const x = p.lerp(d.tx, d.x, p.constrain((d.ty - d.y) / (d.ty + 80), 0, 1));\n    p.line(x, d.y, x, d.y - d.len);\n  }\n  p.noStroke();\n\n  // Expand ripples\n  for (let i = ripples.length - 1; i >= 0; i--) {\n    const rp = ripples[i];\n    rp.r += speed * dt;\n    rp.life = Math.max(0, 1 - rp.r / rp.maxR);\n    if (rp.r >= rp.maxR) ripples.splice(i, 1);\n  }\n\n  // Dot field lit by passing ripple rings\n  for (let k = 0; k < dots.length; k++) {\n    const dot = dots[k];\n    let best = 0;\n    let hue = 0;\n    for (let i = 0; i < ripples.length; i++) {\n      const rp = ripples[i];\n      const dx = (dot.x - rp.cx) / rp.s;\n      const dy = (dot.y - rp.cy) / rp.fp;\n      const D = Math.sqrt(dx * dx + dy * dy);\n      const band = 1.1 * spacing / rp.s;\n      const diff = Math.abs(D - rp.r);\n      if (diff > band) continue;\n      const w = (1 - diff / band) * rp.life;\n      if (w > best) {\n        best = w;\n        hue = (rp.hue + D * 22 + shift) % 360;\n      }\n    }\n    const depthFade = 1 - dot.t * 0.7;\n    if (best <= 0.02) {\n      p.fill(212, 40, p.lerp(9, 22, depthFade), 100);\n      p.circle(dot.x, dot.y, Math.max(1.2, dot.s * 0.04));\n    } else {\n      p.fill(hue, 82, 100, 100 * p.lerp(0.5, 1, depthFade));\n      p.circle(dot.x, dot.y, dot.s * (0.04 + best * 0.17));\n    }\n  }\n\n  // Additive ripple rings, projected so they read as ellipses on the plane\n  p.blendMode(p.ADD);\n  p.noFill();\n  const SEG = 48;\n  for (let i = 0; i < ripples.length; i++) {\n    const rp = ripples[i];\n    for (let ring = 0; ring < 3; ring++) {\n      const R = rp.r * (1 - ring * 0.22);\n      p.strokeWeight((2.0 + ring * 1.4) * (0.55 + 0.45 * rp.life));\n      p.stroke((rp.hue + shift + ring * 34 + 360) % 360, 62, 100, (20 - ring * 5) * rp.life);\n      p.beginShape();\n      for (let a = 0; a <= SEG; a++) {\n        const ang = (a / SEG) * p.TWO_PI;\n        const wx = rp.wx + R * Math.cos(ang);\n        const wz = Math.max(0.05, Math.min(Zmax, rp.wz + R * Math.sin(ang)));\n        const t = tFromZ(wz);\n        p.vertex(cx + wx * scaleAtT(t), yAtT(t));\n      }\n      p.endShape();\n    }\n  }\n  p.noStroke();\n  p.blendMode(p.BLEND);\n};\n\np.windowResized = () => {\n  if (p.container) {\n    p.resizeCanvas(p.container.clientWidth, p.container.clientHeight);\n    buildScene();\n  }\n};"
 }
