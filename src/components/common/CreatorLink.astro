@@ -19,4 +19,6 @@
   .creator-link-name { color: #e2e8f0; }
   .creator-link svg { width: 13px; height: 13px; color: #38bdf8; }
   @media (max-width: 480px) { .creator-link { right: 12px; bottom: 14px; padding: 8px 9px; } .creator-link-label { display: none; } }
+  /* Lift the creator link above the mobile "Live Parameters" toggle when present */
+  @media (max-width: 1023px) { body:has(#mobile-params-toggle-btn) .creator-link { bottom: 78px; } }
 </style>
