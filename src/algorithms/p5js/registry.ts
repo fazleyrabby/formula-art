@@ -513,6 +513,175 @@ p.windowResized = () => { if(p.container) p.resizeCanvas(p.container.clientWidth
     };
   }
 
+  if (slug === "rain-ripples-p5") {
+    return {
+      sketch: (p: any) => {
+        // Rain Ripples — colorful raindrops & expanding water ripples
+        // Inspired by Okazz (@okazz_) — https://x.com/okazz_/status/2100938132002914437
+        // Original p5.js implementation for Math Art.
+
+        let drops: any[] = [];
+        let ripples: any[] = [];
+        let dots: Array<{ x: number; y: number }> = [];
+        let cols = 0;
+        let rows = 0;
+        let curGrid = 16;
+        let spawnAcc = 0;
+        let baseHue = 0;
+        const MAX_RIPPLES = 48;
+
+        function param(key: string, fallback: number): number {
+          const pr = p.getParams ? p.getParams() : null;
+          const v = pr ? pr[key] : undefined;
+          return typeof v === "number" ? v : fallback;
+        }
+
+        function buildGrid(g: number) {
+          curGrid = g;
+          cols = Math.ceil(p.width / g) + 2;
+          rows = Math.ceil(p.height / g) + 2;
+          dots = [];
+          for (let j = 0; j < rows; j++) {
+            for (let i = 0; i < cols; i++) {
+              dots.push({ x: i * g, y: j * g });
+            }
+          }
+        }
+
+        function spawnDrop() {
+          const hue = (baseHue + p.random(-45, 45) + 360) % 360;
+          drops.push({
+            x: p.random(p.width),
+            y: p.random(-140, -20),
+            vy: p.random(5, 9) * Math.max(0.7, p.height / 800),
+            len: p.random(12, 34),
+            target: p.random(p.height * 0.1, p.height * 0.98),
+            hue: hue,
+          });
+        }
+
+        function spawnRipple(x: number, y: number, hue: number) {
+          const reach = param("rippleReach", 220);
+          ripples.push({
+            x: x,
+            y: y,
+            r: 0,
+            life: 1,
+            maxR: p.random(reach * 0.55, reach),
+            hue: hue,
+          });
+          if (ripples.length > MAX_RIPPLES) ripples.shift();
+        }
+
+        p.setup = () => {
+          const w = p.container ? p.container.clientWidth : 800;
+          const h = p.container ? p.container.clientHeight : 800;
+          p.createCanvas(w, h);
+          p.colorMode(p.HSB, 360, 100, 100, 100);
+          p.noStroke();
+          buildGrid(param("gridSize", 16));
+        };
+
+        p.draw = () => {
+          const speed = param("rippleSpeed", 90);
+          const density = param("rainDensity", 9);
+          const shift = param("colorShift", 0);
+          const g = Math.max(8, Math.round(param("gridSize", 16)));
+
+          if (g !== curGrid) buildGrid(g);
+
+          baseHue = (baseHue + 0.35) % 360;
+          const dt = Math.min(1 / 30, p.deltaTime / 1000);
+
+          p.background(228, 55, 6);
+          p.noStroke();
+
+          // Spawn raindrops
+          spawnAcc += density * dt;
+          while (spawnAcc >= 1) {
+            spawnAcc -= 1;
+            spawnDrop();
+          }
+
+          // Falling raindrop streaks
+          p.strokeWeight(1.4);
+          p.stroke(200, 25, 96, 42);
+          for (let i = drops.length - 1; i >= 0; i--) {
+            const d = drops[i];
+            d.y += d.vy;
+            if (d.y >= d.target) {
+              spawnRipple(d.x, d.target, d.hue);
+              drops.splice(i, 1);
+              continue;
+            }
+            p.line(d.x, d.y, d.x, d.y - d.len);
+          }
+          p.noStroke();
+
+          // Expand ripples
+          for (let i = ripples.length - 1; i >= 0; i--) {
+            const rp = ripples[i];
+            rp.r += speed * dt;
+            rp.life = Math.max(0, 1 - rp.r / rp.maxR);
+            if (rp.r >= rp.maxR) ripples.splice(i, 1);
+          }
+
+          // Dot field lit by passing ripple rings
+          const band = curGrid * 1.9;
+          for (let k = 0; k < dots.length; k++) {
+            const dot = dots[k];
+            let best = 0;
+            let hue = 0;
+
+            for (let i = 0; i < ripples.length; i++) {
+              const rp = ripples[i];
+              const dx = dot.x - rp.x;
+              const dy = dot.y - rp.y;
+              const dist2 = dx * dx + dy * dy;
+              const inner = rp.r - band;
+              const outer = rp.r + band;
+              if (dist2 > outer * outer) continue;
+              if (inner > 0 && dist2 < inner * inner) continue;
+              const dist = Math.sqrt(dist2);
+              const k2 = (1 - Math.abs(dist - rp.r) / band) * rp.life;
+              if (k2 > best) {
+                best = k2;
+                hue = (rp.hue + dist * 0.7 + shift) % 360;
+              }
+            }
+
+            if (best <= 0.02) {
+              p.fill(220, 30, 13, 100);
+              p.circle(dot.x, dot.y, Math.max(1.1, curGrid * 0.12));
+            } else {
+              p.fill(hue, 85, 100, 100);
+              p.circle(dot.x, dot.y, curGrid * (0.16 + best * 0.66));
+            }
+          }
+
+          // Additive glow band for each ripple
+          p.blendMode(p.ADD);
+          p.noFill();
+          p.strokeWeight(curGrid * 0.8);
+          for (let i = 0; i < ripples.length; i++) {
+            const rp = ripples[i];
+            p.stroke((rp.hue + shift + 360) % 360, 55, 100, 9 * rp.life);
+            p.circle(rp.x, rp.y, rp.r * 2);
+          }
+          p.noStroke();
+          p.blendMode(p.BLEND);
+        };
+
+        p.windowResized = () => {
+          if (p.container) {
+            p.resizeCanvas(p.container.clientWidth, p.container.clientHeight);
+            buildGrid(curGrid);
+          }
+        };
+      },
+    };
+  }
+
   return null;
 }
 
